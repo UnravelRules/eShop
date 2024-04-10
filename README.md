@@ -1,4 +1,5 @@
-eShop Projekt für das Modul "Objektorientierte Anwendungsentwicklung" im Semester 2.
+## E-Shop
+E-Shop Projekt für das Modul "Objektorientierte Anwendungsentwicklung" im Semester 2.
 
 Gruppenmitglieder:
 - Fabian Harjes
