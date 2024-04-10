@@ -15,4 +15,5 @@ public class Artikel {
     public int getArtikelnummer(){return artikelnummer;}
     public String getBezeichnung(){return bezeichnung;}
     public int getBestand(){return bestand;}
+    public void setBestand(int a){this.bestand = a;}
 }
