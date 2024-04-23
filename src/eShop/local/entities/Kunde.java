@@ -5,16 +5,11 @@ public class Kunde {
     private String name;
     private String strasse = "";
     private String plz = "";
-    private String benutzername;
-    private String passwort;
+    private final String benutzername;
+    private final String passwort;
+    private Warenkorb warenkorb;
 
 
-    public Kunde(int nummer, String name, String benutzer, String pw){
-        this.kundenNummer = nummer;
-        this.name = name;
-        this.benutzername = benutzer;
-        this.passwort = pw;
-    }
     public Kunde(int nummer, String name, String str, String plz, String benutzer, String pw){
         this.kundenNummer = nummer;
         this.name = name;

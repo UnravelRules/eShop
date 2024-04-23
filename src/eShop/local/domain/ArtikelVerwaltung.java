@@ -5,7 +5,7 @@ import eShop.local.entities.Artikel;
 import java.util.ArrayList;
 
 public class ArtikelVerwaltung {
-    ArrayList artikelBestand = new ArrayList();
+    ArrayList<Artikel> artikelBestand = new ArrayList<Artikel>();
 
     public void anlegen(Artikel artikel){
         if(artikelBestand.contains(artikel)){
@@ -25,19 +25,18 @@ public class ArtikelVerwaltung {
         artikel.setBestand(anzahl);
     }
 
-    public ArrayList artikelSuchen(String bezeichnung){
-        ArrayList suchergebnisse = new ArrayList();
+    public ArrayList<Artikel> artikelSuchen(String bezeichnung){
+        ArrayList<Artikel> suchergebnisse = new ArrayList<Artikel>();
 
-        for (Object a : artikelBestand) {
-            Artikel artikel = (Artikel) a;
-            if (artikel.getBezeichnung().equals(bezeichnung)) {
-                suchergebnisse.add(artikel);
+        for (Artikel a : artikelBestand) {
+            if (a.getBezeichnung().equals(bezeichnung)) {
+                suchergebnisse.add(a);
             }
         }
         return suchergebnisse;
     }
 
-    public ArrayList getArtikelBestand(){
-        return new ArrayList(artikelBestand);
+    public ArrayList<Artikel> getArtikelBestand(){
+        return new ArrayList<Artikel>(artikelBestand);
     }
 }
