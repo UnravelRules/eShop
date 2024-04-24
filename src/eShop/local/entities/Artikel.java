@@ -10,7 +10,7 @@ public class Artikel {
     private int bestand;
     private int preis;
 
-    public Artikel(int artikelNr, String bezeichnung, int bestand, int preis) {
+    public Artikel(int artikelNr, String bezeichnung, int bestand, double preis) {
         this.artikelnummer = artikelNr;
         this.bezeichnung = bezeichnung;
         this.bestand = bestand;
@@ -19,7 +19,7 @@ public class Artikel {
 
 /** Artikelnummer des Artikels.
  * */
-    public int getArtikelnummer(int artikelnummer) {
+    public int getArtikelnummer() {
 
         return artikelnummer;
     }
@@ -42,7 +42,7 @@ public class Artikel {
 
     /** Preis des Artikels. es konnte wegen die kommazahlen double oder float genommen werden statt integer :).
      * */
-    public int getPreis() {
+    public double getPreis() {
         return preis;
     }
 
