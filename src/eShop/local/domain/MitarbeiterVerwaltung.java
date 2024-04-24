@@ -9,19 +9,34 @@ import java.util.ArrayList;
 public class MitarbeiterVerwaltung {
     private ArrayList<Mitarbeiter> registrierteMitarbeiter = new ArrayList<Mitarbeiter>();
 
+    /**
+     * Methode zum Registrieren von Mitarbeitern
+     *
+     * @param nummer Mitarbeiternummer des neuen Mitarbeiters
+     * @param name Name des neuen Mitarbeiters
+     * @param benutzername Benutzername des neuen Mitarbeiters
+     * @param passwort Passwort des neuen Mitarbeiters
+     *
+     * @throws MitarbeiterExistiertBereitsException
+     * */
     public Mitarbeiter registrieren(int nummer,String name, String benutzername, String passwort) throws MitarbeiterExistiertBereitsException {
-        for(Mitarbeiter aktuellerMitarbeiter: this.registrierteMitarbeiter){
-            if((benutzername.equals(aktuellerMitarbeiter.getBenutzername()) || nummer==aktuellerMitarbeiter.getMitarbeiterNummer())) {
-                throw new MitarbeiterExistiertBereitsException();
-            }
-        }
         Mitarbeiter neuerMitarbeiter = new Mitarbeiter(nummer, name, benutzername, passwort);
-        this.registrierteMitarbeiter.add(neuerMitarbeiter);
+        if(registrierteMitarbeiter.contains(neuerMitarbeiter)){
+            throw new MitarbeiterExistiertBereitsException();
+        }
+        registrierteMitarbeiter.add(neuerMitarbeiter);
         return neuerMitarbeiter;
     }
 
+    /**
+     * Methode zum Anmelden eines Mitarbeiters
+     *
+     * @param benutzername Benutzername des einloggenden Mitarbeiters
+     * @param passwort Passwort des einloggenden Mitarbeiters
+     * @throws MitarbeiterExistiertNichtException Falls der Mitarbeiter nicht existiert
+     */
     public  Mitarbeiter anmelden(String benutzername, String passwort) throws MitarbeiterExistiertNichtException {
-        for(Mitarbeiter aktuellerMitarbeiter: this.registrierteMitarbeiter){
+        for(Mitarbeiter aktuellerMitarbeiter: registrierteMitarbeiter){
             if(benutzername.equals(aktuellerMitarbeiter.getBenutzername()) && (passwort.equals(aktuellerMitarbeiter.getPasswort()))){
                 return aktuellerMitarbeiter;
             }
