@@ -8,6 +8,11 @@ import java.util.ArrayList;
 
 public class MitarbeiterVerwaltung {
     private ArrayList<Mitarbeiter> registrierteMitarbeiter = new ArrayList<Mitarbeiter>();
+    // NUR ZUM TESTEN (brauchen einen Mitarbeiter, um als Mitarbeiter anzumelden & neue Mitarbeiter anzulegen)
+    public MitarbeiterVerwaltung(){
+        Mitarbeiter m = new Mitarbeiter(01, "Fabian", "fharjes", "ekb");
+        registrierteMitarbeiter.add(m);
+    }
 
     /**
      * Methode zum Registrieren von Mitarbeitern
