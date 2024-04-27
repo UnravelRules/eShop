@@ -8,7 +8,7 @@ public class Artikel {
     private int artikelnummer;
     private String bezeichnung;
     private int bestand;
-    private int preis;
+    private double preis;
 
     public Artikel(int artikelNr, String bezeichnung, int bestand, double preis) {
         this.artikelnummer = artikelNr;

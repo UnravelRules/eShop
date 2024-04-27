@@ -1,6 +1,7 @@
 package eShop.local.domain;
 
 import eShop.local.domain.exceptions.KundeExistiertBereitsException;
+import eShop.local.domain.exceptions.KundeExistiertNichtException;
 import eShop.local.entities.Kunde;
 
 import java.util.ArrayList;
@@ -23,7 +24,14 @@ public class KundenVerwaltung {
     }
 
     // ein bestehender Kunde kann sich mit seinen Daten einloggen
-    public void login(){}
+    public Kunde login(String benutzername, String passwort) throws KundeExistiertNichtException {
+        for (Kunde k : kundenliste){
+            if(k.getBenutzername().equals(benutzername) && k.getPasswort().equals(passwort)){
+                return k;
+            }
+        }
+        throw new KundeExistiertNichtException();
+    }
 
     public ArrayList<Kunde> getKundenliste(){
         return new ArrayList<Kunde>(kundenliste);

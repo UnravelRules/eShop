@@ -1,6 +1,10 @@
 package eShop.local.ui.cui;
 import eShop.local.domain.eShop;
 import eShop.local.domain.exceptions.KundeExistiertBereitsException;
+import eShop.local.domain.exceptions.KundeExistiertNichtException;
+import eShop.local.domain.exceptions.MitarbeiterExistiertNichtException;
+import eShop.local.entities.Kunde;
+import eShop.local.entities.Mitarbeiter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +29,6 @@ public class ShopClientCUI {
         System.out.print("         \n  ---------------------");
         System.out.println("         \n  Beenden:        'q'");
         System.out.print("> "); // Prompt
-        System.out.flush(); // ohne NL ausgeben
     }
 
     private String liesEingabe() throws IOException {
@@ -34,17 +37,17 @@ public class ShopClientCUI {
     }
 
     // Eingabe der Anmeldung verarbeiten, dann je nach Eingabe prüfen und in neues Menü weiterleiten
-    private void anmeldungVerarbeiten(String line) throws IOException{
+    private int anmeldungVerarbeiten(String line) throws IOException{
         switch(line){
             case "r":
                 gibRegistrierenmenueAus();
                 break;
             case "k":
-                gibKundenloginAus();
-                break;
+                return gibKundenloginAus();
             case "m":
-                mitarbeiterEinloggen();
+                return mitarbeiterEinloggen();
         }
+        return 0;
     }
 
     // Menue zum Registrieren eines neuen Kunden
@@ -61,21 +64,43 @@ public class ShopClientCUI {
         String passwort = liesEingabe();
 
         try{
-            eshop.kundenAnlegen(name, strasse, plz, benutzername, passwort);
+            Kunde k = eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
+            System.out.println("Herzlich willkommen, Herr / Frau " + k.getName());
         } catch (KundeExistiertBereitsException e) {
             System.out.println("Fehler beim Registrieren");
             e.printStackTrace();
         }
-        //System.out.println("Herzlich willkommen, Herr / Frau " + kunde.getName());
     }
-    public void gibKundenloginAus() throws IOException {
+    public int gibKundenloginAus() throws IOException {
         System.out.print("Benutzername: ");
         String benutzername = liesEingabe();
         System.out.print("Passwort: ");
         String passwort = liesEingabe();
-
+        try{
+            Kunde k = eshop.kundeEinloggen(benutzername, passwort);
+            System.out.println("Willkommen zurück, " + k.getName());
+            return 1;
+        } catch(KundeExistiertNichtException e){
+            System.out.println("Fehler beim Einloggen");
+            e.printStackTrace();
+            return 0;
+        }
     }
-    public void mitarbeiterEinloggen(){}
+    public int mitarbeiterEinloggen() throws IOException {
+        System.out.print("Benutzername: ");
+        String benutzername = liesEingabe();
+        System.out.print("Passwort: ");
+        String passwort = liesEingabe();
+        try{
+            Mitarbeiter m = eshop.mitarbeiterEinloggen(benutzername, passwort);
+            System.out.println("Willkommen zurück, " + m.getName());
+            return 2;
+        } catch(MitarbeiterExistiertNichtException e){
+            System.out.println("Fehler beim Einloggen");
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
     // alle Optionen für einen Kunden, bspw. Artikel in Warenkorb hinzufügen, Warenkorb kaufen usw.
     private void kundenMenue(){
@@ -83,9 +108,8 @@ public class ShopClientCUI {
         System.out.print("         \n  Ein Artikel in den Warenkorb hinzufügen: 'h'");
         System.out.print("         \n  Produkte im Warenkorb kaufen: 'k'");
         System.out.print("         \n  ---------------------");
-        System.out.println("         \n  Beenden:        'q'");
+        System.out.println("         \n  Ausloggen:        'a'");
         System.out.print("> "); // Prompt
-        System.out.flush(); // ohne NL ausgeben
     }
 
     // alle Optionen für einen Mitarbeiter, bspw. neue Artikel anlegen, Bestand ändern, neuen Mitarbeiter anlegen usw.
@@ -100,19 +124,41 @@ public class ShopClientCUI {
         System.out.print("         \n  ---------------------");
         System.out.println("         \n  Beenden:        'q'");
         System.out.print("> "); // Prompt
-        System.out.flush(); // ohne NL ausgeben
     }
 
     public void run(){
         String input = "";
+        int benutzertyp = 0;
 
         do {
             gibAnmeldemenueAus();
             try{
                 input = liesEingabe();
-                anmeldungVerarbeiten(input);
+                benutzertyp = anmeldungVerarbeiten(input);
             } catch(IOException e){
                 e.printStackTrace();
+            }
+            if(benutzertyp == 1){
+                do{
+                    kundenMenue();
+                    try{
+                        input = liesEingabe();
+
+                    } catch (IOException e){
+                        e.printStackTrace();
+                    }
+                } while(!input.equals("a"));
+
+            } else if(benutzertyp == 2){
+                do{
+                    mitarbeiterMenue();
+                    try{
+                        input = liesEingabe();
+
+                    } catch (IOException e){
+                        e.printStackTrace();
+                    }
+                } while (!input.equals("a"));
             }
         } while (!input.equals("q"));
     }
