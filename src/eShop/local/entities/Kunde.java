@@ -1,5 +1,7 @@
 package eShop.local.entities;
 
+import java.util.Objects;
+
 public class Kunde {
     private int kundenNummer;
     private String name;
@@ -25,4 +27,17 @@ public class Kunde {
     public String getPlz(){return plz;}
     public String getBenutzername(){return benutzername;}
     public String getPasswort(){return passwort;}
+
+    @Override
+    public boolean equals(Object anderesObjekt) {
+        if (anderesObjekt instanceof Kunde andererKunde) {
+            return this.benutzername.equals(andererKunde.benutzername);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(benutzername);
+    }
 }
