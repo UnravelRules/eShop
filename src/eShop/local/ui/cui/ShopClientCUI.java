@@ -65,7 +65,7 @@ public class ShopClientCUI {
 
         try{
             Kunde k = eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
-            System.out.println("Herzlich willkommen, Herr / Frau " + k.getName());
+            System.out.println("Herzlich Willkommen, " + k.getName());
         } catch (KundeExistiertBereitsException e) {
             System.out.println("Fehler beim Registrieren");
             e.printStackTrace();
@@ -122,7 +122,7 @@ public class ShopClientCUI {
         System.out.print("         \n  Mitarbeiter anlegen: 'k'");
         System.out.print("         \n  Mitarbeiter entfernen: 'k'");
         System.out.print("         \n  ---------------------");
-        System.out.println("         \n  Beenden:        'q'");
+        System.out.println("         \n  Ausloggen:        'a'");
         System.out.print("> "); // Prompt
     }
 

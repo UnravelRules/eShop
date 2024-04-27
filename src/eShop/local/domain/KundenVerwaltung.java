@@ -18,7 +18,6 @@ public class KundenVerwaltung {
             throw new KundeExistiertBereitsException();
         } else {
             kundenliste.add(kunde);
-            System.out.println(kundenliste);
             return kunde;
         }
     }
