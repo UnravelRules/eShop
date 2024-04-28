@@ -1,11 +1,9 @@
 package eShop.local.domain;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
+import eShop.local.domain.exceptions.ArtikelExistiertBereitsException;
 import eShop.local.entities.Artikel;
-import eShop.local.entities.Mitarbeiter;
-import eShop.local.entities.Kunde;
 
 /** in der Artikel-Verwaltung sollte
  * Artikel Hinzufügen, Artikel Löschen, Artikel Aktualisieren und Artikel Suchen platziert werden.
@@ -13,10 +11,9 @@ import eShop.local.entities.Kunde;
 public class ArtikelVerwaltung {
     ArrayList<Artikel> artikelBestand = new ArrayList<Artikel>();
 
-    public void artikelHinzufuegen(Artikel artikel) {
+    public void artikelHinzufuegen(Artikel artikel) throws ArtikelExistiertBereitsException {
         if(artikelBestand.contains(artikel)) {
-            System.out.println("Artikel existiert bereits!");
-            // statt print eine Exception thrown
+            throw new ArtikelExistiertBereitsException();
         }
 
         artikelBestand.add(artikel);

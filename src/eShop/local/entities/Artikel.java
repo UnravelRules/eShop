@@ -8,13 +8,17 @@ public class Artikel {
     private int artikelnummer;
     private String bezeichnung;
     private int bestand;
-    private double preis;
+    private float preis;
 
-    public Artikel(int artikelNr, String bezeichnung, int bestand, double preis) {
+    public Artikel(int artikelNr, String bezeichnung, int bestand, float preis) {
         this.artikelnummer = artikelNr;
         this.bezeichnung = bezeichnung;
         this.bestand = bestand;
         this.preis = preis;
+    }
+
+    public String toString(){
+        return("Nr: " + artikelnummer + " / Bezeichnung: " + bezeichnung + " / Bestand: " + bestand + " Stk. / Preis: " + preis + "€");
     }
 
 /** Artikelnummer des Artikels.
@@ -42,7 +46,7 @@ public class Artikel {
 
     /** Preis des Artikels. es konnte wegen die kommazahlen double oder float genommen werden statt integer :).
      * */
-    public double getPreis() {
+    public float getPreis() {
         return preis;
     }
 

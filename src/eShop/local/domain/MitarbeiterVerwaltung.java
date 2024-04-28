@@ -10,7 +10,7 @@ public class MitarbeiterVerwaltung {
     private ArrayList<Mitarbeiter> registrierteMitarbeiter = new ArrayList<Mitarbeiter>();
     // NUR ZUM TESTEN (brauchen einen Mitarbeiter, um als Mitarbeiter anzumelden & neue Mitarbeiter anzulegen)
     public MitarbeiterVerwaltung(){
-        Mitarbeiter m = new Mitarbeiter(01, "Fabian", "fharjes", "ekb");
+        Mitarbeiter m = new Mitarbeiter(1, "Fabian", "fharjes", "ekb");
         registrierteMitarbeiter.add(m);
     }
 
