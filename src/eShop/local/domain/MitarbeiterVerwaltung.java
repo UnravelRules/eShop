@@ -24,7 +24,7 @@ public class MitarbeiterVerwaltung {
      *
      * @throws MitarbeiterExistiertBereitsException
      * */
-    public Mitarbeiter registrieren(int nummer,String name, String benutzername, String passwort) throws MitarbeiterExistiertBereitsException {
+    public Mitarbeiter registrieren(int nummer, String name, String benutzername, String passwort) throws MitarbeiterExistiertBereitsException {
         Mitarbeiter neuerMitarbeiter = new Mitarbeiter(nummer, name, benutzername, passwort);
         if(registrierteMitarbeiter.contains(neuerMitarbeiter)){
             throw new MitarbeiterExistiertBereitsException();
@@ -49,4 +49,7 @@ public class MitarbeiterVerwaltung {
         throw new MitarbeiterExistiertNichtException();
     }
 
+    public void entfernen(String benutzername){
+        registrierteMitarbeiter.removeIf(m -> m.getBenutzername().equals(benutzername));
+    }
 }

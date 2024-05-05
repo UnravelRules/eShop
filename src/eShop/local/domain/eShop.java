@@ -33,10 +33,22 @@ public class eShop {
         return mitarbeiterVW.registrieren(nummer, name, benutzer, passwort);
     }
 
+    public void mitarbeiterEntfernen(String benutzername){
+        mitarbeiterVW.entfernen(benutzername);
+    }
+
     public Artikel artikelAnlegen(int nummer, String bezeichnung, int bestand, float preis) throws ArtikelExistiertBereitsException {
         Artikel a = new Artikel(nummer, bezeichnung, bestand, preis);
         artikelVW.artikelHinzufuegen(a);
         return a;
+    }
+
+    public ArrayList<Artikel> artikelSuchen(String bezeichnung) {
+        return artikelVW.artikelSuchen(bezeichnung);
+    }
+
+    public void artikelEntfernen(int nummer, String bezeichnung) {
+        artikelVW.artikelEntfernen(nummer, bezeichnung);
     }
 
     public ArrayList<Artikel> gibAlleArtikel(){

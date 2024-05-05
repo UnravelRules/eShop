@@ -8,6 +8,7 @@ import eShop.local.entities.Mitarbeiter;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.Array;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,10 +118,18 @@ public class ShopClientCUI {
         System.out.print("> "); // Prompt
     }
 
-    private void kundeneingabeVerarbeiten(String line){
+    private void kundeneingabeVerarbeiten(String line) throws IOException {
         switch(line) {
             case "s":
-                // Befehle
+                System.out.println("Bezeichnung des Artikels: ");
+                String input = liesEingabe();
+                List<Artikel> artikelListe = eshop.artikelSuchen(input);
+                if(artikelListe.isEmpty()){
+                    System.out.println("Keine Artikel mit dieser Bezeichnung gefunden!");
+                    break;
+                }
+                gibArtikelListeAus(artikelListe);
+                break;
             case "h":
                 // Befehle
             case "k":
@@ -143,12 +152,14 @@ public class ShopClientCUI {
     }
 
     private void mitarbeitereingabeVerarbeiten(String line) throws IOException {
+        List<Artikel> artikelListe;
+        String bezeichnung;
         switch(line) {
             case "n":
                 System.out.println("Artikelnummer: ");
                 int artikelNummer = Integer.parseInt(liesEingabe());
                 System.out.println("Bezeichnung: ");
-                String bezeichnung = liesEingabe();
+                bezeichnung = liesEingabe();
                 System.out.println("Bestand des Artikels: ");
                 int bestand = Integer.parseInt(liesEingabe());
                 System.out.println("Preis des Artikels: ");
@@ -163,24 +174,33 @@ public class ShopClientCUI {
                 }
 
             case "p":
-                List<Artikel> artikelListe = eshop.gibAlleArtikel();
-                if(artikelListe.isEmpty()) {
-                    System.out.println("Keine Artikel vorhanden");
-                } else {
-                    for(Artikel a : artikelListe) {
-                        System.out.println(a);
-                    }
-                }
+                artikelListe = eshop.gibAlleArtikel();
+                gibArtikelListeAus(artikelListe);
                 break;
 
             case "s":
-                // Befehle
+                System.out.println("Bezeichnung des Artikels: ");
+                String input = liesEingabe();
+                artikelListe = eshop.artikelSuchen(input);
+                if(artikelListe.isEmpty()){
+                    System.out.println("Keine Artikel mit dieser Bezeichnung gefunden!");
+                    break;
+                }
+                gibArtikelListeAus(artikelListe);
+                break;
 
             case "e":
-                // Befehle
+                System.out.println("Nummer des Artikels: ");
+                int nummer = Integer.parseInt(liesEingabe());
+                System.out.println("Bezeichnung des Artikels: ");
+                bezeichnung = liesEingabe();
+                eshop.artikelEntfernen(nummer, bezeichnung);
+
+                break;
 
             case "b":
                 // befehle
+                break;
 
             case "m":
                 System.out.println("Mitarbeiternummer: ");
@@ -199,9 +219,23 @@ public class ShopClientCUI {
                     System.out.println("Mitarbeiter existiert bereits!");
                     e.printStackTrace();
                 }
+                break;
 
             case "d":
-                // Befehle
+                System.out.print("Benutzername des Mitarbeiters, der gelöscht werden soll: ");
+                String mitarbeiter = liesEingabe();
+                eshop.mitarbeiterEntfernen(mitarbeiter);
+                break;
+        }
+    }
+
+    private void gibArtikelListeAus(List<Artikel> artikelListe){
+        if(artikelListe.isEmpty()) {
+            System.out.println("Keine Artikel vorhanden");
+        } else {
+            for(Artikel a : artikelListe) {
+                System.out.println(a);
+            }
         }
     }
 
@@ -232,7 +266,7 @@ public class ShopClientCUI {
                     kundenMenue();
                     try{
                         input = liesEingabe();
-
+                        kundeneingabeVerarbeiten(input);
                     } catch (IOException e){
                         e.printStackTrace();
                     }

@@ -21,8 +21,8 @@ public class ArtikelVerwaltung {
 
 
     // Methode zum Löschen des Artikel aus der Liste.
-    public void artikelEntfernen(Artikel artikel) {
-        artikelBestand.remove(artikel);
+    public void artikelEntfernen(int nummer, String bezeichnung) {
+        artikelBestand.removeIf(a -> a.getArtikelnummer() == nummer && a.getBezeichnung().equals(bezeichnung));
     }
 
     // Methode zum Update des Artikels in der Liste.
