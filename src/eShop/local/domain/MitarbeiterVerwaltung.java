@@ -11,7 +11,9 @@ public class MitarbeiterVerwaltung {
     // NUR ZUM TESTEN (brauchen einen Mitarbeiter, um als Mitarbeiter anzumelden & neue Mitarbeiter anzulegen)
     public MitarbeiterVerwaltung(){
         Mitarbeiter m = new Mitarbeiter(1, "Fabian", "fharjes", "ekb");
+        Mitarbeiter j = new Mitarbeiter(2, "Jan", "jsteinmueller", "admin");
         registrierteMitarbeiter.add(m);
+        registrierteMitarbeiter.add(j);
     }
 
     /**

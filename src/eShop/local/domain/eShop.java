@@ -43,6 +43,10 @@ public class eShop {
         return a;
     }
 
+    public void bestandAendern(int artikel_nummer, int neuer_bestand) throws ArtikelExistiertNichtException{
+        int ret_neuer_bestand = artikelVW.bestandAendern(artikel_nummer, neuer_bestand);
+
+    }
     public ArrayList<Artikel> artikelSuchen(String bezeichnung) {
         return artikelVW.artikelSuchen(bezeichnung);
     }

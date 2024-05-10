@@ -42,14 +42,4 @@ public class Mitarbeiter {
         return Objects.hash(benutzername);
     }
 
-    public void artikelHinzufuegen(int nummer, String bezeichnung, int bestand, int preis){
-        Artikel artikel = new Artikel(nummer, bezeichnung, bestand, preis);
-        // Ueberpruefen ob Arktikel bereits existiert
-        // Artikel zum Bestand hinzufügen
-    }
-
-    public void bestandAendern(int nummer, int neuerBestand){
-            //Artikel in Bestand suchen
-            //Bestand aendern
-    }
 }

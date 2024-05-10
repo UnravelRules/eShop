@@ -3,6 +3,7 @@ package eShop.local.domain;
 import java.util.ArrayList;
 
 import eShop.local.domain.exceptions.ArtikelExistiertBereitsException;
+import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
 import eShop.local.entities.Artikel;
 
 /** in der Artikel-Verwaltung sollte
@@ -19,7 +20,16 @@ public class ArtikelVerwaltung {
         artikelBestand.add(artikel);
     }
 
-
+    public int bestandAendern(int artikel_nummer, int neuer_bestand) throws ArtikelExistiertNichtException {
+        for (Artikel bestand_item : artikelBestand){
+            if (bestand_item.getArtikelnummer() == artikel_nummer){
+                bestand_item.setBestand(neuer_bestand);
+                return bestand_item.getBestand();
+            }
+        }
+        // Falls kein Artikel mit der Nummer gefunden wird
+        throw new ArtikelExistiertNichtException();
+    }
     // Methode zum Löschen des Artikel aus der Liste.
     public void artikelEntfernen(int nummer, String bezeichnung) {
         artikelBestand.removeIf(a -> a.getArtikelnummer() == nummer && a.getBezeichnung().equals(bezeichnung));

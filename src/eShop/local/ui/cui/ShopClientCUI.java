@@ -199,7 +199,19 @@ public class ShopClientCUI {
                 break;
 
             case "b":
-                // befehle
+                System.out.println("Nummer des Artikels: ");
+                int a_nummer = Integer.parseInt(liesEingabe());
+                System.out.println("Neuer Bestand:");
+                int n_bestand = Integer.parseInt(liesEingabe());
+                String ausgabe = "";
+                try {
+                    eshop.bestandAendern(a_nummer, n_bestand);
+                    ausgabe = String.format("Bestand von Artikel %d auf %d gesetzt", a_nummer, n_bestand);
+
+                } catch (ArtikelExistiertNichtException exception) {
+                    ausgabe = String.format("Artikel mit Nummer %d konnte nicht gefunden werden", a_nummer);
+                }
+                System.out.println(ausgabe);
                 break;
 
             case "m":
