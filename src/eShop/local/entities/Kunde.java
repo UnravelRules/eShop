@@ -1,5 +1,6 @@
 package eShop.local.entities;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 public class Kunde {
@@ -19,6 +20,7 @@ public class Kunde {
         this.plz = plz;
         this.benutzername = benutzer;
         this.passwort = pw;
+        this.warenkorb = new Warenkorb();
     }
 
     public int getKundenNummer(){return kundenNummer;}
@@ -27,6 +29,9 @@ public class Kunde {
     public String getPlz(){return plz;}
     public String getBenutzername(){return benutzername;}
     public String getPasswort(){return passwort;}
+    public Warenkorb getWarenkorb() {
+        return warenkorb;
+    }
 
     @Override
     public boolean equals(Object anderesObjekt) {

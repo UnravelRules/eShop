@@ -11,6 +11,14 @@ import eShop.local.entities.Artikel;
  * */
 public class ArtikelVerwaltung {
     ArrayList<Artikel> artikelBestand = new ArrayList<Artikel>();
+    public ArtikelVerwaltung(){
+        Artikel a1 = new Artikel(1, "Banane", 20, 1.99F);
+        Artikel a2 = new Artikel(2, "Apfel", 13, 1.30F);
+        Artikel a3 = new Artikel(3, "Birne", 7, 0.99F);
+        artikelBestand.add(a1);
+        artikelBestand.add(a2);
+        artikelBestand.add(a3);
+    }
 
     public void artikelHinzufuegen(Artikel artikel) throws ArtikelExistiertBereitsException {
         if(artikelBestand.contains(artikel)) {
@@ -33,21 +41,6 @@ public class ArtikelVerwaltung {
     // Methode zum Löschen des Artikel aus der Liste.
     public void artikelEntfernen(int nummer, String bezeichnung) {
         artikelBestand.removeIf(a -> a.getArtikelnummer() == nummer && a.getBezeichnung().equals(bezeichnung));
-    }
-
-    // Methode zum Update des Artikels in der Liste.
-    public void artikelAktualisieren(Artikel artikel, int neuerBestand, String neueBezeichnung) {
-
-/**den Bestand eines Artikels verändern oder aktualisieren
- * ich konnte noch nicht lösen */
-
-/*        for (artikel : artikelBestand) {
-            if (artikel.getArtikelnummer() == artikel.getArtikelnummer)
-                artikel.setBestand(neuerBestand);
-            artikel.setBezeichnung(neueBezeichnung);
-        }*/
-
-
     }
 
     // Methode zum Suchen einen Artikel in der Liste.

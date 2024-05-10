@@ -4,18 +4,22 @@ import eShop.local.domain.exceptions.*;
 import eShop.local.entities.Artikel;
 import eShop.local.entities.Kunde;
 import eShop.local.entities.Mitarbeiter;
+import eShop.local.entities.Warenkorb;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class eShop {
     private KundenVerwaltung kundenVW;
     private MitarbeiterVerwaltung mitarbeiterVW;
     private ArtikelVerwaltung artikelVW;
+    private ShoppingService shoppingService;
 
     public eShop(){
         kundenVW = new KundenVerwaltung();
         mitarbeiterVW = new MitarbeiterVerwaltung();
         artikelVW = new ArtikelVerwaltung();
+        shoppingService = new ShoppingService();
     }
 
     public Kunde kundeRegistrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException {
@@ -57,5 +61,14 @@ public class eShop {
 
     public ArrayList<Artikel> gibAlleArtikel(){
         return artikelVW.getArtikelBestand();
+    }
+
+    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde){
+        shoppingService.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
+    }
+
+    public void warenkorbLeeren(Kunde aktuellerKunde){
+        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
+        shoppingService.warenkorbLeeren(warenkorb);
     }
 }

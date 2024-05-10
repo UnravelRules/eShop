@@ -4,6 +4,7 @@ import eShop.local.domain.exceptions.*;
 import eShop.local.entities.Artikel;
 import eShop.local.entities.Kunde;
 import eShop.local.entities.Mitarbeiter;
+import eShop.local.entities.Warenkorb;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +12,9 @@ import java.io.InputStreamReader;
 import java.sql.Array;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -23,6 +26,7 @@ import java.util.List;
 public class ShopClientCUI {
     private eShop eshop = new eShop();
     private BufferedReader in;
+    private Kunde aktuellerKunde;
 
     // Konstruktor (Datei als Parameter geben, BufferedReader)
     public ShopClientCUI(){
@@ -61,6 +65,7 @@ public class ShopClientCUI {
                 try{
                     Kunde k = eshop.kundeEinloggen(kundeBenutzername, kundePasswort);
                     System.out.println("Willkommen zurück, " + k.getName());
+                    aktuellerKunde = k;
                     return 1;
                 } catch(KundeExistiertNichtException e){
                     System.out.println("Fehler beim Einloggen");
@@ -111,8 +116,11 @@ public class ShopClientCUI {
     // alle Optionen für einen Kunden, bspw. Artikel in Warenkorb hinzufügen, Warenkorb kaufen usw.
     private void kundenMenue(){
         System.out.print("Befehle: \n  Ein Artikel suchen:  's'");
+        System.out.print("         \n  Alle Artikel ausgeben: 'p'");
         System.out.print("         \n  Ein Artikel in den Warenkorb hinzufügen: 'h'");
+        System.out.print("         \n  Warenkorb anzeigen: 'w'");
         System.out.print("         \n  Produkte im Warenkorb kaufen: 'k'");
+        System.out.print("         \n  Warenkorb leeren: 'l'");
         System.out.print("         \n  ---------------------");
         System.out.println("         \n  Ausloggen:        'a'");
         System.out.print("> "); // Prompt
@@ -130,10 +138,25 @@ public class ShopClientCUI {
                 }
                 gibArtikelListeAus(artikelListe);
                 break;
+            case "p":
+                artikelListe = eshop.gibAlleArtikel();
+                gibArtikelListeAus(artikelListe);
+                break;
             case "h":
-                // Befehle
+                System.out.println("Artikelnummer: ");
+                int artikelnummer = Integer.parseInt(liesEingabe());
+                System.out.println("Wie viel?");
+                int anzahl = Integer.parseInt(liesEingabe());
+                eshop.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
+                break;
+            case "w":
+                eshop.warenkorbLeeren(aktuellerKunde);
+                break;
             case "k":
                 // Befehle
+            case "l":
+                aktuellerKunde.getWarenkorb().getHashmap().clear();
+                break;
         }
     }
 
@@ -251,13 +274,21 @@ public class ShopClientCUI {
         }
     }
 
+    private void gibWarenkorbAus(HashMap<Artikel, Integer> warenkorb){
+        for (Map.Entry<Artikel, Integer> eingabe : warenkorb.entrySet()){
+            Artikel a = eingabe.getKey();
+            int anzahl = eingabe.getValue();
+            System.out.println("Bezeichnung: " + a.getBezeichnung() + ", Anzahl: " + anzahl + ", Preis: " + a.getPreis());
+        }
+    }
+
     /**
      * Methode zur Ausführung der Hauptschleife:
      * - Menü ausgeben
      * - Eingabe des Benutzers einlesen
      * - Eingabe verarbeiten und basierend darauf ein weiteres Menü ausgeben
-     * (sorgt also dafür, dass ein Kunde nach dem Login ins Kundenmenü weitergeleitet wird,
-     * bzw. ein Mitarbeiter ins Mitarbeitermenü weitergeleitet wird)
+     * (sorgt also dafür, dass ein Kunde (Identifier: 1) nach dem Login ins Kundenmenü weitergeleitet wird,
+     * bzw. ein Mitarbeiter (Identifier: 2) ins Mitarbeitermenü weitergeleitet wird)
      * @author Fabian
      */
 
