@@ -1,10 +1,7 @@
 package eShop.local.ui.cui;
 import eShop.local.domain.eShop;
 import eShop.local.domain.exceptions.*;
-import eShop.local.entities.Artikel;
-import eShop.local.entities.Kunde;
-import eShop.local.entities.Mitarbeiter;
-import eShop.local.entities.Warenkorb;
+import eShop.local.entities.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -126,7 +123,7 @@ public class ShopClientCUI {
         System.out.print("> "); // Prompt
     }
 
-    private void kundeneingabeVerarbeiten(String line) throws IOException {
+    private void kundeneingabeVerarbeiten(String line) throws IOException, ArtikelExistiertNichtException {
         switch(line) {
             case "s":
                 System.out.println("Bezeichnung des Artikels: ");
@@ -143,19 +140,20 @@ public class ShopClientCUI {
                 gibArtikelListeAus(artikelListe);
                 break;
             case "h":
-                System.out.println("Artikelnummer: ");
+                System.out.print("Artikelnummer: ");
                 int artikelnummer = Integer.parseInt(liesEingabe());
-                System.out.println("Wie viel?");
+                System.out.print("Wie viel?");
                 int anzahl = Integer.parseInt(liesEingabe());
                 eshop.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
                 break;
             case "w":
-                eshop.warenkorbLeeren(aktuellerKunde);
+                gibWarenkorbAus(aktuellerKunde.getWarenkorb().getHashmap());
                 break;
             case "k":
-                // Befehle
+                Rechnung r = eshop.warenkorbKaufen(aktuellerKunde);
+                rechnungAnzeigen(r);
             case "l":
-                aktuellerKunde.getWarenkorb().getHashmap().clear();
+                eshop.warenkorbLeeren(aktuellerKunde);
                 break;
         }
     }
@@ -282,6 +280,20 @@ public class ShopClientCUI {
         }
     }
 
+    private void rechnungAnzeigen(Rechnung r){
+        int kundennummer = r.getKunde().getKundenNummer();
+        String name = r.getKunde().getName();
+        String datum = String.valueOf(r.getDatum());
+        HashMap<Artikel, Integer> gekaufteArtikel = r.getGekaufteArtikel();
+        float gesamtpreis = r.getGesamtpreis();
+
+        System.out.println("------------------------------------------------------");
+        System.out.println("Rechnung vom Kunden: " + kundennummer + " | " + name + " am " + datum);
+        gibWarenkorbAus(gekaufteArtikel);
+        System.out.println("Gesamtpreis: " + gesamtpreis + "€");
+        System.out.println("------------------------------------------------------");
+    }
+
     /**
      * Methode zur Ausführung der Hauptschleife:
      * - Menü ausgeben
@@ -310,7 +322,7 @@ public class ShopClientCUI {
                     try{
                         input = liesEingabe();
                         kundeneingabeVerarbeiten(input);
-                    } catch (IOException e){
+                    } catch (IOException | ArtikelExistiertNichtException e){
                         e.printStackTrace();
                     }
                 } while(!input.equals("a"));

@@ -1,10 +1,7 @@
 package eShop.local.domain;
 
 import eShop.local.domain.exceptions.*;
-import eShop.local.entities.Artikel;
-import eShop.local.entities.Kunde;
-import eShop.local.entities.Mitarbeiter;
-import eShop.local.entities.Warenkorb;
+import eShop.local.entities.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,5 +67,9 @@ public class eShop {
     public void warenkorbLeeren(Kunde aktuellerKunde){
         HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
         shoppingService.warenkorbLeeren(warenkorb);
+    }
+
+    public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws ArtikelExistiertNichtException {
+        return shoppingService.warenkorbKaufen(aktuellerKunde);
     }
 }
