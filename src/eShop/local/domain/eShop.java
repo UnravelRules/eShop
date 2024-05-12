@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+
 public class eShop {
     private KundenVerwaltung kundenVW;
     private MitarbeiterVerwaltung mitarbeiterVW;
@@ -14,6 +18,8 @@ public class eShop {
     private ShoppingService shoppingService;
 
     private ArrayList<String> eventlog;
+
+    private DateTimeFormatter datumFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
     public eShop(){
@@ -107,7 +113,9 @@ public class eShop {
         int artikelnummer = artikel.getArtikelnummer();
         String artikelBezeichnung = artikel.getBezeichnung();
         int neuerBestand = artikel.getBestand();
-        String event = String.format("%s, %s, %d, %s, %d, %d", accountTyp, nutzerName, accountNummer, artikelBezeichnung, artikelnummer, neuerBestand);
+        LocalDate datum = LocalDate.now();
+        String datumString = datum.format(datumFormatter);
+        String event = String.format("%s, %s, %s, %d, %s, %d, %d", datumString, accountTyp, nutzerName, accountNummer, artikelBezeichnung, artikelnummer, neuerBestand);
         eventlog.add(event);
         return eventlog;
     }
