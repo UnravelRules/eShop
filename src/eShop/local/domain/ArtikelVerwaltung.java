@@ -29,14 +29,9 @@ public class ArtikelVerwaltung {
     }
 
     public int bestandAendern(int artikel_nummer, int neuer_bestand) throws ArtikelExistiertNichtException {
-        for (Artikel bestand_item : artikelBestand){
-            if (bestand_item.getArtikelnummer() == artikel_nummer){
-                bestand_item.setBestand(neuer_bestand);
-                return bestand_item.getBestand();
-            }
-        }
-        // Falls kein Artikel mit der Nummer gefunden wird
-        throw new ArtikelExistiertNichtException();
+        Artikel bestanditem = getArtikelMitNummer(artikel_nummer);
+        bestanditem.setBestand(neuer_bestand);
+        return neuer_bestand;
     }
     // Methode zum Löschen des Artikel aus der Liste.
     public void artikelEntfernen(int nummer, String bezeichnung) {
@@ -53,6 +48,15 @@ public class ArtikelVerwaltung {
             }
         }
         return suchergebnisse;
+    }
+
+    public Artikel getArtikelMitNummer(int artikelNummer) throws ArtikelExistiertNichtException {
+        for(Artikel bestand_item : artikelBestand){
+            if(bestand_item.getArtikelnummer() == artikelNummer) {
+                return bestand_item;
+            }
+        }
+        throw new ArtikelExistiertNichtException();
     }
 
     public ArrayList<Artikel> getArtikelBestand(){

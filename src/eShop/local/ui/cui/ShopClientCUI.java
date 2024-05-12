@@ -6,6 +6,7 @@ import eShop.local.entities.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.channels.ScatteringByteChannel;
 import java.sql.Array;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class ShopClientCUI {
     private eShop eshop = new eShop();
     private BufferedReader in;
     private Kunde aktuellerKunde;
+    private Mitarbeiter aktuellerMitarbeiter;
 
     // Konstruktor (Datei als Parameter geben, BufferedReader)
     public ShopClientCUI(){
@@ -77,6 +79,7 @@ public class ShopClientCUI {
                 try{
                     Mitarbeiter m = eshop.mitarbeiterEinloggen(mitarbeiterBenutzername, mitarbeiterPasswort);
                     System.out.println("Willkommen zurück, " + m.getName());
+                    aktuellerMitarbeiter = m;
                     return 2;
                 } catch(MitarbeiterExistiertNichtException e){
                     System.out.println("Fehler beim Einloggen");
@@ -150,7 +153,12 @@ public class ShopClientCUI {
                 gibWarenkorbAus(aktuellerKunde.getWarenkorb().getHashmap());
                 break;
             case "k":
-                Rechnung r = eshop.warenkorbKaufen(aktuellerKunde);
+                Rechnung r = null;
+                try {
+                    r = eshop.warenkorbKaufen(aktuellerKunde);
+                } catch (UnbekanntesAccountObjektException e) {
+                    System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
+                }
                 rechnungAnzeigen(r);
 
                 // LEEREN VORRÜBERGEHEND HIER GELÖST, MUSS NOCH GEÄNDERT WERDEN
@@ -171,6 +179,7 @@ public class ShopClientCUI {
         System.out.print("         \n  Bestand aendern: 'b'");
         System.out.print("         \n  Mitarbeiter anlegen: 'm'");
         System.out.print("         \n  Mitarbeiter entfernen: 'd'");
+        System.out.print("         \n  Eventlog ausgeben: 'l'");
         System.out.print("         \n  ---------------------");
         System.out.println("         \n  Ausloggen:        'a'");
         System.out.print("> "); // Prompt
@@ -191,11 +200,13 @@ public class ShopClientCUI {
                 float preis = Float.parseFloat(liesEingabe());
 
                 try {
-                    eshop.artikelAnlegen(artikelNummer, bezeichnung, bestand, preis);
+                    eshop.artikelAnlegen(artikelNummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
                     break;
                 } catch (ArtikelExistiertBereitsException e){
                     System.out.println("Artikel existiert bereits!");
                     e.printStackTrace();
+                } catch (UnbekanntesAccountObjektException exception){
+                    System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
                 }
 
             case "p":
@@ -219,7 +230,13 @@ public class ShopClientCUI {
                 int nummer = Integer.parseInt(liesEingabe());
                 System.out.println("Bezeichnung des Artikels: ");
                 bezeichnung = liesEingabe();
-                eshop.artikelEntfernen(nummer, bezeichnung);
+                try{
+                    eshop.artikelEntfernen(nummer, bezeichnung, aktuellerMitarbeiter);
+                } catch(UnbekanntesAccountObjektException exception){
+                    System.out.println("Unbekanntes Account Objekt beim Updaten vom Eventlog");
+                } catch(ArtikelExistiertNichtException exception){
+                    System.out.println("Artikel existiert nicht");
+                }
 
                 break;
 
@@ -230,11 +247,13 @@ public class ShopClientCUI {
                 int n_bestand = Integer.parseInt(liesEingabe());
                 String ausgabe = "";
                 try {
-                    eshop.bestandAendern(a_nummer, n_bestand);
+                    eshop.bestandAendern(a_nummer, n_bestand, aktuellerMitarbeiter);
                     ausgabe = String.format("Bestand von Artikel %d auf %d gesetzt", a_nummer, n_bestand);
 
                 } catch (ArtikelExistiertNichtException exception) {
                     ausgabe = String.format("Artikel mit Nummer %d konnte nicht gefunden werden", a_nummer);
+                } catch (UnbekanntesAccountObjektException exception) {
+                    ausgabe = "Unbekanntes Account Objekt beim Updaten vom Eventlog";
                 }
                 System.out.println(ausgabe);
                 break;
@@ -263,6 +282,13 @@ public class ShopClientCUI {
                 String mitarbeiter = liesEingabe();
                 eshop.mitarbeiterEntfernen(mitarbeiter);
                 break;
+            case "l":
+                System.out.println("Eventlog:");
+                ArrayList<String> eventlog = eshop.getEventlog();
+                for(String event: eventlog){
+                    String output = String.format("    %s", event);
+                    System.out.println(output);
+                }
         }
     }
 
