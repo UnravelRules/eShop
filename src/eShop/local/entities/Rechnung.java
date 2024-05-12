@@ -7,7 +7,6 @@ public class Rechnung {
     private Kunde kunde;
     private LocalDate datum;
     private HashMap<Artikel, Integer> gekaufteArtikel;
-    private float einzelpreis;
     private float gesamtpreis;
 
     public Rechnung(Kunde k, float gesamtpreis){
@@ -27,10 +26,6 @@ public class Rechnung {
 
     public HashMap<Artikel, Integer> getGekaufteArtikel() {
         return gekaufteArtikel;
-    }
-
-    public float getEinzelpreis() {
-        return einzelpreis;
     }
 
     public float getGesamtpreis() {

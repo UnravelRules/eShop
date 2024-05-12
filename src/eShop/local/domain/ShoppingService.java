@@ -33,20 +33,17 @@ public class ShoppingService {
         HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
 
         // den Bestand der Artikel, die gekauft werden, ändern
-        for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()){
+        for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
             int artikelnummer = eintrag.getKey().getArtikelnummer();
             int anzahl = eintrag.getValue();
-            for (Artikel a : artikelVw.getArtikelBestand()){
-                if (a.getArtikelnummer() == artikelnummer){
+            for (Artikel a : artikelVw.getArtikelBestand()) {
+                if (a.getArtikelnummer() == artikelnummer) {
                     artikelVw.bestandAendern(artikelnummer, a.getBestand() - anzahl);
                     gesamtpreis += a.getPreis() * anzahl;
                 }
-                System.out.println(a.getBestand());
             }
         }
-
         Rechnung rechnung = new Rechnung(aktuellerKunde, gesamtpreis);
         return rechnung;
-        // alles was sich im Warenkorb befindet kaufen -> Rechnung wird erstellt
     }
 }

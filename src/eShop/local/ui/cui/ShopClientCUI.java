@@ -152,6 +152,10 @@ public class ShopClientCUI {
             case "k":
                 Rechnung r = eshop.warenkorbKaufen(aktuellerKunde);
                 rechnungAnzeigen(r);
+
+                // LEEREN VORRÜBERGEHEND HIER GELÖST, MUSS NOCH GEÄNDERT WERDEN
+                eshop.warenkorbLeeren(aktuellerKunde);
+                break;
             case "l":
                 eshop.warenkorbLeeren(aktuellerKunde);
                 break;
