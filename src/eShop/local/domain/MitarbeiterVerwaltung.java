@@ -17,7 +17,8 @@ public class MitarbeiterVerwaltung {
     }
 
     /**
-     * Methode zum Registrieren von Mitarbeitern
+     * Methode zum Registrieren von Mitarbeitern.
+     * Gibt den registrierten Mitarbeiter als Mitarbeiterobjekt zurück
      *
      * @param nummer Mitarbeiternummer des neuen Mitarbeiters
      * @param name Name des neuen Mitarbeiters
@@ -41,6 +42,7 @@ public class MitarbeiterVerwaltung {
      * @param benutzername Benutzername des einloggenden Mitarbeiters
      * @param passwort Passwort des einloggenden Mitarbeiters
      * @throws MitarbeiterExistiertNichtException Falls der Mitarbeiter nicht existiert
+     * @return Mitarbeiterobjekt
      */
     public  Mitarbeiter anmelden(String benutzername, String passwort) throws MitarbeiterExistiertNichtException {
         for(Mitarbeiter aktuellerMitarbeiter: registrierteMitarbeiter){
@@ -51,6 +53,10 @@ public class MitarbeiterVerwaltung {
         throw new MitarbeiterExistiertNichtException();
     }
 
+    /**
+     * Methode zum Entfernen eines Mitarbeiters
+     * @param benutzername
+     */
     public void entfernen(String benutzername){
         registrierteMitarbeiter.removeIf(m -> m.getBenutzername().equals(benutzername));
     }

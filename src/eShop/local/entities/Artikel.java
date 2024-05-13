@@ -17,39 +17,59 @@ public class Artikel {
         this.preis = preis;
     }
 
+    /**
+     * Gibt einen String mit Artikelnummer, Bezeichnung, Bestand und Preis zurück
+     * @return String
+     */
     public String toString(){
         return("Nr: " + artikelnummer + " / Bezeichnung: " + bezeichnung + " / Bestand: " + bestand + " Stk. / Preis: " + preis + "€");
     }
 
-/** Artikelnummer des Artikels.
- * */
+    /**
+     * Gibt die Artikelnummer als Integer zurück
+     * @return Artikelnummer
+     */
     public int getArtikelnummer() {
 
         return artikelnummer;
     }
 
-     /** Bezeichnung des Artikels.
-     * */
+    /**
+     * Gibt die Bezeichnung eines Artikels als String zurück
+     * @return Bezeichnung
+     */
     public String getBezeichnung() {
         return bezeichnung;
     }
 
-    /** Bestand des Artikels.
-     * */
+    /**
+     * Gibt den Bestand eines Artikels als Integer zurück
+     * @return Bestand
+     */
     public int getBestand() {
         return bestand;
     }
 
+    /**
+     * Aendert den bestand eines Artikels
+     * @param bestand
+     */
     public void setBestand(int bestand) {
         this.bestand = bestand;
     }
 
-    /** Preis des Artikels. es konnte wegen die kommazahlen double oder float genommen werden statt integer :).
-     * */
+    /**
+     * Gitb den Preis eines Artikel als Float zurück
+     * @return Preis
+     */
     public float getPreis() {
         return preis;
     }
 
+    /**
+     * Setzt die Bezeichnung eines Artikels
+     * @param bezeichnung
+     */
     public void setBezeichnung(String bezeichnung) {
         this.bezeichnung = bezeichnung;
     }

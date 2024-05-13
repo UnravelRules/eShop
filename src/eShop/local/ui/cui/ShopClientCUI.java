@@ -6,9 +6,7 @@ import eShop.local.entities.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.channels.ScatteringByteChannel;
-import java.sql.Array;
-import java.sql.SQLOutput;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,6 +127,7 @@ public class ShopClientCUI {
     private void kundeneingabeVerarbeiten(String line) throws IOException, ArtikelExistiertNichtException {
         switch(line) {
             case "s":
+                // Artikel suchen
                 System.out.println("Bezeichnung des Artikels: ");
                 String input = liesEingabe();
                 List<Artikel> artikelListe = eshop.artikelSuchen(input);
@@ -139,10 +138,12 @@ public class ShopClientCUI {
                 gibArtikelListeAus(artikelListe);
                 break;
             case "p":
+                // Alle Artikel ausgeben
                 artikelListe = eshop.gibAlleArtikel();
                 gibArtikelListeAus(artikelListe);
                 break;
             case "h":
+                // Artikel zum Warenkorb hinzufuegen
                 System.out.print("Artikelnummer: ");
                 int artikelnummer = Integer.parseInt(liesEingabe());
                 System.out.print("Wie viel?");
@@ -150,9 +151,11 @@ public class ShopClientCUI {
                 eshop.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
                 break;
             case "w":
+                // Warenkorb ausgeben
                 gibWarenkorbAus(aktuellerKunde.getWarenkorb().getHashmap());
                 break;
             case "k":
+                // Warenkorb kaufen
                 Rechnung r = null;
                 try {
                     r = eshop.warenkorbKaufen(aktuellerKunde);
@@ -165,6 +168,7 @@ public class ShopClientCUI {
                 eshop.warenkorbLeeren(aktuellerKunde);
                 break;
             case "l":
+                // Warenkorb leeren
                 eshop.warenkorbLeeren(aktuellerKunde);
                 break;
         }
@@ -190,6 +194,7 @@ public class ShopClientCUI {
         String bezeichnung;
         switch(line) {
             case "n":
+                // Neuen Artikel hinzufügen
                 System.out.println("Artikelnummer: ");
                 int artikelNummer = Integer.parseInt(liesEingabe());
                 System.out.println("Bezeichnung: ");
@@ -210,11 +215,13 @@ public class ShopClientCUI {
                 }
 
             case "p":
+                // ALle Artikel ausgeben
                 artikelListe = eshop.gibAlleArtikel();
                 gibArtikelListeAus(artikelListe);
                 break;
 
             case "s":
+                // Suchen von Artikel
                 System.out.println("Bezeichnung des Artikels: ");
                 String input = liesEingabe();
                 artikelListe = eshop.artikelSuchen(input);
@@ -226,6 +233,7 @@ public class ShopClientCUI {
                 break;
 
             case "e":
+                // Entfernen von Artikel
                 System.out.println("Nummer des Artikels: ");
                 int nummer = Integer.parseInt(liesEingabe());
                 System.out.println("Bezeichnung des Artikels: ");
@@ -241,6 +249,7 @@ public class ShopClientCUI {
                 break;
 
             case "b":
+                // Bestand Aendern
                 System.out.println("Nummer des Artikels: ");
                 int a_nummer = Integer.parseInt(liesEingabe());
                 System.out.println("Neuer Bestand:");
@@ -259,6 +268,7 @@ public class ShopClientCUI {
                 break;
 
             case "m":
+                // Neuen Mitarbeiter registrieren
                 System.out.println("Mitarbeiternummer: ");
                 int mitarbeiterNummer = Integer.parseInt(liesEingabe());
                 System.out.println("Name: ");
@@ -278,11 +288,13 @@ public class ShopClientCUI {
                 break;
 
             case "d":
+                // Mitarbeiter löschen
                 System.out.print("Benutzername des Mitarbeiters, der gelöscht werden soll: ");
                 String mitarbeiter = liesEingabe();
                 eshop.mitarbeiterEntfernen(mitarbeiter);
                 break;
             case "l":
+                // Eventlog ausgeben
                 System.out.println("Eventlog:");
                 ArrayList<String> eventlog = eshop.getEventlog();
                 for(String event: eventlog){

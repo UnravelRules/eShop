@@ -16,18 +16,35 @@ public class Rechnung {
         this.gesamtpreis = gesamtpreis;
     }
 
+    /**
+     * Methode um den Kunden einer Rechnung zu bekommen.
+     * Gibt den Kunden als Kundenobjekt zurück.
+     * @return Kunde
+     */
     public Kunde getKunde() {
         return kunde;
     }
 
+    /**
+     * Gibt das Datum einer Rechnung zurück.
+     * @return Datum
+     */
     public LocalDate getDatum() {
         return datum;
     }
 
+    /**
+     * Gibt alle gekauften Artikel einer Rechnung als Hashmap zurück
+     * @return gekaufteArtikel
+     */
     public HashMap<Artikel, Integer> getGekaufteArtikel() {
         return gekaufteArtikel;
     }
 
+    /**
+     * Gibt den gesamtpreis der Rechung zurück.
+     * @return Gesamtpreis
+     */
     public float getGesamtpreis() {
         return gesamtpreis;
     }
