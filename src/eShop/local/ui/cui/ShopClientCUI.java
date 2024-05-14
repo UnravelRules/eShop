@@ -146,7 +146,7 @@ public class ShopClientCUI {
                 // Artikel zum Warenkorb hinzufuegen
                 System.out.print("Artikelnummer: ");
                 int artikelnummer = Integer.parseInt(liesEingabe());
-                System.out.print("Wie viel?");
+                System.out.print("Wie viel?: ");
                 int anzahl = Integer.parseInt(liesEingabe());
                 eshop.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
                 break;
@@ -156,13 +156,12 @@ public class ShopClientCUI {
                 break;
             case "k":
                 // Warenkorb kaufen
-                Rechnung r = null;
                 try {
-                    r = eshop.warenkorbKaufen(aktuellerKunde);
+                    Rechnung r = eshop.warenkorbKaufen(aktuellerKunde);
+                    rechnungAnzeigen(r);
                 } catch (UnbekanntesAccountObjektException e) {
                     System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
                 }
-                rechnungAnzeigen(r);
 
                 // LEEREN VORRÜBERGEHEND HIER GELÖST, MUSS NOCH GEÄNDERT WERDEN
                 eshop.warenkorbLeeren(aktuellerKunde);
@@ -318,7 +317,7 @@ public class ShopClientCUI {
         for (Map.Entry<Artikel, Integer> eingabe : warenkorb.entrySet()){
             Artikel a = eingabe.getKey();
             int anzahl = eingabe.getValue();
-            System.out.println("Bezeichnung: " + a.getBezeichnung() + ", Anzahl: " + anzahl + ", Preis: " + a.getPreis());
+            System.out.println(String.format("Bezeichnung: " + a.getBezeichnung() + ", Anzahl: " + anzahl + ", Preis: %.2f€", a.getPreis()));
         }
     }
 
@@ -330,9 +329,9 @@ public class ShopClientCUI {
         float gesamtpreis = r.getGesamtpreis();
 
         System.out.println("------------------------------------------------------");
-        System.out.println("Rechnung vom Kunden: " + kundennummer + " | " + name + " am " + datum);
+        System.out.println("Rechnung vom Kunden: " + name + " | Kundennummer: " + kundennummer + " am " + datum);
         gibWarenkorbAus(gekaufteArtikel);
-        System.out.println("Gesamtpreis: " + gesamtpreis + "€");
+        System.out.println(String.format("Gesamtpreis: %.2f€", gesamtpreis));
         System.out.println("------------------------------------------------------");
     }
 

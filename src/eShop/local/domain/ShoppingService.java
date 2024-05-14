@@ -55,7 +55,7 @@ public class ShoppingService {
             int anzahl = eintrag.getValue();
             for (Artikel a : artikelVw.getArtikelBestand()) {
                 if (a.getArtikelnummer() == artikelnummer) {
-                    artikelVw.bestandAendern(artikelnummer, a.getBestand() - anzahl);
+                    artikelVw.bestandAendern(a.getArtikelnummer(), a.getBestand() - anzahl);
                     gesamtpreis += a.getPreis() * anzahl;
                 }
             }

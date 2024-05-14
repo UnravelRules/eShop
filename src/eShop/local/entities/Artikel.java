@@ -22,7 +22,7 @@ public class Artikel {
      * @return String
      */
     public String toString(){
-        return("Nr: " + artikelnummer + " / Bezeichnung: " + bezeichnung + " / Bestand: " + bestand + " Stk. / Preis: " + preis + "€");
+        return String.format("Nr: " + artikelnummer + " / Bezeichnung: " + bezeichnung + " / Bestand: " + bestand + " Stk. / Preis: %.2f€", preis);
     }
 
     /**
