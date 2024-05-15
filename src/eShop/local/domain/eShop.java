@@ -180,8 +180,8 @@ public class eShop {
         return rechnung;
     }
 
-    public void warenkorbVeraendern(Kunde aktuellerKunde, int artikelnummer, int neuerBestand){
-        shoppingService.warenkorbVeraendern(aktuellerKunde, artikelnummer, neuerBestand);
+    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand){
+        shoppingService.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
     }
 
     /**

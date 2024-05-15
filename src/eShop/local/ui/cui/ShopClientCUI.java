@@ -127,6 +127,7 @@ public class ShopClientCUI {
 
     private void kundeneingabeVerarbeiten(String line) throws IOException, ArtikelExistiertNichtException {
         int artikelnummer;
+        String bezeichnung;
         switch(line) {
             case "s":
                 // Artikel suchen
@@ -157,11 +158,11 @@ public class ShopClientCUI {
                 gibWarenkorbAus(aktuellerKunde.getWarenkorb().getHashmap());
                 break;
             case "v":
-                System.out.println("Artikelnummer: ");
-                artikelnummer = Integer.parseInt(liesEingabe());
+                System.out.println("Bezeichnung: ");
+                bezeichnung = liesEingabe();
                 System.out.println("Neue Anzahl (0 um Eintrag zu löschen): ");
                 int neuerBestand = Integer.parseInt(liesEingabe());
-                eshop.warenkorbVeraendern(aktuellerKunde, artikelnummer, neuerBestand);
+                eshop.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
                 break;
             case "k":
                 // Warenkorb kaufen

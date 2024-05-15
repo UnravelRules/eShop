@@ -64,11 +64,11 @@ public class ShoppingService {
         return rechnung;
     }
 
-    public void warenkorbVeraendern(Kunde aktuellerKunde, int artikelnummer, int neuerBestand){
+    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand){
         HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
         for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
             Artikel a = eintrag.getKey();
-            if(a.getArtikelnummer() == artikelnummer) {
+            if(a.getBezeichnung().equals(bezeichnung)) {
                 if (neuerBestand == 0){
                     warenkorb.remove(a);
                 } else{
