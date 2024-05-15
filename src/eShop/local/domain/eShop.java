@@ -26,7 +26,7 @@ public class eShop {
         kundenVW = new KundenVerwaltung();
         mitarbeiterVW = new MitarbeiterVerwaltung();
         artikelVW = new ArtikelVerwaltung();
-        shoppingService = new ShoppingService();
+        shoppingService = new ShoppingService(artikelVW);
         eventlog = new ArrayList<String>();
     }
 
@@ -178,6 +178,10 @@ public class eShop {
             updateEventlog(aktuellerKunde, artikel);
         }
         return rechnung;
+    }
+
+    public void warenkorbVeraendern(Kunde aktuellerKunde, int artikelnummer, int neuerBestand){
+        shoppingService.warenkorbVeraendern(aktuellerKunde, artikelnummer, neuerBestand);
     }
 
     /**

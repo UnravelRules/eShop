@@ -92,6 +92,6 @@ public class ArtikelVerwaltung {
      * @return Artikelbestand
      */
     public ArrayList<Artikel> getArtikelBestand(){
-        return new ArrayList<Artikel>(artikelBestand);
+        return new ArrayList<>(artikelBestand);
     }
 }

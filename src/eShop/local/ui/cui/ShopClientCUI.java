@@ -117,6 +117,7 @@ public class ShopClientCUI {
         System.out.print("         \n  Alle Artikel ausgeben: 'p'");
         System.out.print("         \n  Ein Artikel in den Warenkorb hinzufügen: 'h'");
         System.out.print("         \n  Warenkorb anzeigen: 'w'");
+        System.out.print("         \n  Warenkorb verändern: 'v'");
         System.out.print("         \n  Produkte im Warenkorb kaufen: 'k'");
         System.out.print("         \n  Warenkorb leeren: 'l'");
         System.out.print("         \n  ---------------------");
@@ -125,6 +126,7 @@ public class ShopClientCUI {
     }
 
     private void kundeneingabeVerarbeiten(String line) throws IOException, ArtikelExistiertNichtException {
+        int artikelnummer;
         switch(line) {
             case "s":
                 // Artikel suchen
@@ -145,7 +147,7 @@ public class ShopClientCUI {
             case "h":
                 // Artikel zum Warenkorb hinzufuegen
                 System.out.print("Artikelnummer: ");
-                int artikelnummer = Integer.parseInt(liesEingabe());
+                artikelnummer = Integer.parseInt(liesEingabe());
                 System.out.print("Wie viel?: ");
                 int anzahl = Integer.parseInt(liesEingabe());
                 eshop.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
@@ -153,6 +155,13 @@ public class ShopClientCUI {
             case "w":
                 // Warenkorb ausgeben
                 gibWarenkorbAus(aktuellerKunde.getWarenkorb().getHashmap());
+                break;
+            case "v":
+                System.out.println("Artikelnummer: ");
+                artikelnummer = Integer.parseInt(liesEingabe());
+                System.out.println("Neue Anzahl (0 um Eintrag zu löschen): ");
+                int neuerBestand = Integer.parseInt(liesEingabe());
+                eshop.warenkorbVeraendern(aktuellerKunde, artikelnummer, neuerBestand);
                 break;
             case "k":
                 // Warenkorb kaufen
@@ -212,6 +221,7 @@ public class ShopClientCUI {
                 } catch (UnbekanntesAccountObjektException exception){
                     System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
                 }
+                break;
 
             case "p":
                 // ALle Artikel ausgeben
@@ -300,6 +310,7 @@ public class ShopClientCUI {
                     String output = String.format("    %s", event);
                     System.out.println(output);
                 }
+                break;
         }
     }
 

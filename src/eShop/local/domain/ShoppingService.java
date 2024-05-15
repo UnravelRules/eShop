@@ -11,8 +11,8 @@ import java.util.Map;
 public class ShoppingService {
     private ArtikelVerwaltung artikelVw;
 
-    public ShoppingService(){
-        this.artikelVw = new ArtikelVerwaltung();
+    public ShoppingService(ArtikelVerwaltung artikelVw){
+        this.artikelVw = artikelVw;
     }
 
     /**
@@ -62,5 +62,19 @@ public class ShoppingService {
         }
         Rechnung rechnung = new Rechnung(aktuellerKunde, gesamtpreis);
         return rechnung;
+    }
+
+    public void warenkorbVeraendern(Kunde aktuellerKunde, int artikelnummer, int neuerBestand){
+        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
+        for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
+            Artikel a = eintrag.getKey();
+            if(a.getArtikelnummer() == artikelnummer) {
+                if (neuerBestand == 0){
+                    warenkorb.remove(a);
+                } else{
+                    warenkorb.put(a, neuerBestand);
+                }
+            }
+        }
     }
 }

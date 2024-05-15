@@ -1,5 +1,6 @@
 package eShop.local.entities;
-/** die Klasse Artikel steht für ein Artikel in EShop
+
+/** die Klasse Artikel steht für einen Artikel im EShop
  * jeden Artikel hat eine Artikel-Nr, Bezeichnung, Bestand und Preis
   */
 public class Artikel {
@@ -59,7 +60,7 @@ public class Artikel {
     }
 
     /**
-     * Gitb den Preis eines Artikel als Float zurück
+     * Gibt den Preis eines Artikel als Float zurück
      * @return Preis
      */
     public float getPreis() {
