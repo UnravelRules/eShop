@@ -29,6 +29,6 @@ public class Massengutartikel extends Artikel{
     }
 
     @Override public String toString(){
-        return String.format("Nr: " + artikelnummer + " / Bezeichnung: " + bezeichnung + " / Bestand: " + bestand + " Stk. mm/ Packungsgröße " + packungsgroesse +" Stk. / Preis pro Stk. : %.2f€", preis);
+        return String.format("Nr: " + artikelnummer + " / Bezeichnung: " + bezeichnung + " / Bestand: " + bestand + " Stk. / Packungsgröße " + packungsgroesse +" Stk. / Preis pro Stk. : %.2f€", preis);
     }
 }
