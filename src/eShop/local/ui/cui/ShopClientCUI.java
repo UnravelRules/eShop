@@ -330,8 +330,8 @@ public class ShopClientCUI {
             case "l":
                 // Eventlog ausgeben
                 System.out.println("Eventlog:");
-                ArrayList<String> eventlog = eshop.getEventlog();
-                for(String event: eventlog){
+                ArrayList<Ereignis> eventlog = eshop.getEventlog();
+                for(Ereignis event: eventlog){
                     String output = String.format("    %s", event);
                     System.out.println(output);
                 }

@@ -17,7 +17,7 @@ public class eShop {
     private ArtikelVerwaltung artikelVW;
     private ShoppingService shoppingService;
 
-    private ArrayList<String> eventlog;
+    private ArrayList<Ereignis> eventlog;
 
     private DateTimeFormatter datumFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -27,7 +27,7 @@ public class eShop {
         mitarbeiterVW = new MitarbeiterVerwaltung();
         artikelVW = new ArtikelVerwaltung();
         shoppingService = new ShoppingService(artikelVW);
-        eventlog = new ArrayList<String>();
+        eventlog = new ArrayList<Ereignis>();
     }
 
     /**
@@ -102,7 +102,8 @@ public class eShop {
     public Artikel artikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertBereitsException, UnbekanntesAccountObjektException {
         Artikel a = new Artikel(nummer, bezeichnung, bestand, preis);
         artikelVW.artikelHinzufuegen(a);
-        updateEventlog(aktuellerMitarbeiter, a);
+        EreignisTyp ereignisTyp = EreignisTyp.NEU;
+        updateEventlog(ereignisTyp, aktuellerMitarbeiter, a, bestand);
         return a;
     }
 
@@ -110,6 +111,8 @@ public class eShop {
         if(bestand % packungsgroesse == 0){
             Massengutartikel massengutartikel = new Massengutartikel(nummer, bezeichnung, bestand, preis, packungsgroesse);
             artikelVW.massengutartikelHinzufuegen(massengutartikel);
+            EreignisTyp ereignisTyp = EreignisTyp.NEU;
+            updateEventlog(ereignisTyp, aktuellerMitarbeiter, massengutartikel, bestand);
             return massengutartikel;
         }
         throw new MassengutException();
@@ -124,9 +127,18 @@ public class eShop {
      * @throws UnbekanntesAccountObjektException
      */
     public void bestandAendern(int artikel_nummer, int neuer_bestand, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
-        int ret_neuer_bestand = artikelVW.bestandAendern(artikel_nummer, neuer_bestand);
         Artikel artikel = artikelVW.getArtikelMitNummer(artikel_nummer);
-        updateEventlog(aktuellerMitarbeiter, artikel);
+        EreignisTyp ereignisTyp;
+        int delta = neuer_bestand - artikel.getBestand();
+        if(delta < 0){
+            // Falls Artikel entfernt wurden
+            ereignisTyp = EreignisTyp.AUSLAGERUNG;
+            delta = delta * (-1);
+        } else {
+            ereignisTyp = EreignisTyp.EINLAGERUNG;
+        }
+        int ret_neuer_bestand = artikelVW.bestandAendern(artikel_nummer, neuer_bestand);
+        updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikel, delta);
     }
     public ArrayList<Artikel> artikelSuchen(String bezeichnung) {
         return artikelVW.artikelSuchen(bezeichnung);
@@ -142,10 +154,11 @@ public class eShop {
      */
     public void artikelEntfernen(int nummer, String bezeichnung, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException {
         Artikel artikel = artikelVW.getArtikelMitNummer(nummer);
+        int delta = artikel.getBestand();
         Artikel artikelKopie = new Artikel(artikel.getArtikelnummer(), artikel.getBezeichnung(), 0, artikel.getPreis());
         artikelVW.artikelEntfernen(nummer, bezeichnung);
-
-        updateEventlog(aktuellerMitarbeiter, artikelKopie);
+        EreignisTyp ereignisTyp = EreignisTyp.AUSLAGERUNG;
+        updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikelKopie, delta);
     }
 
     public ArrayList<Artikel> gibAlleArtikel(){
@@ -184,7 +197,9 @@ public class eShop {
         Rechnung rechnung = shoppingService.warenkorbKaufen(aktuellerKunde);
         for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
             Artikel artikel = eintrag.getKey();
-            updateEventlog(aktuellerKunde, artikel);
+            EreignisTyp ereignisTyp = EreignisTyp.KAUF;
+            int delta = eintrag.getValue();
+            updateEventlog(ereignisTyp, aktuellerKunde, artikel, delta);
         }
         return rechnung;
     }
@@ -196,32 +211,16 @@ public class eShop {
     /**
      * Legt einen neuen Eintrag im Eventlog an.
      * Dabei werden Datum, Accounttyp, Benutzername, Accountnummer, Artikelbezeichnung, Artikelnummer und der neue Bestand gespeichert.
+     *
      * @param account
      * @param artikel
      * @return AktualisierterEventlog
      * @throws UnbekanntesAccountObjektException
      */
-    ArrayList<String> updateEventlog(Object account, Artikel artikel) throws UnbekanntesAccountObjektException {
-        String accountTyp = "";
-        int accountNummer = 0;
-        String nutzerName = "";
-        if(account instanceof Mitarbeiter) {
-            accountTyp = "Mitarbeiter";
-            nutzerName = ((Mitarbeiter) account).getBenutzername();
-            accountNummer = ((Mitarbeiter) account).getMitarbeiterNummer();
-        } else if (account instanceof Kunde) {
-            accountTyp = "Kunde";
-            nutzerName = ((Kunde) account).getBenutzername();
-            accountNummer = ((Kunde) account).getKundenNummer();
-        } else
-            throw  new UnbekanntesAccountObjektException();
-        int artikelnummer = artikel.getArtikelnummer();
-        String artikelBezeichnung = artikel.getBezeichnung();
-        int neuerBestand = artikel.getBestand();
+    ArrayList<Ereignis> updateEventlog(EreignisTyp ereignisTyp, Object account, Artikel artikel, int delta) throws UnbekanntesAccountObjektException {
         LocalDate datum = LocalDate.now();
-        String datumString = datum.format(datumFormatter);
-        String event = String.format("%s, %s, %s, %d, %s, %d, %d", datumString, accountTyp, nutzerName, accountNummer, artikelBezeichnung, artikelnummer, neuerBestand);
-        eventlog.add(event);
+        Ereignis ereignis = new Ereignis(ereignisTyp, account, delta,datum, artikel);
+        eventlog.add(ereignis);
         return eventlog;
     }
 
@@ -229,7 +228,7 @@ public class eShop {
      * Gibt den Eventlog als ArrayList<String> zurück
      * @return Eventlog
      */
-    public ArrayList<String> getEventlog(){
+    public ArrayList<Ereignis> getEventlog(){
         return eventlog;
     }
 }
