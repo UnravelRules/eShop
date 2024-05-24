@@ -1,6 +1,7 @@
 package eShop.local.domain;
 
 import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
+import eShop.local.domain.exceptions.MassengutException;
 import eShop.local.entities.Artikel;
 import eShop.local.entities.Kunde;
 import eShop.local.entities.Rechnung;
@@ -45,7 +46,7 @@ public class ShoppingService {
      * @return Rechnung
      * @throws ArtikelExistiertNichtException
      */
-    public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws ArtikelExistiertNichtException {
+    public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
         float gesamtpreis = 0;
         HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
 

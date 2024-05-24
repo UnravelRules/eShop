@@ -1,15 +1,17 @@
 package eShop.local.entities;
 
+import eShop.local.domain.exceptions.MassengutException;
+
 /** die Klasse Artikel steht für einen Artikel im EShop
  * jeden Artikel hat eine Artikel-Nr, Bezeichnung, Bestand und Preis
   */
 public class Artikel {
     // Attribute eines Artikels
 
-    private int artikelnummer;
-    private String bezeichnung;
-    private int bestand;
-    private float preis;
+    protected int artikelnummer;
+    protected String bezeichnung;
+    protected int bestand;
+    protected float preis;
 
     public Artikel(int artikelNr, String bezeichnung, int bestand, float preis) {
         this.artikelnummer = artikelNr;
@@ -55,7 +57,7 @@ public class Artikel {
      * Aendert den bestand eines Artikels
      * @param bestand
      */
-    public void setBestand(int bestand) {
+    public void setBestand(int bestand) throws MassengutException {
         this.bestand = bestand;
     }
 

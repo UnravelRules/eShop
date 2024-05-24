@@ -171,6 +171,8 @@ public class ShopClientCUI {
                     rechnungAnzeigen(r);
                 } catch (UnbekanntesAccountObjektException e) {
                     System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
+                } catch (MassengutException e) {
+                    System.out.println("Neuer Bestand ist nicht mit Packungsgröße kompatibel");
                 }
 
                 // LEEREN VORRÜBERGEHEND HIER GELÖST, MUSS NOCH GEÄNDERT WERDEN
@@ -204,6 +206,8 @@ public class ShopClientCUI {
         switch(line) {
             case "n":
                 // Neuen Artikel hinzufügen
+                System.out.println("Massengutartikel: J/N");
+                char massengut = liesEingabe().charAt(0);
                 System.out.println("Artikelnummer: ");
                 int artikelNummer = Integer.parseInt(liesEingabe());
                 System.out.println("Bezeichnung: ");
@@ -213,16 +217,34 @@ public class ShopClientCUI {
                 System.out.println("Preis des Artikels: ");
                 float preis = Float.parseFloat(liesEingabe());
 
-                try {
-                    eshop.artikelAnlegen(artikelNummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
+
+                if(massengut == 'N') {
+                    try {
+                        eshop.artikelAnlegen(artikelNummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
+                        break;
+                    } catch (ArtikelExistiertBereitsException e) {
+                        System.out.println("Artikel existiert bereits!");
+                        e.printStackTrace();
+                    } catch (UnbekanntesAccountObjektException exception) {
+                        System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
+                        exception.printStackTrace();
+                    }
                     break;
-                } catch (ArtikelExistiertBereitsException e){
-                    System.out.println("Artikel existiert bereits!");
-                    e.printStackTrace();
-                } catch (UnbekanntesAccountObjektException exception){
-                    System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
+                } else if(massengut == 'J') {
+                    try {
+                        System.out.println("Packungsgröße: ");
+                        int packungsgroesse = Integer.parseInt(liesEingabe());
+                        eshop.massengutartikelAnlegen(artikelNummer, bezeichnung, bestand, preis, aktuellerMitarbeiter, packungsgroesse);
+                    } catch (ArtikelExistiertBereitsException e) {
+                        System.out.println("Artikel existiert bereits!");
+                        e.printStackTrace();
+                    } catch (UnbekanntesAccountObjektException exception) {
+                        System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
+                        exception.printStackTrace();
+                    } catch (MassengutException exception){
+                        exception.printStackTrace();
+                    }
                 }
-                break;
 
             case "p":
                 // ALle Artikel ausgeben
@@ -273,6 +295,8 @@ public class ShopClientCUI {
                     ausgabe = String.format("Artikel mit Nummer %d konnte nicht gefunden werden", a_nummer);
                 } catch (UnbekanntesAccountObjektException exception) {
                     ausgabe = "Unbekanntes Account Objekt beim Updaten vom Eventlog";
+                } catch (MassengutException exception){
+                    ausgabe = String.format("Bestand kann nicht geändert werden, da neuer Bestand %d nicht kompatibel mit Packungsgröße ist", n_bestand);
                 }
                 System.out.println(ausgabe);
                 break;

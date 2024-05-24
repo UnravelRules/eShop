@@ -2,7 +2,9 @@ package eShop.local.domain;
 
 import eShop.local.domain.exceptions.ArtikelExistiertBereitsException;
 import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
+import eShop.local.domain.exceptions.MassengutException;
 import eShop.local.entities.Artikel;
+import eShop.local.entities.Massengutartikel;
 
 import java.util.ArrayList;
 
@@ -33,6 +35,14 @@ public class ArtikelVerwaltung {
         artikelBestand.add(artikel);
     }
 
+    public void massengutartikelHinzufuegen(Massengutartikel massengutartikel) throws ArtikelExistiertBereitsException {
+        if(artikelBestand.contains(massengutartikel)){
+            throw new ArtikelExistiertBereitsException();
+        }
+
+        artikelBestand.add(massengutartikel);
+    }
+
     /**
      * Methode zum Aendern des Bestands eines Artikels
      * @param artikel_nummer
@@ -40,7 +50,7 @@ public class ArtikelVerwaltung {
      * @return neuer_bestand
      * @throws ArtikelExistiertNichtException
      */
-    public int bestandAendern(int artikel_nummer, int neuer_bestand) throws ArtikelExistiertNichtException {
+    public int bestandAendern(int artikel_nummer, int neuer_bestand) throws ArtikelExistiertNichtException, MassengutException {
         Artikel bestanditem = getArtikelMitNummer(artikel_nummer);
         bestanditem.setBestand(neuer_bestand);
         return neuer_bestand;

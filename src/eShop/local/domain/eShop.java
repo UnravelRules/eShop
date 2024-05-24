@@ -106,6 +106,15 @@ public class eShop {
         return a;
     }
 
+    public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws ArtikelExistiertBereitsException, UnbekanntesAccountObjektException, MassengutException {
+        if(bestand % packungsgroesse == 0){
+            Massengutartikel massengutartikel = new Massengutartikel(nummer, bezeichnung, bestand, preis, packungsgroesse);
+            artikelVW.massengutartikelHinzufuegen(massengutartikel);
+            return massengutartikel;
+        }
+        throw new MassengutException();
+    }
+
     /**
      * Setzt den Bestand eines Artikels auf einen neuen Wert und speichert den neuen Bestand im Eventlog.
      * @param artikel_nummer
@@ -114,7 +123,7 @@ public class eShop {
      * @throws ArtikelExistiertNichtException
      * @throws UnbekanntesAccountObjektException
      */
-    public void bestandAendern(int artikel_nummer, int neuer_bestand, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException {
+    public void bestandAendern(int artikel_nummer, int neuer_bestand, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
         int ret_neuer_bestand = artikelVW.bestandAendern(artikel_nummer, neuer_bestand);
         Artikel artikel = artikelVW.getArtikelMitNummer(artikel_nummer);
         updateEventlog(aktuellerMitarbeiter, artikel);
@@ -170,7 +179,7 @@ public class eShop {
      * @throws ArtikelExistiertNichtException
      * @throws UnbekanntesAccountObjektException
      */
-    public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException {
+    public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
         HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
         Rechnung rechnung = shoppingService.warenkorbKaufen(aktuellerKunde);
         for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
