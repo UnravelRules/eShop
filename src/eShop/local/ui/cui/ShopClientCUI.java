@@ -151,7 +151,13 @@ public class ShopClientCUI {
                 artikelnummer = Integer.parseInt(liesEingabe());
                 System.out.print("Wie viel?: ");
                 int anzahl = Integer.parseInt(liesEingabe());
-                eshop.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
+                try {
+                    eshop.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
+                } catch (ArtikelExistiertNichtException e){
+                    System.out.println("Kein Artikel mit dieser Nummer gefunden");
+                } catch (MassengutException e){
+                    System.out.println("Anzahl ist nicht mit Packungsgroesse kompatibel");
+                }
                 break;
             case "w":
                 // Warenkorb ausgeben
@@ -162,7 +168,11 @@ public class ShopClientCUI {
                 bezeichnung = liesEingabe();
                 System.out.println("Neue Anzahl (0 um Eintrag zu löschen): ");
                 int neuerBestand = Integer.parseInt(liesEingabe());
-                eshop.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
+                try {
+                    eshop.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
+                } catch (MassengutException e){
+                    System.out.println("Anzahl nicht mit Packungsgroesse kompatibel");
+                }
                 break;
             case "k":
                 // Warenkorb kaufen
