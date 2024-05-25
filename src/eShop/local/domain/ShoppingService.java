@@ -4,6 +4,7 @@ import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
 import eShop.local.domain.exceptions.MassengutException;
 import eShop.local.entities.Artikel;
 import eShop.local.entities.Kunde;
+import eShop.local.entities.Massengutartikel;
 import eShop.local.entities.Rechnung;
 
 import java.util.HashMap;
@@ -22,13 +23,16 @@ public class ShoppingService {
      * @param anzahl
      * @param aktuellerKunde
      */
-    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde){
+    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
         HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
-        for(Artikel a : artikelVw.getArtikelBestand()){
-            if(a.getArtikelnummer() == artikelnummer){
-                warenkorb.put(a, anzahl);
+        Artikel a = artikelVw.getArtikelMitNummer(artikelnummer);
+        if(a instanceof Massengutartikel){
+            int packungs_gr = ((Massengutartikel) a).getPackungsgroesse();
+            if(anzahl % packungs_gr != 0){
+                throw new MassengutException();
             }
         }
+        warenkorb.put(a, anzahl);
     }
 
     /**
@@ -65,7 +69,7 @@ public class ShoppingService {
         return rechnung;
     }
 
-    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand){
+    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException{
         HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
         for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
             Artikel a = eintrag.getKey();
@@ -73,6 +77,12 @@ public class ShoppingService {
                 if (neuerBestand == 0){
                     warenkorb.remove(a);
                 } else{
+                    if(a instanceof Massengutartikel){
+                        int packungsgroesse = ((Massengutartikel) a).getPackungsgroesse();
+                        if(neuerBestand % packungsgroesse != 0){
+                            throw new MassengutException();
+                        }
+                    }
                     warenkorb.put(a, neuerBestand);
                 }
             }

@@ -171,7 +171,7 @@ public class eShop {
      * @param anzahl
      * @param aktuellerKunde
      */
-    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde){
+    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
         shoppingService.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
     }
 
@@ -204,7 +204,7 @@ public class eShop {
         return rechnung;
     }
 
-    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand){
+    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException{
         shoppingService.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
     }
 
