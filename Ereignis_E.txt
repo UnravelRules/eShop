@@ -10,3 +10,15 @@ KUNDE
 fharjesKunde
 Apfel
 15
+NEU
+2024-05-26
+MITARBEITER
+fharjes
+Orange
+20
+NEU
+2024-05-26
+MITARBEITER
+mostafam
+Wasser
+96

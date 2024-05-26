@@ -14,3 +14,14 @@ Stückartikel
 Apfel
 10
 1.99
+Stückartikel
+3
+Orange
+20
+3.99
+Massengutartikel
+2
+Wasser
+96
+2.5
+6

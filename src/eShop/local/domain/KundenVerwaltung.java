@@ -17,7 +17,6 @@ public class KundenVerwaltung {
     public void liesDaten(String datei) throws IOException {
         pm.openForReading(datei);
         Kunde einKunde;
-
         do {
             einKunde = pm.ladeKunde();
             if(einKunde != null) {

@@ -162,7 +162,7 @@ public class ShopClientCUI {
                 break;
             case "w":
                 // Warenkorb ausgeben
-                gibWarenkorbAus(aktuellerKunde.getWarenkorb().getHashmap());
+                gibWarenkorbAus(aktuellerKunde.getWarenkorb());
                 break;
             case "v":
                 System.out.println("Bezeichnung: ");
@@ -187,7 +187,6 @@ public class ShopClientCUI {
                 }
 
                 // LEEREN VORRÜBERGEHEND HIER GELÖST, MUSS NOCH GEÄNDERT WERDEN
-                eshop.warenkorbLeeren(aktuellerKunde);
                 break;
             case "l":
                 // Warenkorb leeren
@@ -369,21 +368,23 @@ public class ShopClientCUI {
         for (Map.Entry<Artikel, Integer> eingabe : warenkorb.entrySet()){
             Artikel a = eingabe.getKey();
             int anzahl = eingabe.getValue();
-            System.out.println(String.format("Bezeichnung: " + a.getBezeichnung() + ", Anzahl: " + anzahl + ", Preis: %.2f€", a.getPreis()));
+            System.out.printf("Bezeichnung: %s, Anzahl: %d, Preis: %.2f€, Gesamtpreis: %.2f€%n", a.getBezeichnung(), anzahl , a.getPreis(), a.getPreis() * anzahl);
         }
     }
 
     private void rechnungAnzeigen(Rechnung r){
-        int kundennummer = r.getKunde().getKundenNummer();
+        int kundennummer = r.getKunde().getNummer();
         String name = r.getKunde().getName();
+        String strasse = r.getKunde().getStrasse();
+        String plz = r.getKunde().getPlz();
         String datum = String.valueOf(r.getDatum());
         HashMap<Artikel, Integer> gekaufteArtikel = r.getGekaufteArtikel();
         float gesamtpreis = r.getGesamtpreis();
 
         System.out.println("------------------------------------------------------");
-        System.out.println("Rechnung vom Kunden: " + name + " | Kundennummer: " + kundennummer + " am " + datum);
+        System.out.printf("Rechnung vom Kunden: %s %d  |  Adresse: %s %s  |  am %s%n", name, kundennummer, strasse, plz, datum);
         gibWarenkorbAus(gekaufteArtikel);
-        System.out.println(String.format("Gesamtpreis: %.2f€", gesamtpreis));
+        System.out.printf("Gesamtpreis: %.2f€%n", gesamtpreis);
         System.out.println("------------------------------------------------------");
     }
 

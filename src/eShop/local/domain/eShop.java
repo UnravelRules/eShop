@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 
 public class eShop {
     private String kundenDatei = "";
@@ -20,7 +17,7 @@ public class eShop {
     private KundenVerwaltung kundenVW;
     private MitarbeiterVerwaltung mitarbeiterVW;
     private ArtikelVerwaltung artikelVW;
-    private ShoppingService shoppingService;
+    private Warenkorb warenkorb;
     private EreignisVerwaltung ereignisVW;
 
 
@@ -36,7 +33,7 @@ public class eShop {
         mitarbeiterVW.liesDaten(mitarbeiterDatei+"_M.txt");
         artikelVW = new ArtikelVerwaltung();
         artikelVW.liesDaten(artikelDatei+"_A.txt");
-        shoppingService = new ShoppingService(artikelVW);
+        warenkorb = new Warenkorb(artikelVW);
         ereignisVW = new EreignisVerwaltung();
         ereignisVW.liesDaten(ereignisDatei+"_E.txt");
     }
@@ -187,7 +184,7 @@ public class eShop {
      * @param aktuellerKunde
      */
     public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
-        shoppingService.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
+        warenkorb.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
     }
 
     /**
@@ -195,8 +192,8 @@ public class eShop {
      * @param aktuellerKunde
      */
     public void warenkorbLeeren(Kunde aktuellerKunde){
-        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
-        shoppingService.warenkorbLeeren(warenkorb);
+        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb();
+        this.warenkorb.warenkorbLeeren(warenkorb);
     }
 
     /**
@@ -208,8 +205,8 @@ public class eShop {
      * @throws UnbekanntesAccountObjektException
      */
     public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
-        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
-        Rechnung rechnung = shoppingService.warenkorbKaufen(aktuellerKunde);
+        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb();
+        Rechnung rechnung = this.warenkorb.warenkorbKaufen(aktuellerKunde);
         for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
             Artikel artikel = eintrag.getKey();
             EreignisTyp ereignisTyp = EreignisTyp.KAUF;
@@ -220,7 +217,7 @@ public class eShop {
     }
 
     public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException{
-        shoppingService.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
+        warenkorb.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
     }
 
     public ArrayList<Ereignis> eventlogAusgeben(){

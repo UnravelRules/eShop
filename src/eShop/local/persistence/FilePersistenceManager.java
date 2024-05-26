@@ -142,7 +142,7 @@ public class FilePersistenceManager implements PersistenceManager {
 	}
 
 	public boolean speichereKunde(Kunde k) throws IOException {
-		schreibeZeile(k.getKundenNummer() + "");
+		schreibeZeile(k.getNummer() + "");
         schreibeZeile(k.getName());
         schreibeZeile(k.getStrasse());
         schreibeZeile(k.getPlz());
