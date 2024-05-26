@@ -1,0 +1,16 @@
+Massengutartikel
+31
+Bier
+48
+5.99
+6
+Stückartikel
+32
+Trauben
+15
+2.5
+Stückartikel
+1
+Apfel
+10
+1.99

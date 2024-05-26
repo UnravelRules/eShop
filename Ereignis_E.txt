@@ -1,0 +1,12 @@
+NEU
+2024-05-26
+MITARBEITER
+fharjes
+Apfel
+25
+KAUF
+2024-05-26
+KUNDE
+fharjesKunde
+Apfel
+15
