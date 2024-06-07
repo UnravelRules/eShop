@@ -2,17 +2,9 @@ package eShop.local.entities;
 
 import java.util.Objects;
 
-public class Mitarbeiter {
-    private int mitarbeiterNummer;
-    private String name;
-    private String benutzername;
-    private String passwort;
-
+public class Mitarbeiter extends Benutzer {
     public Mitarbeiter(int nummer, String name, String benutzer, String pw){
-        this.mitarbeiterNummer = nummer;
-        this.name = name;
-        this.benutzername = benutzer;
-        this.passwort = pw;
+        super(nummer, name, benutzer, pw);
     }
 
     /**
@@ -20,7 +12,7 @@ public class Mitarbeiter {
      * @return Mitabrbeiternummer
      */
     public int getMitarbeiterNummer(){
-        return mitarbeiterNummer;
+        return nummer;
     }
 
     /**

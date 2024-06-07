@@ -9,10 +9,10 @@ public class Rechnung {
     private HashMap<Artikel, Integer> gekaufteArtikel;
     private float gesamtpreis;
 
-    public Rechnung(Kunde k, float gesamtpreis){
+    public Rechnung(Kunde k, float gesamtpreis, HashMap<Artikel, Integer> w){
         this.kunde = k;
         this.datum = LocalDate.now();
-        this.gekaufteArtikel = k.getWarenkorb().getHashmap();
+        this.gekaufteArtikel = w;
         this.gesamtpreis = gesamtpreis;
     }
 
