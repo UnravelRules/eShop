@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -205,6 +206,7 @@ public class ShopClientCUI {
         System.out.print("         \n  Mitarbeiter anlegen: 'm'");
         System.out.print("         \n  Mitarbeiter entfernen: 'd'");
         System.out.print("         \n  Eventlog ausgeben: 'l'");
+        System.out.print("         \n  Bestandshistorie ausgeben: 'h'");
         System.out.print("         \n  Daten sichern: 'z'");
         System.out.print("         \n  ---------------------");
         System.out.println("         \n  Ausloggen:        'a'");
@@ -348,6 +350,21 @@ public class ShopClientCUI {
                     System.out.println(output);
                 }
                 break;
+            case "h":
+                // Bestandshistorie ausgeben
+                System.out.println("Bestandshistorie des Artikels mit Nummer:");
+                int artikel_nummer = Integer.parseInt(liesEingabe());
+                try {
+                    ArrayList<Integer> bestands_historie = eshop.getBestandhistorie(artikel_nummer);
+                    LocalDate datum = LocalDate.now();
+                    for(int bestands_item: bestands_historie){
+                        String output = String.format("%s: Bestand %d",datum, bestands_item);
+                        System.out.println(output);
+                        datum = datum.minusDays(1);
+                    }
+                } catch (ArtikelExistiertNichtException e) {
+                    System.out.println("Artikelnummer existiert nicht");
+                }
             case "z":
                 eshop.sichereDaten();
                 break;
