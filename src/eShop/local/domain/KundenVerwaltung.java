@@ -3,25 +3,49 @@ package eShop.local.domain;
 import eShop.local.domain.exceptions.KundeExistiertBereitsException;
 import eShop.local.domain.exceptions.KundeExistiertNichtException;
 import eShop.local.entities.Kunde;
+import eShop.local.persistence.FilePersistenceManager;
+import eShop.local.persistence.PersistenceManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class KundenVerwaltung {
     private ArrayList<Kunde> kundenliste = new ArrayList<Kunde>();
 
+    private PersistenceManager pm = new FilePersistenceManager();
+
+    public void liesDaten(String datei) throws IOException {
+        pm.openForReading(datei);
+        Kunde einKunde;
+        do {
+            einKunde = pm.ladeKunde();
+            if(einKunde != null) {
+                try{
+                    registrieren(einKunde);
+                } catch (KundeExistiertBereitsException e) {
+                    // ...
+                }
+            }
+        } while (einKunde != null);
+        pm.close();
+    }
+
+    public void schreibeDaten(String datei) throws IOException {
+        pm.openForWriting(datei);
+
+        for (Kunde kunde : kundenliste){
+            pm.speichereKunde(kunde);
+        }
+
+        pm.close();
+    }
+
     /**
      * Methode zum Registrieren eines neuen Kunden
-     * @param name
-     * @param str
-     * @param plz
-     * @param benutzer Benutzername
-     * @param passwort
      * @return Kundenobjekt
      * @throws KundeExistiertBereitsException
      */
-    public Kunde registrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException {
-        Kunde kunde = new Kunde(getKundenliste().size() + 1, name, str, plz, benutzer, passwort);
-
+    public Kunde registrieren(Kunde kunde) throws KundeExistiertBereitsException {
         if (kundenliste.contains(kunde)) {
             throw new KundeExistiertBereitsException();
         } else {

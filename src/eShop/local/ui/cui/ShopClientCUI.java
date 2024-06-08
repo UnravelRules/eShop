@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,13 +21,15 @@ import java.util.Map;
  * @author Fabian
  */
 public class ShopClientCUI {
-    private eShop eshop = new eShop();
+    private eShop eshop;
     private BufferedReader in;
     private Kunde aktuellerKunde;
     private Mitarbeiter aktuellerMitarbeiter;
 
     // Konstruktor (Datei als Parameter geben, BufferedReader)
-    public ShopClientCUI(){
+    public ShopClientCUI(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) throws IOException {
+        eshop = new eShop(kundenDatei, mitarbeiterDatei, artikelDatei, ereignisDatei);
+
         // Stream-Objekt fuer Texteingabe ueber Konsolenfenster erzeugen
         in = new BufferedReader(new InputStreamReader(System.in));
     }
@@ -60,9 +63,8 @@ public class ShopClientCUI {
                 System.out.print("Passwort: ");
                 String kundePasswort = liesEingabe();
                 try{
-                    Kunde k = eshop.kundeEinloggen(kundeBenutzername, kundePasswort);
-                    System.out.println("Willkommen zurück, " + k.getName());
-                    aktuellerKunde = k;
+                    aktuellerKunde = eshop.kundeEinloggen(kundeBenutzername, kundePasswort);
+                    System.out.println("Willkommen zurück, " + aktuellerKunde.getName());
                     return 1;
                 } catch(KundeExistiertNichtException e){
                     System.out.println("Fehler beim Einloggen");
@@ -161,7 +163,7 @@ public class ShopClientCUI {
                 break;
             case "w":
                 // Warenkorb ausgeben
-                gibWarenkorbAus(aktuellerKunde.getWarenkorb().getHashmap());
+                gibWarenkorbAus(aktuellerKunde.getWarenkorb());
                 break;
             case "v":
                 System.out.println("Bezeichnung: ");
@@ -186,7 +188,6 @@ public class ShopClientCUI {
                 }
 
                 // LEEREN VORRÜBERGEHEND HIER GELÖST, MUSS NOCH GEÄNDERT WERDEN
-                eshop.warenkorbLeeren(aktuellerKunde);
                 break;
             case "l":
                 // Warenkorb leeren
@@ -205,6 +206,8 @@ public class ShopClientCUI {
         System.out.print("         \n  Mitarbeiter anlegen: 'm'");
         System.out.print("         \n  Mitarbeiter entfernen: 'd'");
         System.out.print("         \n  Eventlog ausgeben: 'l'");
+        System.out.print("         \n  Bestandshistorie ausgeben: 'h'");
+        System.out.print("         \n  Daten sichern: 'z'");
         System.out.print("         \n  ---------------------");
         System.out.println("         \n  Ausloggen:        'a'");
         System.out.print("> "); // Prompt
@@ -218,17 +221,17 @@ public class ShopClientCUI {
                 // Neuen Artikel hinzufügen
                 System.out.println("Massengutartikel: J/N");
                 char massengut = liesEingabe().charAt(0);
-                System.out.println("Artikelnummer: ");
+                System.out.print("Artikelnummer: ");
                 int artikelNummer = Integer.parseInt(liesEingabe());
-                System.out.println("Bezeichnung: ");
+                System.out.print("Bezeichnung: ");
                 bezeichnung = liesEingabe();
-                System.out.println("Bestand des Artikels: ");
+                System.out.print("Bestand des Artikels: ");
                 int bestand = Integer.parseInt(liesEingabe());
-                System.out.println("Preis des Artikels: ");
+                System.out.print("Preis des Artikels: ");
                 float preis = Float.parseFloat(liesEingabe());
 
 
-                if(massengut == 'N') {
+                if(massengut == 'N' || massengut == 'n') {
                     try {
                         eshop.artikelAnlegen(artikelNummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
                         break;
@@ -240,7 +243,7 @@ public class ShopClientCUI {
                         exception.printStackTrace();
                     }
                     break;
-                } else if(massengut == 'J') {
+                } else if(massengut == 'J' || massengut == 'j') {
                     try {
                         System.out.println("Packungsgröße: ");
                         int packungsgroesse = Integer.parseInt(liesEingabe());
@@ -255,6 +258,7 @@ public class ShopClientCUI {
                         exception.printStackTrace();
                     }
                 }
+                break;
 
             case "p":
                 // ALle Artikel ausgeben
@@ -313,13 +317,13 @@ public class ShopClientCUI {
 
             case "m":
                 // Neuen Mitarbeiter registrieren
-                System.out.println("Mitarbeiternummer: ");
+                System.out.print("Mitarbeiternummer: ");
                 int mitarbeiterNummer = Integer.parseInt(liesEingabe());
-                System.out.println("Name: ");
+                System.out.print("Name: ");
                 String name = liesEingabe();
-                System.out.println("Benutzername: ");
+                System.out.print("Benutzername: ");
                 String benutzername = liesEingabe();
-                System.out.println("Passwort: ");
+                System.out.print("Passwort: ");
                 String passwort = liesEingabe();
                 try {
                     Mitarbeiter m = eshop.mitarbeiterRegistrieren(mitarbeiterNummer, name, benutzername, passwort);
@@ -340,11 +344,29 @@ public class ShopClientCUI {
             case "l":
                 // Eventlog ausgeben
                 System.out.println("Eventlog:");
-                ArrayList<Ereignis> eventlog = eshop.getEventlog();
+                ArrayList<Ereignis> eventlog = eshop.eventlogAusgeben();
                 for(Ereignis event: eventlog){
                     String output = String.format("    %s", event);
                     System.out.println(output);
                 }
+                break;
+            case "h":
+                // Bestandshistorie ausgeben
+                System.out.println("Bestandshistorie des Artikels mit Nummer:");
+                int artikel_nummer = Integer.parseInt(liesEingabe());
+                try {
+                    ArrayList<Integer> bestands_historie = eshop.getBestandhistorie(artikel_nummer);
+                    LocalDate datum = LocalDate.now();
+                    for(int bestands_item: bestands_historie){
+                        String output = String.format("%s: Bestand %d",datum, bestands_item);
+                        System.out.println(output);
+                        datum = datum.minusDays(1);
+                    }
+                } catch (ArtikelExistiertNichtException e) {
+                    System.out.println("Artikelnummer existiert nicht");
+                }
+            case "z":
+                eshop.sichereDaten();
                 break;
         }
     }
@@ -363,21 +385,23 @@ public class ShopClientCUI {
         for (Map.Entry<Artikel, Integer> eingabe : warenkorb.entrySet()){
             Artikel a = eingabe.getKey();
             int anzahl = eingabe.getValue();
-            System.out.println(String.format("Bezeichnung: " + a.getBezeichnung() + ", Anzahl: " + anzahl + ", Preis: %.2f€", a.getPreis()));
+            System.out.printf("Bezeichnung: %s, Anzahl: %d, Preis: %.2f€, Gesamtpreis: %.2f€%n", a.getBezeichnung(), anzahl , a.getPreis(), a.getPreis() * anzahl);
         }
     }
 
     private void rechnungAnzeigen(Rechnung r){
-        int kundennummer = r.getKunde().getKundenNummer();
+        int kundennummer = r.getKunde().getNummer();
         String name = r.getKunde().getName();
+        String strasse = r.getKunde().getStrasse();
+        String plz = r.getKunde().getPlz();
         String datum = String.valueOf(r.getDatum());
         HashMap<Artikel, Integer> gekaufteArtikel = r.getGekaufteArtikel();
         float gesamtpreis = r.getGesamtpreis();
 
         System.out.println("------------------------------------------------------");
-        System.out.println("Rechnung vom Kunden: " + name + " | Kundennummer: " + kundennummer + " am " + datum);
+        System.out.printf("Rechnung vom Kunden: %s %d  |  Adresse: %s %s  |  am %s%n", name, kundennummer, strasse, plz, datum);
         gibWarenkorbAus(gekaufteArtikel);
-        System.out.println(String.format("Gesamtpreis: %.2f€", gesamtpreis));
+        System.out.printf("Gesamtpreis: %.2f€%n", gesamtpreis);
         System.out.println("------------------------------------------------------");
     }
 
@@ -426,10 +450,20 @@ public class ShopClientCUI {
                 } while (!input.equals("a"));
             }
         } while (!input.equals("q"));
+        try {
+            eshop.sichereDaten();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
-        ShopClientCUI cui = new ShopClientCUI();
-        cui.run();
+        try {
+            ShopClientCUI cui = new ShopClientCUI("Kunden", "Mitarbeiter", "Artikel", "Ereignis");
+            cui.run();
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }

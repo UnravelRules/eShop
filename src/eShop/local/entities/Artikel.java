@@ -77,5 +77,3 @@ public class Artikel {
         this.bezeichnung = bezeichnung;
     }
 }
-
-

@@ -3,31 +3,38 @@ package eShop.local.domain;
 import eShop.local.domain.exceptions.*;
 import eShop.local.entities.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 public class eShop {
+    private String kundenDatei = "";
+    private String mitarbeiterDatei = "";
+    private String artikelDatei = "";
+    private String ereignisDatei = "";
     private KundenVerwaltung kundenVW;
     private MitarbeiterVerwaltung mitarbeiterVW;
     private ArtikelVerwaltung artikelVW;
-    private ShoppingService shoppingService;
-
-    private ArrayList<Ereignis> eventlog;
-
-    private DateTimeFormatter datumFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private Warenkorb warenkorb;
+    private EreignisVerwaltung ereignisVW;
 
 
-    public eShop(){
+    public eShop(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) throws IOException {
+        this.kundenDatei = kundenDatei;
+        this.mitarbeiterDatei = mitarbeiterDatei;
+        this.artikelDatei = artikelDatei;
+        this.ereignisDatei = ereignisDatei;
+
         kundenVW = new KundenVerwaltung();
+        kundenVW.liesDaten(kundenDatei+"_K.txt");
         mitarbeiterVW = new MitarbeiterVerwaltung();
+        mitarbeiterVW.liesDaten(mitarbeiterDatei+"_M.txt");
         artikelVW = new ArtikelVerwaltung();
-        shoppingService = new ShoppingService(artikelVW);
-        eventlog = new ArrayList<Ereignis>();
+        artikelVW.liesDaten(artikelDatei+"_A.txt");
+        warenkorb = new Warenkorb(artikelVW);
+        ereignisVW = new EreignisVerwaltung();
+        ereignisVW.liesDaten(ereignisDatei+"_E.txt");
     }
 
     /**
@@ -41,7 +48,9 @@ public class eShop {
      * @throws KundeExistiertBereitsException
      */
     public Kunde kundeRegistrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException {
-        return kundenVW.registrieren(name, str, plz, benutzer, passwort);
+        Kunde k = new Kunde(kundenVW.getKundenliste().size() + 1, name, str, plz, benutzer, passwort);
+        kundenVW.registrieren(k);
+        return k;
     }
 
     /**
@@ -76,7 +85,9 @@ public class eShop {
      * @throws MitarbeiterExistiertBereitsException
      */
     public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException {
-        return mitarbeiterVW.registrieren(nummer, name, benutzer, passwort);
+        Mitarbeiter m = new Mitarbeiter(nummer, name, benutzer, passwort);
+        mitarbeiterVW.registrieren(m);
+        return m;
     }
 
     /**
@@ -103,7 +114,7 @@ public class eShop {
         Artikel a = new Artikel(nummer, bezeichnung, bestand, preis);
         artikelVW.artikelHinzufuegen(a);
         EreignisTyp ereignisTyp = EreignisTyp.NEU;
-        updateEventlog(ereignisTyp, aktuellerMitarbeiter, a, bestand);
+        ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, a, bestand);
         return a;
     }
 
@@ -112,7 +123,7 @@ public class eShop {
             Massengutartikel massengutartikel = new Massengutartikel(nummer, bezeichnung, bestand, preis, packungsgroesse);
             artikelVW.massengutartikelHinzufuegen(massengutartikel);
             EreignisTyp ereignisTyp = EreignisTyp.NEU;
-            updateEventlog(ereignisTyp, aktuellerMitarbeiter, massengutartikel, bestand);
+            ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, massengutartikel, bestand);
             return massengutartikel;
         }
         throw new MassengutException();
@@ -138,7 +149,7 @@ public class eShop {
             ereignisTyp = EreignisTyp.EINLAGERUNG;
         }
         int ret_neuer_bestand = artikelVW.bestandAendern(artikel_nummer, neuer_bestand);
-        updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikel, delta);
+        ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikel, delta);
     }
     public ArrayList<Artikel> artikelSuchen(String bezeichnung) {
         return artikelVW.artikelSuchen(bezeichnung);
@@ -158,7 +169,7 @@ public class eShop {
         Artikel artikelKopie = new Artikel(artikel.getArtikelnummer(), artikel.getBezeichnung(), 0, artikel.getPreis());
         artikelVW.artikelEntfernen(nummer, bezeichnung);
         EreignisTyp ereignisTyp = EreignisTyp.AUSLAGERUNG;
-        updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikelKopie, delta);
+        ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikelKopie, delta);
     }
 
     public ArrayList<Artikel> gibAlleArtikel(){
@@ -172,7 +183,7 @@ public class eShop {
      * @param aktuellerKunde
      */
     public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
-        shoppingService.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
+        warenkorb.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
     }
 
     /**
@@ -180,8 +191,8 @@ public class eShop {
      * @param aktuellerKunde
      */
     public void warenkorbLeeren(Kunde aktuellerKunde){
-        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
-        shoppingService.warenkorbLeeren(warenkorb);
+        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb();
+        this.warenkorb.warenkorbLeeren(warenkorb);
     }
 
     /**
@@ -193,42 +204,122 @@ public class eShop {
      * @throws UnbekanntesAccountObjektException
      */
     public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
-        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb().getHashmap();
-        Rechnung rechnung = shoppingService.warenkorbKaufen(aktuellerKunde);
+        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb();
+        Rechnung rechnung = this.warenkorb.warenkorbKaufen(aktuellerKunde);
         for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
             Artikel artikel = eintrag.getKey();
             EreignisTyp ereignisTyp = EreignisTyp.KAUF;
             int delta = eintrag.getValue();
-            updateEventlog(ereignisTyp, aktuellerKunde, artikel, delta);
+            ereignisVW.updateEventlog(ereignisTyp, aktuellerKunde, artikel, delta);
         }
         return rechnung;
     }
 
     public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException{
-        shoppingService.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
+        warenkorb.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
     }
 
-    /**
-     * Legt einen neuen Eintrag im Eventlog an.
-     * Dabei werden Datum, Accounttyp, Benutzername, Accountnummer, Artikelbezeichnung, Artikelnummer und der neue Bestand gespeichert.
-     *
-     * @param account
-     * @param artikel
-     * @return AktualisierterEventlog
-     * @throws UnbekanntesAccountObjektException
-     */
-    ArrayList<Ereignis> updateEventlog(EreignisTyp ereignisTyp, Object account, Artikel artikel, int delta) throws UnbekanntesAccountObjektException {
-        LocalDate datum = LocalDate.now();
-        Ereignis ereignis = new Ereignis(ereignisTyp, account, delta,datum, artikel);
-        eventlog.add(ereignis);
-        return eventlog;
+    public ArrayList<Ereignis> eventlogAusgeben(){
+        return ereignisVW.getEventlog();
     }
 
-    /**
-     * Gibt den Eventlog als ArrayList<String> zurück
-     * @return Eventlog
-     */
-    public ArrayList<Ereignis> getEventlog(){
-        return eventlog;
+    public void schreibeKunde() throws IOException {
+        kundenVW.schreibeDaten(kundenDatei+"_K.txt");
+    }
+    public void schreibeMitarbeiter() throws IOException {
+        mitarbeiterVW.schreibeDaten(mitarbeiterDatei+"_M.txt");
+    }
+
+    public void schreibeArtikel() throws IOException {
+        artikelVW.schreibeDaten(artikelDatei+"_A.txt");
+    }
+
+    public void schreibeEreignis() throws IOException {
+        ereignisVW.schreibeDaten(ereignisDatei+"_E.txt");
+    }
+
+    public void sichereDaten() throws IOException{
+        schreibeKunde();
+        schreibeMitarbeiter();
+        schreibeArtikel();
+        schreibeEreignis();
+    }
+
+    public ArrayList<Integer> getBestandhistorie(int Artikelnummer) throws ArtikelExistiertNichtException {
+        Artikel artikel = artikelVW.getArtikelMitNummer(Artikelnummer);
+        ArrayList<Integer> bestandslog = new ArrayList<>();
+        ArrayList<Ereignis> eventlog = ereignisVW.getEventlog();
+
+        int aktueller_bestand = artikel.getBestand();
+        LocalDate aktuelles_datum = LocalDate.now();
+        LocalDate cutoffDatum = aktuelles_datum.minusDays(30);
+
+
+        int ereignis_index = eventlog.size() - 1;
+        while (!aktuelles_datum.isBefore(cutoffDatum)) {
+            Ereignis aktuelles_ereignis = null;
+            try {
+                aktuelles_ereignis = eventlog.get(ereignis_index);
+            } catch (IndexOutOfBoundsException ignore) {
+                aktuelles_ereignis = eventlog.get(++ereignis_index);
+            }
+            LocalDate ereignis_datum = aktuelles_ereignis.getDatum();
+            while(ereignis_datum.isBefore(aktuelles_datum)) {
+                bestandslog.add(aktueller_bestand);
+                aktuelles_datum = aktuelles_datum.minusDays(1);
+            }
+
+            while(!aktuelles_ereignis.getArtikelbezeichnung().equals(artikel.getBezeichnung())) {
+                ereignis_index--;
+                try{
+                    aktuelles_ereignis = eventlog.get(ereignis_index);
+                } catch( IndexOutOfBoundsException ignored){
+                    break;
+                }
+            }
+
+            bestandslog.add(aktueller_bestand);
+            aktuelles_datum = aktuelles_datum.minusDays(1);
+            try{
+                aktuelles_ereignis = eventlog.get(ereignis_index);
+                ereignis_datum = aktuelles_ereignis.getDatum();
+            } catch( IndexOutOfBoundsException exception){
+                continue;
+            }
+
+            while(aktuelles_datum.isBefore(ereignis_datum) & ereignis_index >= 0){
+                // Iterieren durch ereignisse bis wir an einem neuen Tag ankommen
+                if (aktuelles_ereignis.getArtikelbezeichnung().equals(artikel.getBezeichnung())) {
+                    int delta = aktuelles_ereignis.getBestandsaenderung();
+                    switch (aktuelles_ereignis.getEreignisTyp()) {
+                        case NEU -> {
+                            // Bestand vor einfügen eines Artikels ist 0
+                            aktueller_bestand = 0;
+                        }
+                        case KAUF, AUSLAGERUNG -> {
+                            // Artikel wurden entfernt
+                            aktueller_bestand += delta;
+                        }
+                        case EINLAGERUNG -> {
+                            // Artikel wurden hinzugefügt
+                            aktueller_bestand -= delta;
+                        }
+                        case null, default -> {
+                            throw new RuntimeException("Unknown Ereignistyp");
+                        }
+                    }
+                }
+                try{
+                    ereignis_index--;
+                    aktuelles_ereignis = eventlog.get(ereignis_index);
+                    ereignis_datum = aktuelles_ereignis.getDatum();
+                } catch( IndexOutOfBoundsException ignored){
+                    break;
+                }
+            }
+
+        }
+        bestandslog.removeLast();
+        return bestandslog;
     }
 }

@@ -18,29 +18,45 @@ public class Ereignis {
 
     private LocalDate datum;
 
-    private Artikel artikel;
+    private String artikelbezeichnung;
 
-    public Ereignis(EreignisTyp ereignis_typ, Object account, int delta, LocalDate ereignis_datum, Artikel ereignis_artikel) throws UnbekanntesAccountObjektException {
-
-        int accountNummer = 0;
-        if(account instanceof Mitarbeiter) {
-            accountTyp = AccountTyp.MITARBEITER;
-            benutzerName = ((Mitarbeiter) account).getBenutzername();
-        } else if (account instanceof Kunde) {
-            accountTyp = AccountTyp.KUNDE;
-            benutzerName = ((Kunde) account).getBenutzername();
-        } else
-            throw  new UnbekanntesAccountObjektException();
+    public Ereignis(EreignisTyp ereignis_typ, AccountTyp account, String benutzerName, int delta, LocalDate ereignis_datum, String artikelbezeichnung) {
         ereignisTyp = ereignis_typ;
         bestandsaenderung = delta;
-        artikel = ereignis_artikel;
+        this.artikelbezeichnung = artikelbezeichnung;
         datum = ereignis_datum;
+        accountTyp = account;
+        this.benutzerName = benutzerName;
     }
 
     @Override
     public String toString() {
         DateTimeFormatter datumFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String datumString = datum.format(datumFormatter);
-        return String.format("%s, %s, %s, %s, %s, Menge: %d", ereignisTyp.name(), datumString, accountTyp.name(), benutzerName, artikel.bezeichnung, bestandsaenderung);
+        return String.format("%s, %s, %s, %s, %s, Menge: %d", ereignisTyp.name(), datumString, accountTyp.name(), benutzerName, artikelbezeichnung, bestandsaenderung);
+    }
+
+    public EreignisTyp getEreignisTyp() {
+        return ereignisTyp;
+    }
+
+    public AccountTyp getAccountTyp() {
+        return accountTyp;
+    }
+
+    public int getBestandsaenderung() {
+        return bestandsaenderung;
+    }
+
+    public String getBenutzerName() {
+        return benutzerName;
+    }
+
+    public LocalDate getDatum() {
+        return datum;
+    }
+
+    public String getArtikelbezeichnung() {
+        return artikelbezeichnung;
     }
 }

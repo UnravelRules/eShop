@@ -5,7 +5,10 @@ import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
 import eShop.local.domain.exceptions.MassengutException;
 import eShop.local.entities.Artikel;
 import eShop.local.entities.Massengutartikel;
+import eShop.local.persistence.FilePersistenceManager;
+import eShop.local.persistence.PersistenceManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /** in der Artikel-Verwaltung sollte
@@ -13,17 +16,38 @@ import java.util.ArrayList;
  * */
 public class ArtikelVerwaltung {
     ArrayList<Artikel> artikelBestand = new ArrayList<Artikel>();
-    public ArtikelVerwaltung(){
-        Artikel a1 = new Artikel(1, "Banane", 20, 1.99F);
-        Artikel a2 = new Artikel(2, "Apfel", 13, 1.30F);
-        Artikel a3 = new Artikel(3, "Birne", 7, 0.99F);
-        artikelBestand.add(a1);
-        artikelBestand.add(a2);
-        artikelBestand.add(a3);
+
+    private PersistenceManager pm = new FilePersistenceManager();
+
+    public void liesDaten(String datei) throws IOException {
+        pm.openForReading(datei);
+        Artikel einArtikel;
+
+        do {
+            einArtikel = pm.ladeArtikel();
+            if(einArtikel != null) {
+                try{
+                    artikelHinzufuegen(einArtikel);
+                } catch (ArtikelExistiertBereitsException e) {
+                    // ...
+                }
+            }
+        } while (einArtikel != null);
+        pm.close();
+    }
+
+    public void schreibeDaten(String datei) throws IOException {
+        pm.openForWriting(datei);
+
+        for (Artikel artikel : artikelBestand){
+            pm.speichereArtikel(artikel);
+        }
+
+        pm.close();
     }
 
     /**
-     * Fügt einene neune Artikel dem Bestand hinzu.
+     * Fügt einen neuen Artikel dem Bestand hinzu.
      * @param artikel
      * @throws ArtikelExistiertBereitsException
      */
@@ -91,6 +115,15 @@ public class ArtikelVerwaltung {
     public Artikel getArtikelMitNummer(int artikelNummer) throws ArtikelExistiertNichtException {
         for(Artikel bestand_item : artikelBestand){
             if(bestand_item.getArtikelnummer() == artikelNummer) {
+                return bestand_item;
+            }
+        }
+        throw new ArtikelExistiertNichtException();
+    }
+
+    public Artikel getArtikelMitBezeichnung(String bezeichnung) throws ArtikelExistiertNichtException{
+        for(Artikel bestand_item : artikelBestand){
+            if(bestand_item.getBezeichnung().equals(bezeichnung)){
                 return bestand_item;
             }
         }
