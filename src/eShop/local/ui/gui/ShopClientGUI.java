@@ -6,13 +6,17 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.HashMap;
 
 import eShop.local.domain.eShop;
 import eShop.local.domain.exceptions.*;
 import eShop.local.entities.Artikel;
+import eShop.local.entities.Ereignis;
 import eShop.local.entities.Kunde;
 import eShop.local.entities.Mitarbeiter;
 import eShop.local.ui.gui.models.ArtikelTableModel;
+import eShop.local.ui.gui.models.EreignisTableModel;
+import eShop.local.ui.gui.models.WarenkorbTableModel;
 
 public class ShopClientGUI extends JFrame {
     private eShop eshop;
@@ -28,6 +32,8 @@ public class ShopClientGUI extends JFrame {
     boolean istMassengutartikel;
     private JTextField suchTextfeld;
     private JTable artikelTabelle;
+    private JTable ereignisTabelle;
+    private JTable warenkorbTabelle;
     private JTextField artikelnummerTextField;
     private JTextField bezeichnungTextField;
     private JTextField bestandTextField;
@@ -35,10 +41,10 @@ public class ShopClientGUI extends JFrame {
     private JTextField packungsgroesseTextField;
     private Kunde aktuellerKunde;
     private Mitarbeiter aktuellerMitarbeiter;
-
-
-
-
+    private int selectedArtikelnummer;
+    private String selectedArtikelbezeichnung;
+    private int neuerBestand;
+    private int anzahlArtikelInWarenkorb;
 
     public ShopClientGUI(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) {
         super("E-Shop");
@@ -56,18 +62,23 @@ public class ShopClientGUI extends JFrame {
         mainPanel = new JPanel(cardLayout);
 
         mainPanel.add(createLoginPanel(), "LoginPanel");
-        mainPanel.add(createMitarbeiterPanel(), "MitarbeiterMenu");
 
         this.add(mainPanel);
 
-        this.setSize(new Dimension(800, 600));
+        this.setSize(new Dimension(224, 266));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
     }
 
     private JPanel createLoginPanel(){
         JPanel customerPanel = new JPanel();
-        customerPanel.setLayout(new BoxLayout(customerPanel, BoxLayout.PAGE_AXIS));
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        customerPanel.setLayout(gridBagLayout);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
 
         JCheckBox checkboxMitarbeiter = new JCheckBox("Mitarbeiter");
         checkboxMitarbeiter.addItemListener(new ItemListener() {
@@ -76,14 +87,40 @@ public class ShopClientGUI extends JFrame {
                 istMitarbeiter = checkboxMitarbeiter.isSelected();
             }
         });
+        c.gridy = 0;
+        c.weighty = 0.1;
+        gridBagLayout.setConstraints(checkboxMitarbeiter, c);
         customerPanel.add(checkboxMitarbeiter);
 
-        customerPanel.add(new JLabel("Benutzername: "));
+        JLabel benutzernameLabel = new JLabel("Benutzername: ");
+        c.gridy = 1;
+        c.weighty = 0;
+        gridBagLayout.setConstraints(benutzernameLabel, c);
+        customerPanel.add(benutzernameLabel);
+
         benutzernameTextField = new JTextField();
+        c.gridy = 2;
+        c.weighty = 0.1;
+        gridBagLayout.setConstraints(benutzernameTextField, c);
         customerPanel.add(benutzernameTextField);
-        customerPanel.add(new JLabel("Passwort: "));
+
+        JLabel passwortLabel = new JLabel("Passwort: ");
+        c.gridy = 3;
+        c.weighty = 0;
+        gridBagLayout.setConstraints(passwortLabel, c);
+        customerPanel.add(passwortLabel);
+
         passwortTextField = new JTextField();
+        c.gridy = 4;
+        c.weighty = 0.1;
+        gridBagLayout.setConstraints(passwortTextField, c);
         customerPanel.add(passwortTextField);
+
+        JPanel filler = new JPanel();
+        c.gridy = 5;
+        c.weighty = 0.2;
+        gridBagLayout.setConstraints(filler, c);
+        customerPanel.add(filler);
 
         loginButton = new JButton("Login");
         loginButton.addActionListener(e -> {
@@ -93,7 +130,16 @@ public class ShopClientGUI extends JFrame {
                 throw new RuntimeException(ex);
             }
         });
+        c.gridy = 6;
+        c.weighty = 0.2;
+        gridBagLayout.setConstraints(loginButton, c);
         customerPanel.add(loginButton);
+
+        JPanel filler2 = new JPanel();
+        c.gridy = 7;
+        c.weighty = 0.1;
+        gridBagLayout.setConstraints(filler, c);
+        customerPanel.add(filler2);
 
         neuRegistrierenButton = new JButton("Als Kunde registrieren");
         neuRegistrierenButton.setContentAreaFilled(false);
@@ -118,9 +164,10 @@ public class ShopClientGUI extends JFrame {
             }
         });
 
+        c.gridy = 8;
+        c.weighty = 0.1;
+        gridBagLayout.setConstraints(neuRegistrierenButton, c);
         customerPanel.add(neuRegistrierenButton);
-
-        customerPanel.setSize(300, 200);
 
         return customerPanel;
     }
@@ -182,7 +229,6 @@ public class ShopClientGUI extends JFrame {
         kundenmenu.add(warenkorbPanel, BorderLayout.WEST);
         kundenmenu.add(artikelPanel, BorderLayout.CENTER);
 
-        kundenmenu.setSize(new Dimension(800, 600));
         this.setVisible(true);
 
         return kundenmenu;
@@ -211,12 +257,19 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(addToShoppingCartButton, c);
         shoppingCartPanel.add(addToShoppingCartButton);
 
+        addToShoppingCartButton.addActionListener(e -> onAddToShoppingCartClick());
+
         JButton openShoppingCartButton = new JButton("Warenkorb öffnen");
         openShoppingCartButton.setPreferredSize(new Dimension(150, 30));
         c.gridy = 1;
         c.weighty = 0;
         gridBagLayout.setConstraints(openShoppingCartButton, c);
         shoppingCartPanel.add(openShoppingCartButton);
+
+/*        if(!warenkorbPanelOffen){
+            openShoppingCartButton.addActionListener(e -> onShoppingCartButtonClick());
+        }*/
+        openShoppingCartButton.addActionListener(e -> onShoppingCartButtonClick());
 
         JPanel filler = new JPanel();
         c.gridy = 3;
@@ -388,17 +441,23 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(artikelEntfernenButton, c);
         funktionsPanel.add(artikelEntfernenButton);
 
+        artikelEntfernenButton.addActionListener(e -> onRemoveButtonClick());
+
         JButton bestandAendernButton = new JButton("Bestand verändern");
         c.gridy = 15;
         c.weighty = 0;
         gridBagLayout.setConstraints(bestandAendernButton, c);
         funktionsPanel.add(bestandAendernButton);
 
+        bestandAendernButton.addActionListener(e -> onChangeButtonClick());
+
         JButton eventlogAnzeigen = new JButton("Eventlog anzeigen");
         c.gridy = 16;
         c.weighty = 0;
         gridBagLayout.setConstraints(eventlogAnzeigen, c);
         funktionsPanel.add(eventlogAnzeigen);
+
+        eventlogAnzeigen.addActionListener(e -> onEreignisseButtonClick());
 
         funktionsPanel.setBorder(BorderFactory.createTitledBorder("Funktionen"));
 
@@ -468,14 +527,23 @@ public class ShopClientGUI extends JFrame {
         artikelTabelle = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(artikelTabelle);
 
+        artikelTabelle.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = artikelTabelle.getSelectedRow();
+                if (selectedRow != -1){
+                    selectedArtikelnummer = (int) tableModel.getValueAt(selectedRow, 0);
+                    selectedArtikelbezeichnung = (String) tableModel.getValueAt(selectedRow, 1);
+                }
+            }
+        });
+
         scrollPane.setBorder(BorderFactory.createTitledBorder("Artikel"));
 
         return scrollPane;
     }
 
     private void updateArtikelPanel(java.util.List<Artikel> artikel) {
-        artikel.sort((b1, b2) -> b1.getArtikelnummer() - b2.getArtikelnummer());
-
         ArtikelTableModel tableModel = (ArtikelTableModel) artikelTabelle.getModel();
         tableModel.setArtikel(artikel);
     }
@@ -501,6 +569,7 @@ public class ShopClientGUI extends JFrame {
                 aktuellerMitarbeiter = mitarbeiter;
                 mainPanel.add(createMitarbeiterPanel(), "MitarbeiterMenu");
                 cardLayout.show(mainPanel, "MitarbeiterMenu");
+                resizeFrame(new Dimension(800, 600));
             }
         } else {
             Kunde kunde = eshop.kundeEinloggen(benutzername, passwort);
@@ -508,6 +577,7 @@ public class ShopClientGUI extends JFrame {
                 aktuellerKunde = kunde;
                 mainPanel.add(createKundenPanel(), "KundenMenu");
                 cardLayout.show(mainPanel, "KundenMenu");
+                resizeFrame(new Dimension(800, 600));
             }
         }
     }
@@ -556,6 +626,8 @@ public class ShopClientGUI extends JFrame {
                     eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
                     java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
                     updateArtikelPanel(artikel);
+                    java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
+                    updateEreignisPanel(eventlog);
                     artikelnummerTextField.setText("");
                     bezeichnungTextField.setText("");
                     bestandTextField.setText("");
@@ -571,6 +643,148 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    private void onRemoveButtonClick(){
+        try{
+            if(!selectedArtikelbezeichnung.isEmpty() && !(selectedArtikelnummer == 0)) {
+                eshop.artikelEntfernen(selectedArtikelnummer, selectedArtikelbezeichnung, aktuellerMitarbeiter);
+                java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                updateArtikelPanel(artikel);
+                java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
+                updateEreignisPanel(eventlog);
+            }
+
+        } catch (UnbekanntesAccountObjektException | ArtikelExistiertNichtException | NullPointerException e) {
+            System.out.println("Es wurde kein Artikel ausgewählt!");
+        }
+    }
+
+    private void onChangeButtonClick(){
+        if(selectedArtikelnummer != 0) {
+            try {
+                JDialog neuerBestandMenu = new JDialog(this, "Neuer Bestand", true);
+                Container contentPane = neuerBestandMenu.getContentPane();
+
+                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+                contentPane.add(new JLabel("Neuer Bestand: "));
+                JTextField neuerBestandTextField = new JTextField();
+                contentPane.add(neuerBestandTextField);
+
+                JButton neuerBestandButton = new JButton("Bestand verändern");
+                neuerBestandButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        neuerBestand = Integer.parseInt(neuerBestandTextField.getText());
+                        neuerBestandMenu.dispose();
+                    }
+                });
+                contentPane.add(neuerBestandButton);
+
+                neuerBestandMenu.setSize(280, 100);
+                neuerBestandMenu.setModal(true);
+                neuerBestandMenu.setVisible(true);
+
+                eshop.bestandAendern(selectedArtikelnummer, neuerBestand, aktuellerMitarbeiter);
+                java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                updateArtikelPanel(artikel);
+            } catch (UnbekanntesAccountObjektException | ArtikelExistiertNichtException | MassengutException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void onEreignisseButtonClick(){
+        JDialog ereignisse = new JDialog();
+        JComponent ereignisTabelle = createEventlogPanel();
+        ereignisse.add(ereignisTabelle);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+        ereignisse.setSize(new Dimension(800, 600));
+        ereignisse.setVisible(true);
+    }
+
+    private JComponent createEventlogPanel(){
+        java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
+
+        EreignisTableModel tableModel = new EreignisTableModel(eventlog);
+        ereignisTabelle = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(ereignisTabelle);
+
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Ereignisse"));
+        return scrollPane;
+    }
+
+    private void updateEreignisPanel(java.util.List<Ereignis> eventlog){
+        EreignisTableModel tableModel = (EreignisTableModel) ereignisTabelle.getModel();
+        tableModel.setEreignisse(eventlog);
+    }
+
+    private void onShoppingCartButtonClick(){
+        JDialog warenkorb = new JDialog();
+        JComponent warenkorbTabelle = createShoppingCartPanel();
+        warenkorb.add(warenkorbTabelle);
+        //setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+        warenkorb.setSize(new Dimension(800, 600));
+        warenkorb.setVisible(true);
+    }
+
+    private JComponent createShoppingCartPanel(){
+        HashMap<Artikel, Integer> inhalt = aktuellerKunde.getWarenkorb().getInhalt();
+
+        WarenkorbTableModel tableModel = new WarenkorbTableModel(inhalt);
+        warenkorbTabelle = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(warenkorbTabelle);
+
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Warenkorb"));
+        return scrollPane;
+    }
+
+    private void onAddToShoppingCartClick(){
+        if(selectedArtikelnummer != 0) {
+            try {
+                JDialog artikelInWarenkornMenu = new JDialog(this, "Anzahl", true);
+                Container contentPane = artikelInWarenkornMenu.getContentPane();
+
+                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+                contentPane.add(new JLabel("Anzahl des Artikels: "));
+                JTextField anzahlArtikelTextField = new JTextField();
+                contentPane.add(anzahlArtikelTextField);
+
+                JButton hinzufuegenButton = new JButton("In Warenkorb hinzufügen");
+                hinzufuegenButton.addActionListener(e -> {
+                    anzahlArtikelInWarenkorb = Integer.parseInt(anzahlArtikelTextField.getText());
+                    artikelInWarenkornMenu.dispose();
+                });
+                contentPane.add(hinzufuegenButton);
+
+                artikelInWarenkornMenu.setSize(280, 100);
+                artikelInWarenkornMenu.setModal(true);
+                artikelInWarenkornMenu.setVisible(true);
+
+                eshop.artikelInWarenkorb(selectedArtikelnummer, anzahlArtikelInWarenkorb, aktuellerKunde);
+                java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                updateArtikelPanel(artikel);
+                HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
+                updateShoppingCart(inhalt);
+                System.out.println("Artikel in Warenkorn hinzugefügt!");
+            } catch (ArtikelExistiertNichtException | MassengutException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void updateShoppingCart(HashMap<Artikel, Integer> inhalt){
+        WarenkorbTableModel tableModel = (WarenkorbTableModel) warenkorbTabelle.getModel();
+        tableModel.setInhalt(inhalt);
+    }
+
+    private void resizeFrame(Dimension dimension){
+        this.setSize(dimension);
+        this.setMinimumSize(dimension);
+    }
+
 
     public static void main(String[] args){
         SwingUtilities.invokeLater(new Runnable() {
@@ -584,33 +798,49 @@ public class ShopClientGUI extends JFrame {
     class FileMenu extends JMenu implements ActionListener {
 
         public FileMenu() {
-            super("File");
+            super("Datei");
 
-            JMenuItem saveItem = new JMenuItem("Save");
+            JMenuItem saveItem = new JMenuItem("Daten sichern");
             saveItem.addActionListener(this);
             this.add(saveItem);
 
             this.addSeparator();
 
-            JMenuItem quitItem = new JMenuItem("Quit");
+            JMenuItem logoutItem = new JMenuItem("Ausloggen");
+            logoutItem.addActionListener(this);
+            this.add(logoutItem);
+
+            this.addSeparator();
+
+            JMenuItem quitItem = new JMenuItem("Programm beenden");
             quitItem.addActionListener(this);
             this.add(quitItem);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Klick auf Menü '" + e.getActionCommand() + "'.");
-
             switch (e.getActionCommand()) {
-                case "Save":
+                case "Daten sichern":
                     try {
                         eshop.sichereDaten();
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
                     break;
-                case "Quit":
+                case "Ausloggen":
+                    cardLayout.show(mainPanel, "LoginPanel");
+                    resizeFrame(new Dimension(224, 266));
+                    ShopClientGUI.this.setPreferredSize(new Dimension(224, 266));
+                    ShopClientGUI.this.pack();
+                    setJMenuBar(null); // Remove the menu bar
+
+                    aktuellerKunde = null;
+                    aktuellerMitarbeiter = null;
+                    break;
+
+                case "Programm beenden":
                     ShopClientGUI.this.dispose();
+                    break;
             }
         }
     }

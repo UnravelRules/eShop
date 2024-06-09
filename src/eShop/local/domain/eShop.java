@@ -223,6 +223,10 @@ public class eShop {
         shoppingService.warenkorbVeraendern(aktuellerKunde, artikel, neuerBestand);
     }
 
+    public HashMap<Artikel, Integer> gibWarenkorb(Kunde aktuellerKunde){
+        return aktuellerKunde.getWarenkorb().getInhalt();
+    }
+
     public ArrayList<Ereignis> eventlogAusgeben(){
         return ereignisVW.getEventlog();
     }
