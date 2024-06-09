@@ -4,8 +4,9 @@ import eShop.local.domain.exceptions.*;
 import eShop.local.entities.*;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class eShop {
@@ -16,8 +17,8 @@ public class eShop {
     private KundenVerwaltung kundenVW;
     private MitarbeiterVerwaltung mitarbeiterVW;
     private ArtikelVerwaltung artikelVW;
-    private Warenkorb warenkorb;
     private EreignisVerwaltung ereignisVW;
+    private ShoppingService shoppingService;
 
 
     public eShop(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) throws IOException {
@@ -32,9 +33,9 @@ public class eShop {
         mitarbeiterVW.liesDaten(mitarbeiterDatei+"_M.txt");
         artikelVW = new ArtikelVerwaltung();
         artikelVW.liesDaten(artikelDatei+"_A.txt");
-        warenkorb = new Warenkorb(artikelVW);
         ereignisVW = new EreignisVerwaltung();
         ereignisVW.liesDaten(ereignisDatei+"_E.txt");
+        shoppingService = new ShoppingService(artikelVW);
     }
 
     /**
@@ -183,7 +184,8 @@ public class eShop {
      * @param aktuellerKunde
      */
     public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
-        warenkorb.artikelInWarenkorb(artikelnummer, anzahl, aktuellerKunde);
+        Artikel artikel = artikelVW.getArtikelMitNummer(artikelnummer);
+        shoppingService.artikelInWarenkorb(artikel, anzahl, aktuellerKunde);
     }
 
     /**
@@ -191,8 +193,7 @@ public class eShop {
      * @param aktuellerKunde
      */
     public void warenkorbLeeren(Kunde aktuellerKunde){
-        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb();
-        this.warenkorb.warenkorbLeeren(warenkorb);
+        shoppingService.warenkorbLeeren(aktuellerKunde);
     }
 
     /**
@@ -203,20 +204,23 @@ public class eShop {
      * @throws ArtikelExistiertNichtException
      * @throws UnbekanntesAccountObjektException
      */
-    public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
-        HashMap<Artikel, Integer> warenkorb = aktuellerKunde.getWarenkorb();
-        Rechnung rechnung = this.warenkorb.warenkorbKaufen(aktuellerKunde);
-        for (Map.Entry<Artikel, Integer> eintrag : warenkorb.entrySet()) {
+    public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws UnbekanntesAccountObjektException, MassengutException, ArtikelExistiertNichtException {
+        HashMap<Artikel, Integer> inhalt = new HashMap<>(aktuellerKunde.getWarenkorb().getInhalt());
+        Rechnung rechnung = shoppingService.warenkorbKaufen(aktuellerKunde);
+
+        for (Map.Entry<Artikel, Integer> eintrag : inhalt.entrySet()) {
             Artikel artikel = eintrag.getKey();
             EreignisTyp ereignisTyp = EreignisTyp.KAUF;
             int delta = eintrag.getValue();
             ereignisVW.updateEventlog(ereignisTyp, aktuellerKunde, artikel, delta);
         }
+
         return rechnung;
     }
 
-    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException{
-        warenkorb.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
+    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException {
+        Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
+        shoppingService.warenkorbVeraendern(aktuellerKunde, artikel, neuerBestand);
     }
 
     public ArrayList<Ereignis> eventlogAusgeben(){
@@ -243,83 +247,5 @@ public class eShop {
         schreibeMitarbeiter();
         schreibeArtikel();
         schreibeEreignis();
-    }
-
-    public ArrayList<Integer> getBestandhistorie(int Artikelnummer) throws ArtikelExistiertNichtException {
-        Artikel artikel = artikelVW.getArtikelMitNummer(Artikelnummer);
-        ArrayList<Integer> bestandslog = new ArrayList<>();
-        ArrayList<Ereignis> eventlog = ereignisVW.getEventlog();
-
-        int aktueller_bestand = artikel.getBestand();
-        LocalDate aktuelles_datum = LocalDate.now();
-        LocalDate cutoffDatum = aktuelles_datum.minusDays(30);
-
-
-        int ereignis_index = eventlog.size() - 1;
-        while (!aktuelles_datum.isBefore(cutoffDatum)) {
-            Ereignis aktuelles_ereignis = null;
-            try {
-                aktuelles_ereignis = eventlog.get(ereignis_index);
-            } catch (IndexOutOfBoundsException ignore) {
-                aktuelles_ereignis = eventlog.get(++ereignis_index);
-            }
-            LocalDate ereignis_datum = aktuelles_ereignis.getDatum();
-            while(ereignis_datum.isBefore(aktuelles_datum)) {
-                bestandslog.add(aktueller_bestand);
-                aktuelles_datum = aktuelles_datum.minusDays(1);
-            }
-
-            while(!aktuelles_ereignis.getArtikelbezeichnung().equals(artikel.getBezeichnung())) {
-                ereignis_index--;
-                try{
-                    aktuelles_ereignis = eventlog.get(ereignis_index);
-                } catch( IndexOutOfBoundsException ignored){
-                    break;
-                }
-            }
-
-            bestandslog.add(aktueller_bestand);
-            aktuelles_datum = aktuelles_datum.minusDays(1);
-            try{
-                aktuelles_ereignis = eventlog.get(ereignis_index);
-                ereignis_datum = aktuelles_ereignis.getDatum();
-            } catch( IndexOutOfBoundsException exception){
-                continue;
-            }
-
-            while(aktuelles_datum.isBefore(ereignis_datum) & ereignis_index >= 0){
-                // Iterieren durch ereignisse bis wir an einem neuen Tag ankommen
-                if (aktuelles_ereignis.getArtikelbezeichnung().equals(artikel.getBezeichnung())) {
-                    int delta = aktuelles_ereignis.getBestandsaenderung();
-                    switch (aktuelles_ereignis.getEreignisTyp()) {
-                        case NEU -> {
-                            // Bestand vor einfügen eines Artikels ist 0
-                            aktueller_bestand = 0;
-                        }
-                        case KAUF, AUSLAGERUNG -> {
-                            // Artikel wurden entfernt
-                            aktueller_bestand += delta;
-                        }
-                        case EINLAGERUNG -> {
-                            // Artikel wurden hinzugefügt
-                            aktueller_bestand -= delta;
-                        }
-                        case null, default -> {
-                            throw new RuntimeException("Unknown Ereignistyp");
-                        }
-                    }
-                }
-                try{
-                    ereignis_index--;
-                    aktuelles_ereignis = eventlog.get(ereignis_index);
-                    ereignis_datum = aktuelles_ereignis.getDatum();
-                } catch( IndexOutOfBoundsException ignored){
-                    break;
-                }
-            }
-
-        }
-        bestandslog.removeLast();
-        return bestandslog;
     }
 }
