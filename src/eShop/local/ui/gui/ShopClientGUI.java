@@ -110,7 +110,7 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(passwortLabel, c);
         customerPanel.add(passwortLabel);
 
-        passwortTextField = new JTextField();
+        passwortTextField = new JPasswordField();
         c.gridy = 4;
         c.weighty = 0.1;
         gridBagLayout.setConstraints(passwortTextField, c);
@@ -160,7 +160,7 @@ public class ShopClientGUI extends JFrame {
         neuRegistrierenButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                registrierenMenue();
+                kundeRegistrierenMenu();
             }
         });
 
@@ -172,12 +172,11 @@ public class ShopClientGUI extends JFrame {
         return customerPanel;
     }
 
-    private void registrierenMenue(){
+    private void kundeRegistrierenMenu(){
         JDialog registrationMenu = new JDialog(this, "Registrieren", true);
         Container contentPane = registrationMenu.getContentPane();
 
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-
 
         registrationMenu.setTitle("Registieren");
 
@@ -204,7 +203,7 @@ public class ShopClientGUI extends JFrame {
         registrierenButton = new JButton("Registrieren");
         registrierenButton.addActionListener(e -> {
             try {
-                onRegistrierenButtonClick(nameEingabe, strasseEingabe, plzEingabe, benutzernameEingabe, passwortEingabe);
+                onKundeRegistrierenButtonClick(nameEingabe, strasseEingabe, plzEingabe, benutzernameEingabe, passwortEingabe);
                 registrationMenu.dispose();
             } catch (KundeExistiertBereitsException | IOException ex) {
                 throw new RuntimeException(ex);
@@ -213,6 +212,45 @@ public class ShopClientGUI extends JFrame {
         contentPane.add(registrierenButton);
 
         registrationMenu.setSize(300, 320);
+        registrationMenu.setVisible(true);
+    }
+
+    private void mitarbeiterAnlegenMenu(){
+        JDialog registrationMenu = new JDialog(this, "Registrieren", true);
+        Container contentPane = registrationMenu.getContentPane();
+
+        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+        registrationMenu.setTitle("Mitarbeiter anlegen");
+
+        contentPane.add(new JLabel("Mitarbeiternummer: "));
+        JTextField mitarbeiterNummer = new JTextField();
+        contentPane.add(mitarbeiterNummer);
+
+        contentPane.add(new JLabel("Name: "));
+        JTextField name = new JTextField();
+        contentPane.add(name);
+
+        contentPane.add(new JLabel("Benutzername: "));
+        JTextField benutzernameEingabe = new JTextField();
+        contentPane.add(benutzernameEingabe);
+
+        contentPane.add(new JLabel("Passwort: "));
+        JPasswordField passwortEingabe = new JPasswordField();
+        contentPane.add(passwortEingabe);
+
+        registrierenButton = new JButton("Registrieren");
+        registrierenButton.addActionListener(e -> {
+            try {
+                onMitarbeiterAnlegenButtonClick(mitarbeiterNummer, name, benutzernameEingabe, passwortEingabe);
+                registrationMenu.dispose();
+            } catch (MitarbeiterExistiertBereitsException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        contentPane.add(registrierenButton);
+
+        registrationMenu.setSize(300, 240);
         registrationMenu.setVisible(true);
     }
 
@@ -236,7 +274,17 @@ public class ShopClientGUI extends JFrame {
 
 
     private void setupKundenMenu() {
+        // Menüleiste anlegen ...
+        JMenuBar menuBar = new JMenuBar();
 
+        JMenu fileMenu = new FileMenu();
+        menuBar.add(fileMenu);
+
+        JMenu mitarbeiterMenu = new MitarbeiterMenu();
+        menuBar.add(mitarbeiterMenu);
+
+        // ... und bei Fenster anmelden
+        setJMenuBar(menuBar);
     }
 
     private JPanel shoppingCartPanel() {
@@ -548,7 +596,7 @@ public class ShopClientGUI extends JFrame {
         tableModel.setArtikel(artikel);
     }
 
-    private void onRegistrierenButtonClick(JTextField n, JTextField s, JTextField p, JTextField benutzer, JTextField pw) throws KundeExistiertBereitsException, IOException {
+    private void onKundeRegistrierenButtonClick(JTextField n, JTextField s, JTextField p, JTextField benutzer, JTextField pw) throws KundeExistiertBereitsException, IOException {
         String name = n.getText();
         String strasse = s.getText();
         String plz = p.getText();
@@ -557,6 +605,15 @@ public class ShopClientGUI extends JFrame {
 
         eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
         System.out.println("Kunde wurde angelegt!");
+    }
+
+    private void onMitarbeiterAnlegenButtonClick(JTextField mitarbeiterNummer, JTextField n, JTextField benutzer, JTextField pw) throws MitarbeiterExistiertBereitsException {
+        int nummer = Integer.parseInt(mitarbeiterNummer.getText());
+        String name = n.getText();
+        String benutzername = benutzer.getText();
+        String passwort = pw.getText();
+
+        eshop.mitarbeiterRegistrieren(nummer, name, benutzername, passwort);
     }
 
     private void onLoginButtonClick(boolean istmitarbeiter) throws MitarbeiterExistiertNichtException, KundeExistiertNichtException {
@@ -796,7 +853,6 @@ public class ShopClientGUI extends JFrame {
     }
 
     class FileMenu extends JMenu implements ActionListener {
-
         public FileMenu() {
             super("Datei");
 
@@ -841,6 +897,49 @@ public class ShopClientGUI extends JFrame {
                 case "Programm beenden":
                     ShopClientGUI.this.dispose();
                     break;
+            }
+        }
+    }
+
+    class HelpMenu extends JMenu implements ActionListener {
+        public HelpMenu() {
+            super("Hilfe");
+
+            JMenuItem aboutItem = new JMenuItem("Über uns");
+            aboutItem.addActionListener(this);
+            this.add(aboutItem);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            switch (e.getActionCommand()){
+                case "Über uns":
+                    JDialog about = new JDialog();
+                    Container contentPane = about.getContentPane();
+
+                    contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+                    about.setTitle("Über uns");
+            }
+        }
+    }
+
+    class MitarbeiterMenu extends JMenu implements ActionListener {
+        public MitarbeiterMenu() {
+            super("Mitarbeiter");
+
+            JMenuItem createCustomer = new JMenuItem("Mitarbeiter anlegen");
+            createCustomer.addActionListener(this);
+            this.add(createCustomer);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            switch (e.getActionCommand()) {
+                case "Mitarbeiter anlegen":
+                    mitarbeiterAnlegenMenu();
+                    break;
+
             }
         }
     }
