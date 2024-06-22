@@ -211,6 +211,9 @@ public class ShopClientGUI extends JFrame {
         });
         contentPane.add(registrierenButton);
 
+        registrationMenu.setLocationRelativeTo(this);
+
+
         registrationMenu.setSize(300, 320);
         registrationMenu.setVisible(true);
     }
@@ -250,6 +253,9 @@ public class ShopClientGUI extends JFrame {
         });
         contentPane.add(registrierenButton);
 
+        registrationMenu.setLocationRelativeTo(this);
+
+
         registrationMenu.setSize(300, 240);
         registrationMenu.setVisible(true);
     }
@@ -267,11 +273,15 @@ public class ShopClientGUI extends JFrame {
         kundenmenu.add(warenkorbPanel, BorderLayout.WEST);
         kundenmenu.add(artikelPanel, BorderLayout.CENTER);
 
+        HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
+
+        WarenkorbTableModel tableModel = new WarenkorbTableModel(inhalt);
+        warenkorbTabelle = new JTable(tableModel);
+
         this.setVisible(true);
 
         return kundenmenu;
     }
-
 
     private void setupKundenMenu() {
         // Menüleiste anlegen ...
@@ -280,8 +290,8 @@ public class ShopClientGUI extends JFrame {
         JMenu fileMenu = new FileMenu();
         menuBar.add(fileMenu);
 
-        JMenu mitarbeiterMenu = new MitarbeiterMenu();
-        menuBar.add(mitarbeiterMenu);
+        JMenu helpMenu = new HelpMenu();
+        menuBar.add(helpMenu);
 
         // ... und bei Fenster anmelden
         setJMenuBar(menuBar);
@@ -350,6 +360,10 @@ public class ShopClientGUI extends JFrame {
         mitarbeitermenu.add(funktionsPanel, BorderLayout.WEST);
         mitarbeitermenu.add(artikelPanel, BorderLayout.CENTER);
 
+        java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
+
+        EreignisTableModel tableModel = new EreignisTableModel(eventlog);
+        ereignisTabelle = new JTable(tableModel);
 
         mitarbeitermenu.setSize(new Dimension(800, 600));
         this.setVisible(true);
@@ -364,6 +378,12 @@ public class ShopClientGUI extends JFrame {
         // ... mit zwei Menüs (-> Mitgliedsklassen) füllen ...
         JMenu fileMenu = new FileMenu();
         menuBar.add(fileMenu);
+
+        JMenu mitarbeiterMenu = new MitarbeiterMenu();
+        menuBar.add(mitarbeiterMenu);
+
+        JMenu helpMenu = new HelpMenu();
+        menuBar.add(helpMenu);
 
         // ... und bei Fenster anmelden
         setJMenuBar(menuBar);
@@ -737,6 +757,8 @@ public class ShopClientGUI extends JFrame {
                 });
                 contentPane.add(neuerBestandButton);
 
+                neuerBestandMenu.setLocationRelativeTo(this);
+
                 neuerBestandMenu.setSize(280, 100);
                 neuerBestandMenu.setModal(true);
                 neuerBestandMenu.setVisible(true);
@@ -756,15 +778,13 @@ public class ShopClientGUI extends JFrame {
         ereignisse.add(ereignisTabelle);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
+        ereignisse.setLocationRelativeTo(this);
+
         ereignisse.setSize(new Dimension(800, 600));
         ereignisse.setVisible(true);
     }
 
     private JComponent createEventlogPanel(){
-        java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
-
-        EreignisTableModel tableModel = new EreignisTableModel(eventlog);
-        ereignisTabelle = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(ereignisTabelle);
 
         scrollPane.setBorder(BorderFactory.createTitledBorder("Ereignisse"));
@@ -782,15 +802,14 @@ public class ShopClientGUI extends JFrame {
         warenkorb.add(warenkorbTabelle);
         //setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
+        warenkorb.setLocationRelativeTo(this);
+
+
         warenkorb.setSize(new Dimension(800, 600));
         warenkorb.setVisible(true);
     }
 
     private JComponent createShoppingCartPanel(){
-        HashMap<Artikel, Integer> inhalt = aktuellerKunde.getWarenkorb().getInhalt();
-
-        WarenkorbTableModel tableModel = new WarenkorbTableModel(inhalt);
-        warenkorbTabelle = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(warenkorbTabelle);
 
         scrollPane.setBorder(BorderFactory.createTitledBorder("Warenkorb"));
@@ -816,13 +835,16 @@ public class ShopClientGUI extends JFrame {
                 });
                 contentPane.add(hinzufuegenButton);
 
+                artikelInWarenkornMenu.setLocationRelativeTo(this);
+
                 artikelInWarenkornMenu.setSize(280, 100);
                 artikelInWarenkornMenu.setModal(true);
                 artikelInWarenkornMenu.setVisible(true);
 
                 eshop.artikelInWarenkorb(selectedArtikelnummer, anzahlArtikelInWarenkorb, aktuellerKunde);
-                java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                updateArtikelPanel(artikel);
+
+                System.out.println(eshop.gibWarenkorb(aktuellerKunde));
+
                 HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
                 updateShoppingCart(inhalt);
                 System.out.println("Artikel in Warenkorn hinzugefügt!");
@@ -912,14 +934,30 @@ public class ShopClientGUI extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            switch (e.getActionCommand()){
-                case "Über uns":
-                    JDialog about = new JDialog();
-                    Container contentPane = about.getContentPane();
+            if (e.getActionCommand().equals("Über uns")) {
+                JDialog aboutMenu = new JDialog();
+                Container contentPane = aboutMenu.getContentPane();
 
-                    contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-                    about.setTitle("Über uns");
+                aboutMenu.setTitle("Über uns");
+                contentPane.add(new JLabel("<html><u>Entwickler</u></html>"));
+                contentPane.add(new JLabel("Fabian Harjes"));
+                contentPane.add(new JLabel("Jan Steinmüller"));
+                contentPane.add(new JLabel("Mostafa Mortazavi"));
+
+                JButton closeButton = new JButton("Schließen");
+
+                closeButton.addActionListener(e1 -> {
+                    aboutMenu.dispose();
+                });
+
+                contentPane.add(closeButton);
+
+                aboutMenu.setLocationRelativeTo(this);
+
+                aboutMenu.setSize(130, 130);
+                aboutMenu.setVisible(true);
             }
         }
     }

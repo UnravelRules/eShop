@@ -16,7 +16,6 @@ public class WarenkorbTableModel extends AbstractTableModel {
     public WarenkorbTableModel(HashMap<Artikel, Integer> aktuellerInhalt){
         super();
         inhalt = new HashMap<>(aktuellerInhalt);
-        keys = new ArrayList<>(inhalt.keySet());
     }
 
     public void setInhalt(HashMap<Artikel, Integer> aktuellerInhalt){
@@ -41,6 +40,8 @@ public class WarenkorbTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        keys = new ArrayList<>(inhalt.keySet());
+
         Artikel gewaehlterInhalt = keys.get(rowIndex);
         int anzahl = inhalt.get(gewaehlterInhalt);
 
