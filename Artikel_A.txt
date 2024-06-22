@@ -12,7 +12,7 @@ Wasser
 Stückartikel
 4
 Kohle
-50
+25
 6.99
 Stückartikel
 5
@@ -25,3 +25,18 @@ Bier
 192
 12.0
 24
+Stückartikel
+7
+Tabak
+73
+4.0
+Stückartikel
+8
+Banane
+173
+0.89
+Stückartikel
+9
+Milch
+80
+1.2

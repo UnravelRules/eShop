@@ -10,10 +10,7 @@ import java.util.HashMap;
 
 import eShop.local.domain.eShop;
 import eShop.local.domain.exceptions.*;
-import eShop.local.entities.Artikel;
-import eShop.local.entities.Ereignis;
-import eShop.local.entities.Kunde;
-import eShop.local.entities.Mitarbeiter;
+import eShop.local.entities.*;
 import eShop.local.ui.gui.models.ArtikelTableModel;
 import eShop.local.ui.gui.models.EreignisTableModel;
 import eShop.local.ui.gui.models.WarenkorbTableModel;
@@ -637,7 +634,6 @@ public class ShopClientGUI extends JFrame {
     }
 
     private void onLoginButtonClick(boolean istmitarbeiter) throws MitarbeiterExistiertNichtException, KundeExistiertNichtException {
-        System.out.println(istmitarbeiter);
         String benutzername = benutzernameTextField.getText();
         String passwort = passwortTextField.getText();
         if(istmitarbeiter){
@@ -810,10 +806,94 @@ public class ShopClientGUI extends JFrame {
     }
 
     private JComponent createShoppingCartPanel(){
-        JScrollPane scrollPane = new JScrollPane(warenkorbTabelle);
+        JPanel warenkorb = new JPanel();
+        warenkorb.setLayout(new BoxLayout(warenkorb, BoxLayout.Y_AXIS));
 
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Warenkorb"));
-        return scrollPane;
+        JScrollPane scrollPane = new JScrollPane(warenkorbTabelle);
+        warenkorb.add(scrollPane);
+
+        warenkorbTabelle.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = warenkorbTabelle.getSelectedRow();
+                if (selectedRow != -1){
+                    selectedArtikelnummer = (int) warenkorbTabelle.getModel().getValueAt(selectedRow, 0);
+                    selectedArtikelbezeichnung = (String) warenkorbTabelle.getModel().getValueAt(selectedRow, 1);
+                }
+            }
+        });
+
+        JPanel buttonArea = new JPanel();
+        buttonArea.setLayout(new BoxLayout(buttonArea, BoxLayout.X_AXIS));
+
+        JButton kaufenButton = new JButton("Warenkorb kaufen");
+        kaufenButton.addActionListener(e -> {
+            try {
+                Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
+                // Rechnung muss noch ausgegeben werden (JDialog?)
+                updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                updateArtikelPanel(artikel);
+            } catch (UnbekanntesAccountObjektException | MassengutException | ArtikelExistiertNichtException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        buttonArea.add(kaufenButton);
+
+        JButton entfernenButton = new JButton("Artikel entfernen");
+        entfernenButton.addActionListener(e -> {
+            try {
+                eshop.artikelAusWarenkorbEntfernen(aktuellerKunde, selectedArtikelbezeichnung);
+                updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+            } catch (ArtikelExistiertNichtException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        buttonArea.add(entfernenButton);
+
+        JButton veraendernButton = new JButton("Anzahl ändern");
+        veraendernButton.addActionListener(e -> {
+            JDialog veraendernMenu = new JDialog(this, "Neue Anzahl", true);
+            Container contentPane = veraendernMenu.getContentPane();
+            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+            contentPane.add(new JLabel("Neue Anzahl: "));
+            JTextField neueAnzahlTextField = new JTextField();
+            contentPane.add(neueAnzahlTextField);
+
+            JButton neueAnzahlButton = new JButton("Bestand verändern");
+            neueAnzahlButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    int neueAnzahl = Integer.parseInt(neueAnzahlTextField.getText());
+                    veraendernMenu.dispose();
+                    try {
+                        eshop.warenkorbVeraendern(aktuellerKunde, selectedArtikelbezeichnung, neueAnzahl);
+                        updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                    } catch (MassengutException | ArtikelExistiertNichtException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
+            contentPane.add(neueAnzahlButton);
+
+            veraendernMenu.setLocationRelativeTo(this);
+            veraendernMenu.setSize(280, 100);
+            veraendernMenu.setVisible(true);
+        });
+        buttonArea.add(veraendernButton);
+
+        JButton leerenButton = new JButton("Warenkorb leeren");
+        leerenButton.addActionListener(e -> {
+            eshop.warenkorbLeeren(aktuellerKunde);
+            updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+        });
+        buttonArea.add(leerenButton);
+
+        warenkorb.add(buttonArea);
+
+        warenkorb.setBorder(BorderFactory.createTitledBorder("Warenkorb"));
+        return warenkorb;
     }
 
     private void onAddToShoppingCartClick(){
@@ -843,11 +923,8 @@ public class ShopClientGUI extends JFrame {
 
                 eshop.artikelInWarenkorb(selectedArtikelnummer, anzahlArtikelInWarenkorb, aktuellerKunde);
 
-                System.out.println(eshop.gibWarenkorb(aktuellerKunde));
-
                 HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
                 updateShoppingCart(inhalt);
-                System.out.println("Artikel in Warenkorn hinzugefügt!");
             } catch (ArtikelExistiertNichtException | MassengutException e) {
                 throw new RuntimeException(e);
             }
@@ -878,9 +955,11 @@ public class ShopClientGUI extends JFrame {
         public FileMenu() {
             super("Datei");
 
-            JMenuItem saveItem = new JMenuItem("Daten sichern");
-            saveItem.addActionListener(this);
-            this.add(saveItem);
+            if(istMitarbeiter){
+                JMenuItem saveItem = new JMenuItem("Daten sichern");
+                saveItem.addActionListener(this);
+                this.add(saveItem);
+            }
 
             this.addSeparator();
 
@@ -918,6 +997,11 @@ public class ShopClientGUI extends JFrame {
 
                 case "Programm beenden":
                     ShopClientGUI.this.dispose();
+                    try {
+                        eshop.sichereDaten();
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     break;
             }
         }

@@ -72,4 +72,11 @@ public class ShoppingService {
             }
         }
     }
+
+    public void artikelAusWarenkorbEntfernen(Kunde aktuellerKunde, Artikel artikel){
+        Warenkorb warenkorb = aktuellerKunde.getWarenkorb();
+        HashMap<Artikel, Integer> inhalt = warenkorb.getInhalt();
+
+        inhalt.remove(artikel);
+    }
 }

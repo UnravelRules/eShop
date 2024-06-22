@@ -223,6 +223,11 @@ public class eShop {
         shoppingService.warenkorbVeraendern(aktuellerKunde, artikel, neuerBestand);
     }
 
+    public void artikelAusWarenkorbEntfernen(Kunde aktuellerKunde, String bezeichnung) throws ArtikelExistiertNichtException {
+        Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
+        shoppingService.artikelAusWarenkorbEntfernen(aktuellerKunde, artikel);
+    }
+
     public HashMap<Artikel, Integer> gibWarenkorb(Kunde aktuellerKunde){
         return aktuellerKunde.getWarenkorb().getInhalt();
     }
