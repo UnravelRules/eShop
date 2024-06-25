@@ -130,8 +130,8 @@ public class ShopClientGUI extends JFrame {
         loginButton.addActionListener(e -> {
             try {
                 onLoginButtonClick(istMitarbeiter);
-            } catch (MitarbeiterExistiertNichtException | KundeExistiertNichtException ex) {
-                throw new RuntimeException(ex);
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
             }
         });
         c.gridy = 6;
@@ -252,7 +252,7 @@ public class ShopClientGUI extends JFrame {
                 onMitarbeiterAnlegenButtonClick(mitarbeiterNummer, name, benutzernameEingabe, passwortEingabe);
                 registrationMenu.dispose();
             } catch (MitarbeiterExistiertBereitsException ex) {
-                throw new RuntimeException(ex);
+                JOptionPane.showMessageDialog(null, "Fehler: "+ ex.getMessage());
             }
         });
         contentPane.add(registrierenButton);
@@ -675,24 +675,32 @@ public class ShopClientGUI extends JFrame {
         eshop.mitarbeiterRegistrieren(nummer, name, benutzername, passwort);
     }
 
-    private void onLoginButtonClick(boolean istmitarbeiter) throws MitarbeiterExistiertNichtException, KundeExistiertNichtException {
+    private void onLoginButtonClick(boolean istmitarbeiter) throws RuntimeException {
         String benutzername = benutzernameTextField.getText();
         String passwort = passwortTextField.getText();
         if(istmitarbeiter){
-            Mitarbeiter mitarbeiter = eshop.mitarbeiterEinloggen(benutzername, passwort);
-            if(mitarbeiter != null){
-                aktuellerMitarbeiter = mitarbeiter;
-                mainPanel.add(createMitarbeiterPanel(), "MitarbeiterMenu");
-                cardLayout.show(mainPanel, "MitarbeiterMenu");
-                resizeFrame(new Dimension(800, 600));
+            try {
+                Mitarbeiter mitarbeiter = eshop.mitarbeiterEinloggen(benutzername, passwort);
+                if(mitarbeiter != null){
+                    aktuellerMitarbeiter = mitarbeiter;
+                    mainPanel.add(createMitarbeiterPanel(), "MitarbeiterMenu");
+                    cardLayout.show(mainPanel, "MitarbeiterMenu");
+                    resizeFrame(new Dimension(800, 600));
+                }
+            } catch (MitarbeiterExistiertNichtException e) {
+                throw new RuntimeException(e);
             }
         } else {
-            Kunde kunde = eshop.kundeEinloggen(benutzername, passwort);
-            if(kunde != null){
-                aktuellerKunde = kunde;
-                mainPanel.add(createKundenPanel(), "KundenMenu");
-                cardLayout.show(mainPanel, "KundenMenu");
-                resizeFrame(new Dimension(800, 600));
+            try {
+                Kunde kunde = eshop.kundeEinloggen(benutzername, passwort);
+                if(kunde != null){
+                    aktuellerKunde = kunde;
+                    mainPanel.add(createKundenPanel(), "KundenMenu");
+                    cardLayout.show(mainPanel, "KundenMenu");
+                    resizeFrame(new Dimension(800, 600));
+                }
+            } catch (KundeExistiertNichtException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -752,12 +760,8 @@ public class ShopClientGUI extends JFrame {
                         inputErrorPreis.setVisible(false);
                         inputErrorPackungsgroesse.setVisible(false);
                     }
-                } catch (MassengutException mge){
-                    JOptionPane.showMessageDialog(null, "Fehler: " + mge.getMessage());
-                } catch (ArtikelExistiertBereitsException aeb){
-                    JOptionPane.showMessageDialog(null, "Fehler: " + aeb.getMessage());
-                } catch (UnbekanntesAccountObjektException uao){
-                    System.out.print("Fehler: Kein Kundenobjekt wurde gefunden");
+                } catch (MassengutException | RuntimeException ex){
+                    JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                 }
             }
         } else {
@@ -767,45 +771,17 @@ public class ShopClientGUI extends JFrame {
                 float preis = 0.0f;
 
                 try{
-                    artikelnummer = Integer.parseInt(artikelnummerTextField.getText());
-                    inputErrorArtikelnummer.setVisible(false);
-                } catch (NumberFormatException e){
-                    inputErrorArtikelnummer.setVisible(true);
-                }
-
-                try{
-                    bestand = Integer.parseInt(bestandTextField.getText());
-                    inputErrorBestand.setVisible(false);
-                } catch (NumberFormatException e){
-                    inputErrorBestand.setVisible(true);
-                }
-
-                try{
-                    preis = Float.parseFloat(preisTextField.getText());
-                    inputErrorPreis.setVisible(false);
-                } catch (NumberFormatException e){
-                    inputErrorPreis.setVisible(true);
-                }
-
-                try{
-                    if(artikelnummer != 0 && bestand != 0 && preis != 0){
-                        eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
-                        java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                        updateArtikelPanel(artikel);
-                        java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
-                        updateEreignisPanel(eventlog);
-                        artikelnummerTextField.setText("");
-                        bezeichnungTextField.setText("");
-                        bestandTextField.setText("");
-                        preisTextField.setText("");
-                        inputErrorArtikelnummer.setVisible(false);
-                        inputErrorBestand.setVisible(false);
-                        inputErrorPreis.setVisible(false);
-                    }
-                } catch (ArtikelExistiertBereitsException aeb){
-                    JOptionPane.showMessageDialog(null, "Fehler: " + aeb.getMessage());
-                } catch (UnbekanntesAccountObjektException uao){
-                    System.out.print("Fehler: Kein Kundenobjekt wurde gefunden");
+                    eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
+                    java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                    updateArtikelPanel(artikel);
+                    java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
+                    updateEreignisPanel(eventlog);
+                    artikelnummerTextField.setText("");
+                    bezeichnungTextField.setText("");
+                    bestandTextField.setText("");
+                    preisTextField.setText("");
+                } catch(RuntimeException e){
+                    JOptionPane.showMessageDialog(null, "Fehler: "+ e.getMessage());
                 }
             }
         }
@@ -822,7 +798,7 @@ public class ShopClientGUI extends JFrame {
             }
 
         } catch (UnbekanntesAccountObjektException | ArtikelExistiertNichtException | NullPointerException e) {
-            System.out.println("Es wurde kein Artikel ausgewählt!");
+            JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
         }
     }
 

@@ -117,7 +117,7 @@ public class ArtikelVerwaltung {
                 return bestand_item;
             }
         }
-        throw new ArtikelExistiertNichtException();
+        throw new ArtikelExistiertNichtException(Integer.toString(artikelNummer));
     }
 
     public Artikel getArtikelMitBezeichnung(String bezeichnung) throws ArtikelExistiertNichtException{
@@ -126,7 +126,7 @@ public class ArtikelVerwaltung {
                 return bestand_item;
             }
         }
-        throw new ArtikelExistiertNichtException();
+        throw new ArtikelExistiertNichtException(bezeichnung);
     }
 
     /**
