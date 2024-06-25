@@ -105,7 +105,7 @@ public class ShopClientCUI {
         try{
             Kunde k = eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
             System.out.println("Herzlich Willkommen, " + k.getName());
-        } catch (KundeExistiertBereitsException e) {
+        } catch (Exception e) {
             System.out.println("Fehler beim Registrieren");
             e.printStackTrace();
         }

@@ -48,7 +48,12 @@ public class eShop {
      * @return Kundenobjekt
      * @throws KundeExistiertBereitsException
      */
-    public Kunde kundeRegistrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException {
+    public Kunde kundeRegistrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException, FehlendeEingabenException {
+        if(name == null || str == null || plz == null || benutzer == null || passwort == null){
+            throw new FehlendeEingabenException("Registrierung");
+        } else if (name.isEmpty() || str.isEmpty() || plz.isEmpty() || benutzer.isEmpty() || passwort.isEmpty()) {
+            throw new FehlendeEingabenException("Registrierung");
+        }
         Kunde k = new Kunde(kundenVW.getKundenliste().size() + 1, name, str, plz, benutzer, passwort);
         kundenVW.registrieren(k);
         return k;
