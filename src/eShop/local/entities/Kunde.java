@@ -6,14 +6,14 @@ import java.util.Objects;
 public class Kunde extends Benutzer {
     private String strasse = "";
     private String plz = "";
-    private HashMap<Artikel, Integer> warenkorb;
+    private Warenkorb warenkorb;
 
 
     public Kunde(int nummer, String name, String str, String plz, String benutzer, String pw){
         super(nummer, name, benutzer, pw);
         this.strasse = str;
         this.plz = plz;
-        this.warenkorb = new HashMap<>();
+        this.warenkorb = new Warenkorb();
     }
 
 
@@ -36,7 +36,7 @@ public class Kunde extends Benutzer {
      * @return Passwort
      */
 
-    public HashMap<Artikel, Integer> getWarenkorb() {
+    public Warenkorb getWarenkorb() {
         return warenkorb;
     }
 
