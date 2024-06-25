@@ -760,12 +760,8 @@ public class ShopClientGUI extends JFrame {
                         inputErrorPreis.setVisible(false);
                         inputErrorPackungsgroesse.setVisible(false);
                     }
-                } catch (MassengutException mge){
-                    JOptionPane.showMessageDialog(null, "Fehler: " + mge.getMessage());
-                } catch (ArtikelExistiertBereitsException aeb){
-                    JOptionPane.showMessageDialog(null, "Fehler: " + aeb.getMessage());
-                } catch (UnbekanntesAccountObjektException uao){
-                    System.out.print("Fehler: Kein Kundenobjekt wurde gefunden");
+                } catch (MassengutException | RuntimeException ex){
+                    JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                 }
             }
         } else {
