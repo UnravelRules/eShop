@@ -620,7 +620,12 @@ public class ShopClientGUI extends JFrame {
         String benutzername = benutzer.getText();
         String passwort = pw.getText();
 
-        eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
+        try {
+            eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
+        } catch (FehlendeEingabenException e) {
+            throw new RuntimeException(e);
+
+        }
         System.out.println("Kunde wurde angelegt!");
     }
 
