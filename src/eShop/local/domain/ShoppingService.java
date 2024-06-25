@@ -17,7 +17,7 @@ public class ShoppingService {
         if(a instanceof Massengutartikel){
             int packungs_gr = ((Massengutartikel) a).getPackungsgroesse();
             if(anzahl % packungs_gr != 0){
-                throw new MassengutException();
+                throw new MassengutException(anzahl, ((Massengutartikel) a).getPackungsgroesse());
             }
         }
 
@@ -65,7 +65,7 @@ public class ShoppingService {
                 if(artikel instanceof Massengutartikel){
                     int packungsgroesse = ((Massengutartikel) artikel).getPackungsgroesse();
                     if(neuerBestand % packungsgroesse != 0){
-                        throw new MassengutException();
+                        throw new MassengutException(neuerBestand, packungsgroesse);
                     }
                 }
                 warenkorb.inhaltVeraendern(artikel, neuerBestand);

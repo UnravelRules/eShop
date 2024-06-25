@@ -24,11 +24,20 @@ public class Massengutartikel extends Artikel{
         if(differenz % packungsgroesse == 0){
             this.bestand = neuerBestand;
         } else {
-            throw new MassengutException();
+            throw new MassengutException(neuerBestand, packungsgroesse);
         }
     }
 
     @Override public String toString(){
         return String.format("Nr: " + artikelnummer + " / Bezeichnung: " + bezeichnung + " / Bestand: " + bestand + " Stk. / Packungsgröße " + packungsgroesse +" Stk. / Preis pro Stk. : %.2f€", preis);
+    }
+
+    public boolean equals(Object andererArtikel) {
+        if (andererArtikel instanceof Artikel) {
+            return ((this.artikelnummer == ((Artikel) andererArtikel).artikelnummer)
+                    || (this.bezeichnung.equals(((Artikel) andererArtikel).bezeichnung)));
+        } else {
+            return false;
+        }
     }
 }

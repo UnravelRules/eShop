@@ -53,15 +53,14 @@ public class ArtikelVerwaltung {
      */
     public void artikelHinzufuegen(Artikel artikel) throws ArtikelExistiertBereitsException {
         if(artikelBestand.contains(artikel)) {
-            throw new ArtikelExistiertBereitsException();
+            throw new ArtikelExistiertBereitsException(artikel.getArtikelnummer(), artikel.getBezeichnung());
         }
-
         artikelBestand.add(artikel);
     }
 
     public void massengutartikelHinzufuegen(Massengutartikel massengutartikel) throws ArtikelExistiertBereitsException {
         if(artikelBestand.contains(massengutartikel)){
-            throw new ArtikelExistiertBereitsException();
+            throw new ArtikelExistiertBereitsException(massengutartikel.getArtikelnummer(), massengutartikel.getBezeichnung());
         }
 
         artikelBestand.add(massengutartikel);
