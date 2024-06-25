@@ -47,7 +47,7 @@ public class KundenVerwaltung {
      */
     public Kunde registrieren(Kunde kunde) throws KundeExistiertBereitsException {
         if (kundenliste.contains(kunde)) {
-            throw new KundeExistiertBereitsException();
+            throw new KundeExistiertBereitsException(kunde);
         } else {
             kundenliste.add(kunde);
             return kunde;
