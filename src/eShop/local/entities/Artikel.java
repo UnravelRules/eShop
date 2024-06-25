@@ -28,12 +28,20 @@ public class Artikel {
         return String.format("Nr: " + artikelnummer + " / Bezeichnung: " + bezeichnung + " / Bestand: " + bestand + " Stk. / Preis: %.2f€", preis);
     }
 
+    public boolean equals(Object andererArtikel) {
+        if (andererArtikel instanceof Artikel) {
+            return ((this.artikelnummer == ((Artikel) andererArtikel).artikelnummer)
+            || (this.bezeichnung.equals(((Artikel) andererArtikel).bezeichnung)));
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Gibt die Artikelnummer als Integer zurück
      * @return Artikelnummer
      */
     public int getArtikelnummer() {
-
         return artikelnummer;
     }
 

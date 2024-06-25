@@ -40,8 +40,15 @@ public class ShopClientGUI extends JFrame {
     private Mitarbeiter aktuellerMitarbeiter;
     private int selectedArtikelnummer;
     private String selectedArtikelbezeichnung;
+    private int selectedShoppingCartItemNummer;
+    private String selectedShoppingCartItemBezeichnung;
     private int neuerBestand;
     private int anzahlArtikelInWarenkorb;
+    private JLabel inputErrorArtikelnummer;
+    private JLabel inputErrorBestand;
+    private JLabel inputErrorPreis;
+    private JLabel inputErrorPackungsgroesse;
+
 
     public ShopClientGUI(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) {
         super("E-Shop");
@@ -321,9 +328,6 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(openShoppingCartButton, c);
         shoppingCartPanel.add(openShoppingCartButton);
 
-/*        if(!warenkorbPanelOffen){
-            openShoppingCartButton.addActionListener(e -> onShoppingCartButtonClick());
-        }*/
         openShoppingCartButton.addActionListener(e -> onShoppingCartButtonClick());
 
         JPanel filler = new JPanel();
@@ -421,55 +425,87 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(artikelnummerTextField, c);
         funktionsPanel.add(artikelnummerTextField);
 
-        JLabel bezeichnung = new JLabel("Bezeichnung");
+        inputErrorArtikelnummer = new JLabel("Fehler!");
         c.gridy = 4;
+        c.weighty = 0;
+        gridBagLayout.setConstraints(inputErrorArtikelnummer, c);
+        funktionsPanel.add(inputErrorArtikelnummer);
+        inputErrorArtikelnummer.setForeground(Color.RED);
+        inputErrorArtikelnummer.setVisible(false);
+
+        JLabel bezeichnung = new JLabel("Bezeichnung");
+        c.gridy = 5;
         c.weighty = 0;
         gridBagLayout.setConstraints(bezeichnung, c);
         funktionsPanel.add(bezeichnung);
 
         bezeichnungTextField = new JTextField();
-        c.gridy = 5;
+        c.gridy = 6;
         c.weighty = 0;
         gridBagLayout.setConstraints(bezeichnungTextField, c);
         funktionsPanel.add(bezeichnungTextField);
 
         JLabel bestand = new JLabel("Bestand");
-        c.gridy = 6;
+        c.gridy = 7;
         c.weighty = 0;
         gridBagLayout.setConstraints(bestand, c);
         funktionsPanel.add(bestand);
 
         bestandTextField = new JTextField();
-        c.gridy = 7;
+        c.gridy = 8;
         c.weighty = 0;
         gridBagLayout.setConstraints(bestandTextField, c);
         funktionsPanel.add(bestandTextField);
 
+        inputErrorBestand = new JLabel("Fehler!");
+        c.gridy = 9;
+        c.weighty = 0;
+        gridBagLayout.setConstraints(inputErrorBestand, c);
+        funktionsPanel.add(inputErrorBestand);
+        inputErrorBestand.setForeground(Color.RED);
+        inputErrorBestand.setVisible(false);
+
         JLabel preis = new JLabel("Preis");
-        c.gridy = 8;
+        c.gridy = 10;
         c.weighty = 0;
         gridBagLayout.setConstraints(preis, c);
         funktionsPanel.add(preis);
 
         preisTextField = new JTextField();
-        c.gridy = 9;
+        c.gridy = 11;
         c.weighty = 0;
         gridBagLayout.setConstraints(preisTextField, c);
         funktionsPanel.add(preisTextField);
 
+        inputErrorPreis = new JLabel("Fehler!");
+        c.gridy = 12;
+        c.weighty = 0;
+        gridBagLayout.setConstraints(inputErrorPreis, c);
+        funktionsPanel.add(inputErrorPreis);
+        inputErrorPreis.setForeground(Color.RED);
+        inputErrorPreis.setVisible(false);
+
         JLabel packungsgroesse = new JLabel("Packungsgröße");
-        c.gridy = 10;
+        c.gridy = 13;
         c.weighty = 0;
         gridBagLayout.setConstraints(packungsgroesse, c);
         funktionsPanel.add(packungsgroesse);
         packungsgroesse.setVisible(false);
 
         packungsgroesseTextField = new JTextField();
-        c.gridy = 11;
+        c.gridy = 14;
         c.weighty = 0;
         gridBagLayout.setConstraints(packungsgroesseTextField, c);
         funktionsPanel.add(packungsgroesseTextField);
         packungsgroesseTextField.setVisible(false);
+
+        inputErrorPackungsgroesse = new JLabel("Fehler!");
+        c.gridy = 15;
+        c.weighty = 0;
+        gridBagLayout.setConstraints(inputErrorPackungsgroesse, c);
+        funktionsPanel.add(inputErrorPackungsgroesse);
+        inputErrorPackungsgroesse.setForeground(Color.RED);
+        inputErrorPackungsgroesse.setVisible(false);
 
         massengutartikelCheckbox.addActionListener(new ActionListener() {
             @Override
@@ -488,20 +524,20 @@ public class ShopClientGUI extends JFrame {
         });
 
         JButton addArtikelButton = new JButton("Hinzufügen");
-        c.gridy = 12;
+        c.gridy = 16;
         c.weighty = 0;
         gridBagLayout.setConstraints(addArtikelButton, c);
         addArtikelButton.addActionListener(e -> onAddButtonClick());
         funktionsPanel.add(addArtikelButton);
 
         JPanel filler = new JPanel();
-        c.gridy = 13;
+        c.gridy = 17;
         c.weighty = 1;
         gridBagLayout.setConstraints(filler, c);
         funktionsPanel.add(filler);
 
         JButton artikelEntfernenButton = new JButton("Artikel entfernen");
-        c.gridy = 14;
+        c.gridy = 18;
         c.weighty = 0;
         gridBagLayout.setConstraints(artikelEntfernenButton, c);
         funktionsPanel.add(artikelEntfernenButton);
@@ -509,7 +545,7 @@ public class ShopClientGUI extends JFrame {
         artikelEntfernenButton.addActionListener(e -> onRemoveButtonClick());
 
         JButton bestandAendernButton = new JButton("Bestand verändern");
-        c.gridy = 15;
+        c.gridy = 19;
         c.weighty = 0;
         gridBagLayout.setConstraints(bestandAendernButton, c);
         funktionsPanel.add(bestandAendernButton);
@@ -517,7 +553,7 @@ public class ShopClientGUI extends JFrame {
         bestandAendernButton.addActionListener(e -> onChangeButtonClick());
 
         JButton eventlogAnzeigen = new JButton("Eventlog anzeigen");
-        c.gridy = 16;
+        c.gridy = 20;
         c.weighty = 0;
         gridBagLayout.setConstraints(eventlogAnzeigen, c);
         funktionsPanel.add(eventlogAnzeigen);
@@ -588,8 +624,9 @@ public class ShopClientGUI extends JFrame {
     private JComponent createArtikelPanel(){
         java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
 
-        ArtikelTableModel tableModel = new ArtikelTableModel(artikel);
+        ArtikelTableModel tableModel = new ArtikelTableModel(artikel, istMitarbeiter);
         artikelTabelle = new JTable(tableModel);
+        artikelTabelle.setAutoCreateRowSorter(true);
         JScrollPane scrollPane = new JScrollPane(artikelTabelle);
 
         artikelTabelle.addMouseListener(new MouseAdapter() {
@@ -677,32 +714,65 @@ public class ShopClientGUI extends JFrame {
 
         if(istMassengutartikel){
             if(!artikelnummerText.isEmpty() && !bezeichnung.isEmpty() && !bestandText.isEmpty() && !preisText.isEmpty() && !packungsgroesseText.isEmpty()){
-                int artikelnummer = Integer.parseInt(artikelnummerTextField.getText());
-                int bestand = Integer.parseInt(bestandTextField.getText());
-                float preis = Float.parseFloat(preisTextField.getText());
-                int packungsgroesse = Integer.parseInt(packungsgroesseTextField.getText());
+                int artikelnummer = 0;
+                int bestand = 0;
+                float preis = 0.0f;
+                int packungsgroesse = 0;
+                try{
+                    artikelnummer = Integer.parseInt(artikelnummerTextField.getText());
+                    inputErrorArtikelnummer.setVisible(false);
+                } catch (NumberFormatException e){
+                    inputErrorArtikelnummer.setVisible(true);
+                }
 
                 try{
-                    eshop.massengutartikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter, packungsgroesse);
-                    java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                    updateArtikelPanel(artikel);
-                    artikelnummerTextField.setText("");
-                    bezeichnungTextField.setText("");
-                    bestandTextField.setText("");
-                    preisTextField.setText("");
-                    packungsgroesseTextField.setText("");
+                    bestand = Integer.parseInt(bestandTextField.getText());
+                    inputErrorBestand.setVisible(false);
+                } catch (NumberFormatException e){
+                    inputErrorBestand.setVisible(true);
+                }
 
-                } catch (NumberFormatException nfe){
-                    JOptionPane.showMessageDialog(null, "Bitte eine Zahl als Nummer eingeben");
-                } catch (MassengutException | RuntimeException mge){
-                    JOptionPane.showMessageDialog(null, "Fehler: "+ mge.getMessage());
+                try{
+                    preis = Float.parseFloat(preisTextField.getText());
+                    inputErrorPreis.setVisible(false);
+                } catch (NumberFormatException e){
+                    inputErrorPreis.setVisible(true);
+                }
+
+                try{
+                    packungsgroesse = Integer.parseInt(packungsgroesseTextField.getText());
+                    inputErrorPackungsgroesse.setVisible(false);
+                } catch (NumberFormatException | ArithmeticException e) {
+                    inputErrorPackungsgroesse.setVisible(true);
+                }
+                try{
+                    if(artikelnummer != 0 && bestand != 0 && preis != 0 && packungsgroesse != 0){
+                        eshop.massengutartikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter, packungsgroesse);
+                        java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                        updateArtikelPanel(artikel);
+                        artikelnummerTextField.setText("");
+                        bezeichnungTextField.setText("");
+                        bestandTextField.setText("");
+                        preisTextField.setText("");
+                        packungsgroesseTextField.setText("");
+                        inputErrorArtikelnummer.setVisible(false);
+                        inputErrorBestand.setVisible(false);
+                        inputErrorPreis.setVisible(false);
+                        inputErrorPackungsgroesse.setVisible(false);
+                    }
+                } catch (MassengutException mge){
+                    JOptionPane.showMessageDialog(null, "Fehler: " + mge.getMessage());
+                } catch (ArtikelExistiertBereitsException aeb){
+                    JOptionPane.showMessageDialog(null, "Fehler: " + aeb.getMessage());
+                } catch (UnbekanntesAccountObjektException uao){
+                    System.out.print("Fehler: Kein Kundenobjekt wurde gefunden");
                 }
             }
         } else {
             if(!artikelnummerText.isEmpty() && !bezeichnung.isEmpty() && !bestandText.isEmpty() && !preisText.isEmpty()) {
-                int artikelnummer = Integer.parseInt(artikelnummerTextField.getText());
-                int bestand = Integer.parseInt(bestandTextField.getText());
-                float preis = Float.parseFloat(preisTextField.getText());
+                int artikelnummer = 0;
+                int bestand = 0;
+                float preis = 0.0f;
 
                 try{
                     eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
@@ -738,38 +808,49 @@ public class ShopClientGUI extends JFrame {
 
     private void onChangeButtonClick(){
         if(selectedArtikelnummer != 0) {
-            try {
-                JDialog neuerBestandMenu = new JDialog(this, "Neuer Bestand", true);
-                Container contentPane = neuerBestandMenu.getContentPane();
+            JDialog neuerBestandMenu = new JDialog(this, "Neuer Bestand", true);
+            Container contentPane = neuerBestandMenu.getContentPane();
 
-                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-                contentPane.add(new JLabel("Neuer Bestand: "));
-                JTextField neuerBestandTextField = new JTextField();
-                contentPane.add(neuerBestandTextField);
+            contentPane.add(new JLabel("Neuer Bestand: "));
+            JTextField neuerBestandTextField = new JTextField();
+            contentPane.add(neuerBestandTextField);
 
-                JButton neuerBestandButton = new JButton("Bestand verändern");
-                neuerBestandButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
+            JLabel errorInput = new JLabel("Fehler! Ganze Zahl eintragen!");
+            errorInput.setForeground(Color.RED);
+            errorInput.setVisible(false);
+
+            contentPane.add(errorInput);
+
+            JButton neuerBestandButton = new JButton("Bestand verändern");
+            neuerBestandButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
                         neuerBestand = Integer.parseInt(neuerBestandTextField.getText());
                         neuerBestandMenu.dispose();
+                        eshop.bestandAendern(selectedArtikelnummer, neuerBestand, aktuellerMitarbeiter);
+                        java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                        updateArtikelPanel(artikel);
+                        errorInput.setVisible(false);
+                    } catch (NumberFormatException nfe) {
+                        errorInput.setVisible(true);
+                    } catch (MassengutException ex) {
+                        JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+                    } catch (UnbekanntesAccountObjektException | ArtikelExistiertNichtException ex) {
+                        throw new RuntimeException(ex);
                     }
-                });
-                contentPane.add(neuerBestandButton);
+
+                }
+            });
+            contentPane.add(neuerBestandButton);
 
                 neuerBestandMenu.setLocationRelativeTo(this);
 
-                neuerBestandMenu.setSize(280, 100);
+                neuerBestandMenu.setSize(280, 120);
                 neuerBestandMenu.setModal(true);
                 neuerBestandMenu.setVisible(true);
-
-                eshop.bestandAendern(selectedArtikelnummer, neuerBestand, aktuellerMitarbeiter);
-                java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                updateArtikelPanel(artikel);
-            } catch (UnbekanntesAccountObjektException | ArtikelExistiertNichtException | MassengutException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 
@@ -787,6 +868,7 @@ public class ShopClientGUI extends JFrame {
 
     private JComponent createEventlogPanel(){
         JScrollPane scrollPane = new JScrollPane(ereignisTabelle);
+        ereignisTabelle.setAutoCreateRowSorter(true);
 
         scrollPane.setBorder(BorderFactory.createTitledBorder("Ereignisse"));
         return scrollPane;
@@ -805,25 +887,25 @@ public class ShopClientGUI extends JFrame {
 
         warenkorb.setLocationRelativeTo(this);
 
-
         warenkorb.setSize(new Dimension(800, 600));
         warenkorb.setVisible(true);
     }
 
     private JComponent createShoppingCartPanel(){
-        JPanel warenkorb = new JPanel();
-        warenkorb.setLayout(new BoxLayout(warenkorb, BoxLayout.Y_AXIS));
+        JPanel warenkorbPanel = new JPanel();
+        warenkorbPanel.setLayout(new BoxLayout(warenkorbPanel, BoxLayout.Y_AXIS));
 
         JScrollPane scrollPane = new JScrollPane(warenkorbTabelle);
-        warenkorb.add(scrollPane);
+        warenkorbPanel.add(scrollPane);
+        warenkorbTabelle.setAutoCreateRowSorter(true);
 
         warenkorbTabelle.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int selectedRow = warenkorbTabelle.getSelectedRow();
                 if (selectedRow != -1){
-                    selectedArtikelnummer = (int) warenkorbTabelle.getModel().getValueAt(selectedRow, 0);
-                    selectedArtikelbezeichnung = (String) warenkorbTabelle.getModel().getValueAt(selectedRow, 1);
+                    selectedShoppingCartItemNummer = (int) warenkorbTabelle.getModel().getValueAt(selectedRow, 0);
+                    selectedShoppingCartItemBezeichnung = (String) warenkorbTabelle.getModel().getValueAt(selectedRow, 1);
                 }
             }
         });
@@ -834,11 +916,16 @@ public class ShopClientGUI extends JFrame {
         JButton kaufenButton = new JButton("Warenkorb kaufen");
         kaufenButton.addActionListener(e -> {
             try {
-                Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
-                // Rechnung muss noch ausgegeben werden (JDialog?)
-                updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-                java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                updateArtikelPanel(artikel);
+                if(!aktuellerKunde.getWarenkorb().getInhalt().isEmpty()){
+                    Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
+                    System.out.println(rechnung);
+                    // Rechnung muss noch ausgegeben werden (JDialog?)
+                    SwingUtilities.getWindowAncestor(warenkorbPanel).dispose();
+
+                    updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                    java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                    updateArtikelPanel(artikel);
+                }
             } catch (UnbekanntesAccountObjektException | MassengutException | ArtikelExistiertNichtException ex) {
                 throw new RuntimeException(ex);
             }
@@ -848,8 +935,11 @@ public class ShopClientGUI extends JFrame {
         JButton entfernenButton = new JButton("Artikel entfernen");
         entfernenButton.addActionListener(e -> {
             try {
-                eshop.artikelAusWarenkorbEntfernen(aktuellerKunde, selectedArtikelbezeichnung);
-                updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                if(selectedShoppingCartItemNummer != 0){
+                    eshop.artikelAusWarenkorbEntfernen(aktuellerKunde, selectedShoppingCartItemBezeichnung);
+                    updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                    selectedShoppingCartItemNummer = 0;
+                }
             } catch (ArtikelExistiertNichtException ex) {
                 throw new RuntimeException(ex);
             }
@@ -858,33 +948,38 @@ public class ShopClientGUI extends JFrame {
 
         JButton veraendernButton = new JButton("Anzahl ändern");
         veraendernButton.addActionListener(e -> {
-            JDialog veraendernMenu = new JDialog(this, "Neue Anzahl", true);
-            Container contentPane = veraendernMenu.getContentPane();
-            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+            if(selectedShoppingCartItemNummer != 0){
+                JDialog veraendernMenu = new JDialog(this, "Neue Anzahl", true);
+                Container contentPane = veraendernMenu.getContentPane();
+                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-            contentPane.add(new JLabel("Neue Anzahl: "));
-            JTextField neueAnzahlTextField = new JTextField();
-            contentPane.add(neueAnzahlTextField);
+                contentPane.add(new JLabel("Neue Anzahl: "));
+                JTextField neueAnzahlTextField = new JTextField();
+                contentPane.add(neueAnzahlTextField);
 
-            JButton neueAnzahlButton = new JButton("Bestand verändern");
-            neueAnzahlButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    int neueAnzahl = Integer.parseInt(neueAnzahlTextField.getText());
-                    veraendernMenu.dispose();
-                    try {
-                        eshop.warenkorbVeraendern(aktuellerKunde, selectedArtikelbezeichnung, neueAnzahl);
-                        updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-                    } catch (MassengutException | ArtikelExistiertNichtException ex) {
-                        throw new RuntimeException(ex);
+                JButton neueAnzahlButton = new JButton("Bestand verändern");
+                neueAnzahlButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        int neueAnzahl = Integer.parseInt(neueAnzahlTextField.getText());
+                        veraendernMenu.dispose();
+                        try {
+                            eshop.warenkorbVeraendern(aktuellerKunde, selectedShoppingCartItemBezeichnung, neueAnzahl);
+                            updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                            selectedShoppingCartItemNummer = 0;
+                        } catch (MassengutException | ArtikelExistiertNichtException ex) {
+                            JOptionPane.showMessageDialog(null, "");
+                        } catch (NegativerBestandException ex) {
+                            JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+                        }
                     }
-                }
-            });
-            contentPane.add(neueAnzahlButton);
+                });
+                contentPane.add(neueAnzahlButton);
 
-            veraendernMenu.setLocationRelativeTo(this);
-            veraendernMenu.setSize(280, 100);
-            veraendernMenu.setVisible(true);
+                veraendernMenu.setLocationRelativeTo(this);
+                veraendernMenu.setSize(280, 100);
+                veraendernMenu.setVisible(true);
+            }
         });
         buttonArea.add(veraendernButton);
 
@@ -895,44 +990,58 @@ public class ShopClientGUI extends JFrame {
         });
         buttonArea.add(leerenButton);
 
-        warenkorb.add(buttonArea);
+        warenkorbPanel.add(buttonArea);
 
-        warenkorb.setBorder(BorderFactory.createTitledBorder("Warenkorb"));
-        return warenkorb;
+        warenkorbPanel.setBorder(BorderFactory.createTitledBorder("Warenkorb"));
+        return warenkorbPanel;
     }
 
     private void onAddToShoppingCartClick(){
         if(selectedArtikelnummer != 0) {
-            try {
-                JDialog artikelInWarenkornMenu = new JDialog(this, "Anzahl", true);
-                Container contentPane = artikelInWarenkornMenu.getContentPane();
+            JDialog artikelInWarenkornMenu = new JDialog(this, "Anzahl", true);
+            Container contentPane = artikelInWarenkornMenu.getContentPane();
 
-                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-                contentPane.add(new JLabel("Anzahl des Artikels: "));
-                JTextField anzahlArtikelTextField = new JTextField();
-                contentPane.add(anzahlArtikelTextField);
+            contentPane.add(new JLabel("Anzahl des Artikels: "));
+            JTextField anzahlArtikelTextField = new JTextField();
+            contentPane.add(anzahlArtikelTextField);
 
-                JButton hinzufuegenButton = new JButton("In Warenkorb hinzufügen");
-                hinzufuegenButton.addActionListener(e -> {
+            JLabel inputError = new JLabel("Fehler!");
+            inputError.setForeground(Color.RED);
+            inputError.setVisible(false);
+            contentPane.add(inputError);
+
+            JButton hinzufuegenButton = new JButton("In Warenkorb hinzufügen");
+            hinzufuegenButton.addActionListener(e -> {
+                try{
                     anzahlArtikelInWarenkorb = Integer.parseInt(anzahlArtikelTextField.getText());
-                    artikelInWarenkornMenu.dispose();
-                });
-                contentPane.add(hinzufuegenButton);
+                    if(anzahlArtikelInWarenkorb != 0){
+                        eshop.artikelInWarenkorb(selectedArtikelnummer, anzahlArtikelInWarenkorb, aktuellerKunde);
+                        inputError.setVisible(false);
+                        artikelInWarenkornMenu.dispose();
+                    } else {
+                        inputError.setVisible(true);
+                    }
+                } catch (NumberFormatException nfe){
+                    inputError.setVisible(true);
+                } catch (ArtikelExistiertNichtException ex) {
+                    throw new RuntimeException(ex);
+                } catch (MassengutException ex) {
+                    JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+                }
 
-                artikelInWarenkornMenu.setLocationRelativeTo(this);
+            });
+            contentPane.add(hinzufuegenButton);
 
-                artikelInWarenkornMenu.setSize(280, 100);
-                artikelInWarenkornMenu.setModal(true);
-                artikelInWarenkornMenu.setVisible(true);
+            artikelInWarenkornMenu.setLocationRelativeTo(this);
 
-                eshop.artikelInWarenkorb(selectedArtikelnummer, anzahlArtikelInWarenkorb, aktuellerKunde);
+            artikelInWarenkornMenu.setSize(280, 120);
+            artikelInWarenkornMenu.setModal(true);
+            artikelInWarenkornMenu.setVisible(true);
 
-                HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
-                updateShoppingCart(inhalt);
-            } catch (ArtikelExistiertNichtException | MassengutException e) {
-                throw new RuntimeException(e);
-            }
+            HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
+            updateShoppingCart(inhalt);
         }
     }
 

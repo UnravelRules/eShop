@@ -2,6 +2,7 @@ package eShop.local.entities;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Rechnung {
     private Kunde kunde;
@@ -47,5 +48,13 @@ public class Rechnung {
      */
     public float getGesamtpreis() {
         return gesamtpreis;
+    }
+
+    public String toString(){
+        String rechnung = ("------------------------------------------------------\n" +
+                String.format("Rechnung vom Kunden: %s %d  |  Adresse: %s %s  |  am %s%n\n", this.kunde.getName(), this.kunde.getNummer(), this.kunde.getStrasse(), this.kunde.getPlz(), datum) +
+                String.format("Gesamtpreis: %.2f€%n", gesamtpreis) + "\n------------------------------------------------------");
+
+        return rechnung;
     }
 }

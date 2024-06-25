@@ -1,7 +1,7 @@
 Stückartikel
 1
 Apfel
-10
+20
 1.99
 Massengutartikel
 2
