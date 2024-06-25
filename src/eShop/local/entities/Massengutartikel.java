@@ -24,7 +24,7 @@ public class Massengutartikel extends Artikel{
         if(differenz % packungsgroesse == 0){
             this.bestand = neuerBestand;
         } else {
-            throw new MassengutException();
+            throw new MassengutException(this);
         }
     }
 

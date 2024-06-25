@@ -53,7 +53,7 @@ public class ArtikelVerwaltung {
      */
     public void artikelHinzufuegen(Artikel artikel) throws ArtikelExistiertBereitsException {
         if(artikelBestand.contains(artikel)) {
-            throw new ArtikelExistiertBereitsException();
+            throw new ArtikelExistiertBereitsException(artikel.getBezeichnung());
         }
 
         artikelBestand.add(artikel);
@@ -61,7 +61,7 @@ public class ArtikelVerwaltung {
 
     public void massengutartikelHinzufuegen(Massengutartikel massengutartikel) throws ArtikelExistiertBereitsException {
         if(artikelBestand.contains(massengutartikel)){
-            throw new ArtikelExistiertBereitsException();
+            throw new ArtikelExistiertBereitsException(massengutartikel.getBezeichnung());
         }
 
         artikelBestand.add(massengutartikel);
@@ -118,7 +118,7 @@ public class ArtikelVerwaltung {
                 return bestand_item;
             }
         }
-        throw new ArtikelExistiertNichtException();
+        throw new ArtikelExistiertNichtException(Integer.toString(artikelNummer));
     }
 
     public Artikel getArtikelMitBezeichnung(String bezeichnung) throws ArtikelExistiertNichtException{
@@ -127,7 +127,7 @@ public class ArtikelVerwaltung {
                 return bestand_item;
             }
         }
-        throw new ArtikelExistiertNichtException();
+        throw new ArtikelExistiertNichtException(bezeichnung);
     }
 
     /**

@@ -116,23 +116,31 @@ public class eShop {
      * @throws ArtikelExistiertBereitsException
      * @throws UnbekanntesAccountObjektException
      */
-    public Artikel artikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertBereitsException, UnbekanntesAccountObjektException {
+    public Artikel artikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter) throws RuntimeException {
         Artikel a = new Artikel(nummer, bezeichnung, bestand, preis);
-        artikelVW.artikelHinzufuegen(a);
-        EreignisTyp ereignisTyp = EreignisTyp.NEU;
-        ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, a, bestand);
+        try{
+            artikelVW.artikelHinzufuegen(a);
+            EreignisTyp ereignisTyp = EreignisTyp.NEU;
+            ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, a, bestand);
+        } catch(ArtikelExistiertBereitsException | UnbekanntesAccountObjektException e){
+            throw new RuntimeException(e.getMessage());
+        }
         return a;
     }
 
-    public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws ArtikelExistiertBereitsException, UnbekanntesAccountObjektException, MassengutException {
+    public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws  MassengutException {
+        Massengutartikel massengutartikel = new Massengutartikel(nummer, bezeichnung, bestand, preis, packungsgroesse);
         if(bestand % packungsgroesse == 0){
-            Massengutartikel massengutartikel = new Massengutartikel(nummer, bezeichnung, bestand, preis, packungsgroesse);
-            artikelVW.massengutartikelHinzufuegen(massengutartikel);
-            EreignisTyp ereignisTyp = EreignisTyp.NEU;
-            ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, massengutartikel, bestand);
-            return massengutartikel;
+            try {
+                artikelVW.massengutartikelHinzufuegen(massengutartikel);
+                EreignisTyp ereignisTyp = EreignisTyp.NEU;
+                ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, massengutartikel, bestand);
+                return massengutartikel;
+            } catch (ArtikelExistiertBereitsException | UnbekanntesAccountObjektException e) {
+                throw new RuntimeException(e);
+            }
         }
-        throw new MassengutException();
+        throw new MassengutException(massengutartikel);
     }
 
     /**
