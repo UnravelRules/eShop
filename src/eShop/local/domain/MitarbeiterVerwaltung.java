@@ -50,7 +50,7 @@ public class MitarbeiterVerwaltung {
      * */
     public Mitarbeiter registrieren(Mitarbeiter m) throws MitarbeiterExistiertBereitsException {
         if(registrierteMitarbeiter.contains(m)){
-            throw new MitarbeiterExistiertBereitsException(m);
+            throw new MitarbeiterExistiertBereitsException();
         }
         registrierteMitarbeiter.add(m);
         return m;
@@ -70,7 +70,7 @@ public class MitarbeiterVerwaltung {
                 return aktuellerMitarbeiter;
             }
         }
-        throw new MitarbeiterExistiertNichtException(benutzername);
+        throw new MitarbeiterExistiertNichtException();
     }
 
     /**

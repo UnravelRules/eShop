@@ -67,7 +67,8 @@ public class ShopClientCUI {
                     System.out.println("Willkommen zurück, " + aktuellerKunde.getName());
                     return 1;
                 } catch(KundeExistiertNichtException e){
-                    System.out.println("Fehler: " + e.getMessage());
+                    System.out.println("Fehler beim Einloggen");
+                    e.printStackTrace();
                     return 0;
                 }
             case "m":
@@ -235,8 +236,12 @@ public class ShopClientCUI {
                     try {
                         eshop.artikelAnlegen(artikelNummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
                         break;
-                    } catch (RuntimeException e) {
-                        System.out.println(e.getMessage());
+                    } catch (ArtikelExistiertBereitsException e) {
+                        System.out.println("Artikel existiert bereits!");
+                        e.printStackTrace();
+                    } catch (UnbekanntesAccountObjektException exception) {
+                        System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
+                        exception.printStackTrace();
                     }
                     break;
                 } else if(massengut == 'J' || massengut == 'j') {
@@ -244,10 +249,14 @@ public class ShopClientCUI {
                         System.out.println("Packungsgröße: ");
                         int packungsgroesse = Integer.parseInt(liesEingabe());
                         eshop.massengutartikelAnlegen(artikelNummer, bezeichnung, bestand, preis, aktuellerMitarbeiter, packungsgroesse);
-                    } catch (RuntimeException e) {
-                        System.out.println(e.getMessage());
+                    } catch (ArtikelExistiertBereitsException e) {
+                        System.out.println("Artikel existiert bereits!");
+                        e.printStackTrace();
+                    } catch (UnbekanntesAccountObjektException exception) {
+                        System.out.println("Unbekanntes Account Objekt beim Update des Eventlogs");
+                        exception.printStackTrace();
                     } catch (MassengutException exception){
-                        System.out.println("Fehler: "+ exception.getMessage());
+                        exception.printStackTrace();
                     }
                 }
                 break;
