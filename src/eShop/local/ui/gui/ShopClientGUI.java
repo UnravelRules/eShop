@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +55,7 @@ public class ShopClientGUI extends JFrame {
     private JLabel inputErrorPackungsgroesse;
     private boolean warenkorbOffen = false;
     private boolean ereignisseOffen = false;
+    private boolean bestandslogOffen = false;
 
 
     public ShopClientGUI(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) {
@@ -579,10 +581,19 @@ public class ShopClientGUI extends JFrame {
 
         eventlogAnzeigen.addActionListener(e -> onEreignisseButtonClick());
 
+        JButton bestandslogAnzeigen = new JButton("Bestandshistorie anzeigen");
+        c.gridy = 21;
+        c.weighty = 0;
+        gridBagLayout.setConstraints(bestandslogAnzeigen, c);
+        funktionsPanel.add(bestandslogAnzeigen);
+
+        bestandslogAnzeigen.addActionListener(e -> onBestandslogButtonClick());
+
         funktionsPanel.setBorder(BorderFactory.createTitledBorder("Funktionen"));
 
         return funktionsPanel;
     }
+
 
     private JPanel createSearchPanel() {
         JPanel suchPanel = new JPanel();
@@ -892,6 +903,7 @@ public class ShopClientGUI extends JFrame {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     ereignisseOffen = false;
+                    System.out.println(ereignisseOffen);
                 }
             });
 
@@ -900,6 +912,37 @@ public class ShopClientGUI extends JFrame {
             ereignisse.setSize(new Dimension(800, 600));
             ereignisse.setVisible(true);
             ereignisseOffen = true;
+            System.out.println(ereignisseOffen);
+
+        }
+    }
+
+    private void onBestandslogButtonClick(){
+        if(!bestandslogOffen && selectedArtikelnummer != 0){
+            try{
+                JDialog bestandslogJDialog = new JDialog(this, "Bestandshistorie", true);
+                bestandslogJDialog.setLayout(new BorderLayout());
+
+                ArrayList<Integer> bestandlog = eshop.getBestandhistorie(selectedArtikelnummer);
+                System.out.println(bestandlog);
+                JPanel bestandslogPanel = new Bestandshistorie(bestandlog);
+                bestandslogJDialog.add(bestandslogPanel, BorderLayout.CENTER);
+                setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+                bestandslogJDialog.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        bestandslogOffen = false;
+                    }
+                });
+                bestandslogOffen = true;
+                bestandslogJDialog.setLocationRelativeTo(this);
+                bestandslogJDialog.setMinimumSize(new Dimension(800, 600));
+                bestandslogJDialog.pack();
+                bestandslogJDialog.setVisible(true);
+            } catch (ArtikelExistiertNichtException ex){
+                JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+            }
         }
     }
 
@@ -1129,6 +1172,16 @@ public class ShopClientGUI extends JFrame {
             HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
             updateShoppingCart(inhalt);
         }
+    }
+
+    private JDialog showBestandslog(ArrayList<Integer> bestandslog){
+        JDialog bestandslogJDialog = new JDialog(this, "Bestandshistorie", true);
+        bestandslogJDialog.setLayout(new BorderLayout());
+
+        JPanel bestandslogPanel = new Bestandshistorie(bestandslog);
+
+        bestandslogJDialog.add(bestandslogPanel, BorderLayout.CENTER);
+        return bestandslogJDialog;
     }
 
     /**
