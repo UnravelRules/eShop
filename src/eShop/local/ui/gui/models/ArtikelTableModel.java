@@ -1,5 +1,6 @@
 package eShop.local.ui.gui.models;
 
+import eShop.local.domain.exceptions.ArtikelExistiertBereitsException;
 import eShop.local.entities.Artikel;
 import eShop.local.entities.Massengutartikel;
 
@@ -85,4 +86,23 @@ public class ArtikelTableModel extends AbstractTableModel {
             return null;
         }
     }
+
+    /**
+     * Überschreibt die Standardmethode von TableModel, in welchem standardmäßig ein Object.class zurückgegeben wird.
+     * Gibt nun den richtigen Datentypen für die einzelnen Spalten zurück.
+     * Wichtig, damit die Sortierfunktion mit allen Datentypen funktioniert.
+     * @param columnIndex die einzelnen Indizes der Spalten
+     */
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        switch (columnIndex) {
+            case 0, 2, 4:
+                return Integer.class;
+            case 3:
+                return Float.class;
+            default:
+                return Object.class;
+        }
+    }
+
 }

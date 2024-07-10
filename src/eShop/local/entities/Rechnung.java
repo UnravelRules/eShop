@@ -50,11 +50,4 @@ public class Rechnung {
         return gesamtpreis;
     }
 
-    public String toString(){
-        String rechnung = ("------------------------------------------------------\n" +
-                String.format("Rechnung vom Kunden: %s %d  |  Adresse: %s %s  |  am %s%n\n", this.kunde.getName(), this.kunde.getNummer(), this.kunde.getStrasse(), this.kunde.getPlz(), datum) +
-                String.format("Gesamtpreis: %.2f€%n", gesamtpreis) + "\n------------------------------------------------------");
-
-        return rechnung;
-    }
 }

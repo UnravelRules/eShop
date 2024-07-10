@@ -51,13 +51,31 @@ public class WarenkorbTableModel extends AbstractTableModel {
             case 1:
                 return gewaehlterInhalt.getBezeichnung();
             case 2:
-                return gewaehlterInhalt.getPreis() + "€";
+                return gewaehlterInhalt.getPreis();
             case 3:
                 return anzahl;
             case 4:
-                return String.format("%.2f€", anzahl * gewaehlterInhalt.getPreis());
+                return anzahl * gewaehlterInhalt.getPreis();
             default:
                 return null;
+        }
+    }
+
+    /**
+     * Überschreibt die Standardmethode von TableModel, in welchem standardmäßig ein Object.class zurückgegeben wird.
+     * Gibt nun den richtigen Datentypen für die einzelnen Spalten zurück.
+     * Wichtig, damit die Sortierfunktion mit allen Datentypen funktioniert.
+     * @param columnIndex die einzelnen Indizes der Spalten
+     */
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        switch (columnIndex) {
+            case 0, 3:
+                return Integer.class;
+            case 2, 4:
+                return Float.class;
+            default:
+                return Object.class;
         }
     }
 }

@@ -67,7 +67,7 @@ public class KundenVerwaltung {
                 return k;
             }
         }
-        throw new KundeExistiertNichtException();
+        throw new KundeExistiertNichtException(benutzername);
     }
 
     /**

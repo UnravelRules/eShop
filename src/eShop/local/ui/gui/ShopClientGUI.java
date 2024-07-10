@@ -3,15 +3,19 @@ package eShop.local.ui.gui;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Map;
 
 import eShop.local.domain.eShop;
 import eShop.local.domain.exceptions.*;
 import eShop.local.entities.*;
 import eShop.local.ui.gui.models.ArtikelTableModel;
+import eShop.local.ui.gui.models.CustomCellRenderer;
 import eShop.local.ui.gui.models.EreignisTableModel;
 import eShop.local.ui.gui.models.WarenkorbTableModel;
 
@@ -48,6 +52,8 @@ public class ShopClientGUI extends JFrame {
     private JLabel inputErrorBestand;
     private JLabel inputErrorPreis;
     private JLabel inputErrorPackungsgroesse;
+    private boolean warenkorbOffen = false;
+    private boolean ereignisseOffen = false;
 
 
     public ShopClientGUI(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) {
@@ -130,8 +136,8 @@ public class ShopClientGUI extends JFrame {
         loginButton.addActionListener(e -> {
             try {
                 onLoginButtonClick(istMitarbeiter);
-            } catch (MitarbeiterExistiertNichtException | KundeExistiertNichtException ex) {
-                throw new RuntimeException(ex);
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
             }
         });
         c.gridy = 6;
@@ -252,7 +258,7 @@ public class ShopClientGUI extends JFrame {
                 onMitarbeiterAnlegenButtonClick(mitarbeiterNummer, name, benutzernameEingabe, passwortEingabe);
                 registrationMenu.dispose();
             } catch (MitarbeiterExistiertBereitsException ex) {
-                throw new RuntimeException(ex);
+                JOptionPane.showMessageDialog(null, "Fehler: "+ ex.getMessage());
             }
         });
         contentPane.add(registrierenButton);
@@ -281,6 +287,13 @@ public class ShopClientGUI extends JFrame {
 
         WarenkorbTableModel tableModel = new WarenkorbTableModel(inhalt);
         warenkorbTabelle = new JTable(tableModel);
+        warenkorbTabelle.setAutoCreateRowSorter(true);
+
+        // setzt jede Spalte linksbündig (da ArtikelTableModel überschrieben wurde und alles rechtsbündig war)
+        CustomCellRenderer customRenderer = new CustomCellRenderer();
+        for (int i = 0; i < warenkorbTabelle.getColumnCount(); i++) {
+            warenkorbTabelle.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
 
         this.setVisible(true);
 
@@ -365,6 +378,12 @@ public class ShopClientGUI extends JFrame {
 
         EreignisTableModel tableModel = new EreignisTableModel(eventlog);
         ereignisTabelle = new JTable(tableModel);
+        ereignisTabelle.setAutoCreateRowSorter(true);
+
+        CustomCellRenderer customRenderer = new CustomCellRenderer();
+        for (int i = 0; i < ereignisTabelle.getColumnCount(); i++) {
+            ereignisTabelle.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
 
         mitarbeitermenu.setSize(new Dimension(800, 600));
         this.setVisible(true);
@@ -624,8 +643,18 @@ public class ShopClientGUI extends JFrame {
     private JComponent createArtikelPanel(){
         java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
 
+
+
         ArtikelTableModel tableModel = new ArtikelTableModel(artikel, istMitarbeiter);
         artikelTabelle = new JTable(tableModel);
+        artikelTabelle.setAutoCreateRowSorter(true);
+
+        // setzt jede Spalte linksbündig (da ArtikelTableModel überschrieben wurde und alles rechtsbündig war)
+        CustomCellRenderer customRenderer = new CustomCellRenderer();
+        for (int i = 0; i < artikelTabelle.getColumnCount(); i++) {
+            artikelTabelle.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
+
         JScrollPane scrollPane = new JScrollPane(artikelTabelle);
 
         artikelTabelle.addMouseListener(new MouseAdapter() {
@@ -633,8 +662,10 @@ public class ShopClientGUI extends JFrame {
             public void mouseClicked(MouseEvent e) {
                 int selectedRow = artikelTabelle.getSelectedRow();
                 if (selectedRow != -1){
-                    selectedArtikelnummer = (int) tableModel.getValueAt(selectedRow, 0);
-                    selectedArtikelbezeichnung = (String) tableModel.getValueAt(selectedRow, 1);
+                    int modelRow = artikelTabelle.convertRowIndexToModel(selectedRow);
+                    selectedArtikelnummer = (int) tableModel.getValueAt(modelRow, 0);
+                    selectedArtikelbezeichnung = (String) tableModel.getValueAt(modelRow, 1);
+                    System.out.println("Selected Item: " + selectedArtikelbezeichnung + ", Number: " + selectedArtikelnummer);
                 }
             }
         });
@@ -642,11 +673,6 @@ public class ShopClientGUI extends JFrame {
         scrollPane.setBorder(BorderFactory.createTitledBorder("Artikel"));
 
         return scrollPane;
-    }
-
-    private void updateArtikelPanel(java.util.List<Artikel> artikel) {
-        ArtikelTableModel tableModel = (ArtikelTableModel) artikelTabelle.getModel();
-        tableModel.setArtikel(artikel);
     }
 
     private void onKundeRegistrierenButtonClick(JTextField n, JTextField s, JTextField p, JTextField benutzer, JTextField pw) throws KundeExistiertBereitsException, IOException {
@@ -659,8 +685,10 @@ public class ShopClientGUI extends JFrame {
         try {
             eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
         } catch (FehlendeEingabenException e) {
-            JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
+            throw new RuntimeException(e);
+
         }
+        System.out.println("Kunde wurde angelegt!");
     }
 
     private void onMitarbeiterAnlegenButtonClick(JTextField mitarbeiterNummer, JTextField n, JTextField benutzer, JTextField pw) throws MitarbeiterExistiertBereitsException {
@@ -672,24 +700,32 @@ public class ShopClientGUI extends JFrame {
         eshop.mitarbeiterRegistrieren(nummer, name, benutzername, passwort);
     }
 
-    private void onLoginButtonClick(boolean istmitarbeiter) throws MitarbeiterExistiertNichtException, KundeExistiertNichtException {
+    private void onLoginButtonClick(boolean istmitarbeiter) throws RuntimeException {
         String benutzername = benutzernameTextField.getText();
         String passwort = passwortTextField.getText();
         if(istmitarbeiter){
-            Mitarbeiter mitarbeiter = eshop.mitarbeiterEinloggen(benutzername, passwort);
-            if(mitarbeiter != null){
-                aktuellerMitarbeiter = mitarbeiter;
-                mainPanel.add(createMitarbeiterPanel(), "MitarbeiterMenu");
-                cardLayout.show(mainPanel, "MitarbeiterMenu");
-                resizeFrame(new Dimension(800, 600));
+            try {
+                Mitarbeiter mitarbeiter = eshop.mitarbeiterEinloggen(benutzername, passwort);
+                if(mitarbeiter != null){
+                    aktuellerMitarbeiter = mitarbeiter;
+                    mainPanel.add(createMitarbeiterPanel(), "MitarbeiterMenu");
+                    cardLayout.show(mainPanel, "MitarbeiterMenu");
+                    resizeFrame(new Dimension(800, 600));
+                }
+            } catch (MitarbeiterExistiertNichtException e) {
+                throw new RuntimeException(e);
             }
         } else {
-            Kunde kunde = eshop.kundeEinloggen(benutzername, passwort);
-            if(kunde != null){
-                aktuellerKunde = kunde;
-                mainPanel.add(createKundenPanel(), "KundenMenu");
-                cardLayout.show(mainPanel, "KundenMenu");
-                resizeFrame(new Dimension(800, 600));
+            try {
+                Kunde kunde = eshop.kundeEinloggen(benutzername, passwort);
+                if(kunde != null){
+                    aktuellerKunde = kunde;
+                    mainPanel.add(createKundenPanel(), "KundenMenu");
+                    cardLayout.show(mainPanel, "KundenMenu");
+                    resizeFrame(new Dimension(800, 600));
+                }
+            } catch (KundeExistiertNichtException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -749,12 +785,8 @@ public class ShopClientGUI extends JFrame {
                         inputErrorPreis.setVisible(false);
                         inputErrorPackungsgroesse.setVisible(false);
                     }
-                } catch (MassengutException mge){
-                    JOptionPane.showMessageDialog(null, "Fehler: " + mge.getMessage());
-                } catch (ArtikelExistiertBereitsException aeb){
-                    JOptionPane.showMessageDialog(null, "Fehler: " + aeb.getMessage());
-                } catch (UnbekanntesAccountObjektException uao){
-                    System.out.print("Fehler: Kein Kundenobjekt wurde gefunden");
+                } catch (MassengutException | RuntimeException ex){
+                    JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                 }
             }
         } else {
@@ -764,45 +796,17 @@ public class ShopClientGUI extends JFrame {
                 float preis = 0.0f;
 
                 try{
-                    artikelnummer = Integer.parseInt(artikelnummerTextField.getText());
-                    inputErrorArtikelnummer.setVisible(false);
-                } catch (NumberFormatException e){
-                    inputErrorArtikelnummer.setVisible(true);
-                }
-
-                try{
-                    bestand = Integer.parseInt(bestandTextField.getText());
-                    inputErrorBestand.setVisible(false);
-                } catch (NumberFormatException e){
-                    inputErrorBestand.setVisible(true);
-                }
-
-                try{
-                    preis = Float.parseFloat(preisTextField.getText());
-                    inputErrorPreis.setVisible(false);
-                } catch (NumberFormatException e){
-                    inputErrorPreis.setVisible(true);
-                }
-
-                try{
-                    if(artikelnummer != 0 && bestand != 0 && preis != 0){
-                        eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
-                        java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                        updateArtikelPanel(artikel);
-                        java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
-                        updateEreignisPanel(eventlog);
-                        artikelnummerTextField.setText("");
-                        bezeichnungTextField.setText("");
-                        bestandTextField.setText("");
-                        preisTextField.setText("");
-                        inputErrorArtikelnummer.setVisible(false);
-                        inputErrorBestand.setVisible(false);
-                        inputErrorPreis.setVisible(false);
-                    }
-                } catch (ArtikelExistiertBereitsException aeb){
-                    JOptionPane.showMessageDialog(null, "Fehler: " + aeb.getMessage());
-                } catch (UnbekanntesAccountObjektException uao){
-                    System.out.print("Fehler: Kein Kundenobjekt wurde gefunden");
+                    eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
+                    java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                    updateArtikelPanel(artikel);
+                    java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
+                    updateEreignisPanel(eventlog);
+                    artikelnummerTextField.setText("");
+                    bezeichnungTextField.setText("");
+                    bestandTextField.setText("");
+                    preisTextField.setText("");
+                } catch(RuntimeException e){
+                    JOptionPane.showMessageDialog(null, "Fehler: "+ e.getMessage());
                 }
             }
         }
@@ -819,7 +823,7 @@ public class ShopClientGUI extends JFrame {
             }
 
         } catch (UnbekanntesAccountObjektException | ArtikelExistiertNichtException | NullPointerException e) {
-            System.out.println("Es wurde kein Artikel ausgewählt!");
+            JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
         }
     }
 
@@ -834,7 +838,7 @@ public class ShopClientGUI extends JFrame {
             JTextField neuerBestandTextField = new JTextField();
             contentPane.add(neuerBestandTextField);
 
-            JLabel errorInput = new JLabel("Fehler! Ganze Zahl eintragen!");
+            JLabel errorInput = new JLabel("Fehler! Positive ganze Zahl eintragen!");
             errorInput.setForeground(Color.RED);
             errorInput.setVisible(false);
 
@@ -846,21 +850,22 @@ public class ShopClientGUI extends JFrame {
                 public void actionPerformed(ActionEvent e) {
                     try {
                         neuerBestand = Integer.parseInt(neuerBestandTextField.getText());
-                        neuerBestandMenu.dispose();
-                        eshop.bestandAendern(selectedArtikelnummer, neuerBestand, aktuellerMitarbeiter);
-                        java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                        updateArtikelPanel(artikel);
-                        java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
-                        updateEreignisPanel(eventlog);
-                        selectedArtikelnummer = 0;
-                        selectedArtikelbezeichnung = "";
-                        errorInput.setVisible(false);
+                        if(!(neuerBestand < 0)){
+                            neuerBestandMenu.dispose();
+                            eshop.bestandAendern(selectedArtikelnummer, neuerBestand, aktuellerMitarbeiter);
+                            java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                            updateArtikelPanel(artikel);
+                            java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
+                            updateEreignisPanel(eventlog);
+                            selectedArtikelnummer = 0;
+                            selectedArtikelbezeichnung = "";
+                            errorInput.setVisible(false);
+                        }
+                        errorInput.setVisible(true);
                     } catch (NumberFormatException nfe) {
                         errorInput.setVisible(true);
-                    } catch (MassengutException ex) {
+                    } catch (MassengutException | ArtikelExistiertNichtException | UnbekanntesAccountObjektException ex) {
                         JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
-                    } catch (UnbekanntesAccountObjektException | ArtikelExistiertNichtException ex) {
-                        throw new RuntimeException(ex);
                     }
 
                 }
@@ -876,15 +881,26 @@ public class ShopClientGUI extends JFrame {
     }
 
     private void onEreignisseButtonClick(){
-        JDialog ereignisse = new JDialog();
-        JComponent ereignisTabelle = createEventlogPanel();
-        ereignisse.add(ereignisTabelle);
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        if(!ereignisseOffen){
+            JDialog ereignisse = new JDialog();
+            JComponent ereignisTabelle = createEventlogPanel();
 
-        ereignisse.setLocationRelativeTo(this);
+            ereignisse.add(ereignisTabelle);
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        ereignisse.setSize(new Dimension(800, 600));
-        ereignisse.setVisible(true);
+            ereignisse.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    ereignisseOffen = false;
+                }
+            });
+
+            ereignisse.setLocationRelativeTo(this);
+
+            ereignisse.setSize(new Dimension(800, 600));
+            ereignisse.setVisible(true);
+            ereignisseOffen = true;
+        }
     }
 
     private JComponent createEventlogPanel(){
@@ -894,21 +910,26 @@ public class ShopClientGUI extends JFrame {
         return scrollPane;
     }
 
-    private void updateEreignisPanel(java.util.List<Ereignis> eventlog){
-        EreignisTableModel tableModel = (EreignisTableModel) ereignisTabelle.getModel();
-        tableModel.setEreignisse(eventlog);
-    }
-
     private void onShoppingCartButtonClick(){
-        JDialog warenkorb = new JDialog();
-        JComponent warenkorbTabelle = createShoppingCartPanel();
-        warenkorb.add(warenkorbTabelle);
-        //setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        if(!warenkorbOffen){
+            JDialog warenkorb = new JDialog();
+            JComponent warenkorbTabelle = createShoppingCartPanel();
+            warenkorb.add(warenkorbTabelle);
+            setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-        warenkorb.setLocationRelativeTo(this);
+            warenkorb.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    warenkorbOffen = false;
+                }
+            });
 
-        warenkorb.setSize(new Dimension(800, 600));
-        warenkorb.setVisible(true);
+            warenkorb.setLocationRelativeTo(this);
+
+            warenkorb.setSize(new Dimension(800, 600));
+            warenkorb.setVisible(true);
+            warenkorbOffen = true;
+        }
     }
 
     private JComponent createShoppingCartPanel(){
@@ -937,9 +958,11 @@ public class ShopClientGUI extends JFrame {
             try {
                 if(!aktuellerKunde.getWarenkorb().getInhalt().isEmpty()){
                     Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
-                    System.out.println(rechnung);
                     // Rechnung muss noch ausgegeben werden (JDialog?)
                     SwingUtilities.getWindowAncestor(warenkorbPanel).dispose();
+                    warenkorbOffen = false;
+
+                    rechnungAnzeigen(rechnung);
 
                     updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
                     java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
@@ -1015,6 +1038,50 @@ public class ShopClientGUI extends JFrame {
         return warenkorbPanel;
     }
 
+    /**
+     * Methode zum Anzeigen der Rechnung
+     * fragt alle Eigenschaften der Rechnung ab und fügt diese über JLabels zum Panel hinzu
+     *
+     * @param rechnung Rechnungs-Objekt, welches nach einem Kauf des Warenkorbs zurückgegeben wird
+     * @author Fabian
+     */
+    private JDialog rechnungAnzeigen(Rechnung rechnung) {
+        Kunde kunde = rechnung.getKunde();
+        HashMap<Artikel, Integer> gekaufteArtikel= rechnung.getGekaufteArtikel();
+        int kundenNummer = kunde.getNummer();
+        String name = kunde.getName();
+        String strasse = kunde.getStrasse();
+        String plz = kunde.getPlz();
+        LocalDate datum = rechnung.getDatum();
+        float gesamtpreis = rechnung.getGesamtpreis();
+
+        JDialog rechnungsJDialog = new JDialog(this, "Rechnung", true);
+        JPanel rechnungsPanel = new JPanel();
+        rechnungsPanel.setLayout(new BoxLayout(rechnungsPanel, BoxLayout.Y_AXIS));
+
+        rechnungsPanel.add(new JLabel("Kundennummer: " + kundenNummer + " | Name " + name));
+        rechnungsPanel.add(new JLabel(strasse));
+        rechnungsPanel.add(new JLabel(plz));
+        rechnungsPanel.add(new JLabel(String.valueOf(datum)));
+        rechnungsPanel.add(new JLabel("----------------------------------------------------"));
+        for (Map.Entry<Artikel, Integer> eingabe : gekaufteArtikel.entrySet()){
+            Artikel a = eingabe.getKey();
+            int anzahl = eingabe.getValue();
+
+            rechnungsPanel.add(new JLabel(String.format("Bezeichnung: %s, Anzahl: %d, Einzelpreis: %.2f€, Gesamtpreis: %.2f€%n", a.getBezeichnung(), anzahl , a.getPreis(), a.getPreis() * anzahl)));
+        }
+        rechnungsPanel.add(new JLabel("----------------------------------------------------"));
+        rechnungsPanel.add(new JLabel(String.format("Gesamtpreis: %.2f€", gesamtpreis)));
+
+        rechnungsJDialog.add(rechnungsPanel);
+
+        rechnungsJDialog.setLocationRelativeTo(this);
+        rechnungsJDialog.pack();
+        rechnungsJDialog.setVisible(true);
+
+        return rechnungsJDialog;
+    }
+
     private void onAddToShoppingCartClick(){
         if(selectedArtikelnummer != 0) {
             JDialog artikelInWarenkornMenu = new JDialog(this, "Anzahl", true);
@@ -1064,9 +1131,34 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Methode zum aktualisieren der Artikel-Tabelle
+     * Sobald ein Artikel in der Artikeltabelle hinzugefügt, verändert oder entfernt wird, muss Inhalt aktualisiert werden
+     * @param artikel ist eine aktualisierte Liste von Artikeln, welche nach einer Veränderung übergeben wird
+     */
+    private void updateArtikelPanel(java.util.List<Artikel> artikel) {
+        ArtikelTableModel tableModel = (ArtikelTableModel) artikelTabelle.getModel();
+        tableModel.setArtikel(artikel);
+    }
+
+    /**
+     * Methode zum aktualisieren der Warenkorb-Tabelle
+     * Sobald ein Artikel in der Warenkorb-Tabelle hinzugefügt, verändert oder entfernt wird, muss Inhalt aktualisiert werden
+     * @param inhalt ist eine aktualisierte Liste von Artikeln im Warenkorb, welche nach einer Veränderung übergeben wird
+     */
     private void updateShoppingCart(HashMap<Artikel, Integer> inhalt){
         WarenkorbTableModel tableModel = (WarenkorbTableModel) warenkorbTabelle.getModel();
         tableModel.setInhalt(inhalt);
+    }
+
+    /**
+     * Methode zum aktualisieren der Ereignis-Tabelle
+     * Sobald ein Artikel in der Artikeltabelle hinzugefügt, verändert oder entfernt wird, muss Ereignislog aktualisiert werden
+     * @param eventlog ist eine aktualisierte Liste von allen Events, welche nach einer Veränderung übergeben wird
+     */
+    private void updateEreignisPanel(java.util.List<Ereignis> eventlog){
+        EreignisTableModel tableModel = (EreignisTableModel) ereignisTabelle.getModel();
+        tableModel.setEreignisse(eventlog);
     }
 
     private void resizeFrame(Dimension dimension){

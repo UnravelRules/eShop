@@ -1,9 +1,9 @@
 package eShop.local.ui.gui.models;
 
-import eShop.local.entities.Artikel;
 import eShop.local.entities.Ereignis;
 
 import javax.swing.table.AbstractTableModel;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +56,24 @@ public class EreignisTableModel extends AbstractTableModel {
                 return gewaehltesEreignis.getBestandsaenderung();
             default:
                 return null;
+        }
+    }
+
+    /**
+     * Überschreibt die Standardmethode von TableModel, in welchem standardmäßig ein Object.class zurückgegeben wird.
+     * Gibt nun den richtigen Datentypen für die einzelnen Spalten zurück.
+     * Wichtig, damit die Sortierfunktion mit allen Datentypen funktioniert.
+     * @param columnIndex die einzelnen Indizes der Spalten
+     */
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        switch (columnIndex) {
+            case 1:
+                return LocalDate.class;
+            case 5:
+                return Integer.class;
+            default:
+                return Object.class;
         }
     }
 }
