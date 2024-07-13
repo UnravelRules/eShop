@@ -3,7 +3,6 @@ package eShop.local.ui.gui;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -83,9 +82,9 @@ public class ShopClientGUI extends JFrame {
     }
 
     private JPanel createLoginPanel(){
-        JPanel customerPanel = new JPanel();
+        JPanel loginPanel = new JPanel();
         GridBagLayout gridBagLayout = new GridBagLayout();
-        customerPanel.setLayout(gridBagLayout);
+        loginPanel.setLayout(gridBagLayout);
 
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
@@ -93,46 +92,48 @@ public class ShopClientGUI extends JFrame {
         c.gridx = 0;
 
         JCheckBox checkboxMitarbeiter = new JCheckBox("Mitarbeiter");
+        // wenn sich der Zustand der checkBox verändert, soll dieser in Variable istMitarbeiter gespeichert werden.
         checkboxMitarbeiter.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 istMitarbeiter = checkboxMitarbeiter.isSelected();
             }
         });
+
         c.gridy = 0;
         c.weighty = 0.1;
         gridBagLayout.setConstraints(checkboxMitarbeiter, c);
-        customerPanel.add(checkboxMitarbeiter);
+        loginPanel.add(checkboxMitarbeiter);
 
         JLabel benutzernameLabel = new JLabel("Benutzername: ");
         c.gridy = 1;
         c.weighty = 0;
         gridBagLayout.setConstraints(benutzernameLabel, c);
-        customerPanel.add(benutzernameLabel);
+        loginPanel.add(benutzernameLabel);
 
         benutzernameTextField = new JTextField();
         c.gridy = 2;
         c.weighty = 0.1;
         gridBagLayout.setConstraints(benutzernameTextField, c);
-        customerPanel.add(benutzernameTextField);
+        loginPanel.add(benutzernameTextField);
 
         JLabel passwortLabel = new JLabel("Passwort: ");
         c.gridy = 3;
         c.weighty = 0;
         gridBagLayout.setConstraints(passwortLabel, c);
-        customerPanel.add(passwortLabel);
+        loginPanel.add(passwortLabel);
 
         passwortTextField = new JPasswordField();
         c.gridy = 4;
         c.weighty = 0.1;
         gridBagLayout.setConstraints(passwortTextField, c);
-        customerPanel.add(passwortTextField);
+        loginPanel.add(passwortTextField);
 
         JPanel filler = new JPanel();
         c.gridy = 5;
         c.weighty = 0.2;
         gridBagLayout.setConstraints(filler, c);
-        customerPanel.add(filler);
+        loginPanel.add(filler);
 
         loginButton = new JButton("Login");
         loginButton.addActionListener(e -> {
@@ -145,13 +146,13 @@ public class ShopClientGUI extends JFrame {
         c.gridy = 6;
         c.weighty = 0.2;
         gridBagLayout.setConstraints(loginButton, c);
-        customerPanel.add(loginButton);
+        loginPanel.add(loginButton);
 
         JPanel filler2 = new JPanel();
         c.gridy = 7;
         c.weighty = 0.1;
         gridBagLayout.setConstraints(filler, c);
-        customerPanel.add(filler2);
+        loginPanel.add(filler2);
 
         neuRegistrierenButton = new JButton("Als Kunde registrieren");
         neuRegistrierenButton.setContentAreaFilled(false);
@@ -179,9 +180,9 @@ public class ShopClientGUI extends JFrame {
         c.gridy = 8;
         c.weighty = 0.1;
         gridBagLayout.setConstraints(neuRegistrierenButton, c);
-        customerPanel.add(neuRegistrierenButton);
+        loginPanel.add(neuRegistrierenButton);
 
-        return customerPanel;
+        return loginPanel;
     }
 
     private void kundeRegistrierenMenu(){
@@ -272,50 +273,12 @@ public class ShopClientGUI extends JFrame {
         registrationMenu.setVisible(true);
     }
 
-    private JPanel createKundenPanel(){
-        setupKundenMenu();
-        JPanel kundenmenu = new JPanel();
-        kundenmenu.setLayout(new BorderLayout());
-
-        JPanel suchPanel = createSearchPanel();
-        JPanel warenkorbPanel = shoppingCartPanel();
-        JComponent artikelPanel = createArtikelPanel();
-
-        kundenmenu.add(suchPanel, BorderLayout.NORTH);
-        kundenmenu.add(warenkorbPanel, BorderLayout.WEST);
-        kundenmenu.add(artikelPanel, BorderLayout.CENTER);
-
-        HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
-
-        WarenkorbTableModel tableModel = new WarenkorbTableModel(inhalt);
-        warenkorbTabelle = new JTable(tableModel);
-        warenkorbTabelle.setAutoCreateRowSorter(true);
-
-        // setzt jede Spalte linksbündig (da ArtikelTableModel überschrieben wurde und alles rechtsbündig war)
-        CustomCellRenderer customRenderer = new CustomCellRenderer();
-        for (int i = 0; i < warenkorbTabelle.getColumnCount(); i++) {
-            warenkorbTabelle.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
-        }
-
-        this.setVisible(true);
-
-        return kundenmenu;
-    }
-
-    private void setupKundenMenu() {
-        // Menüleiste anlegen ...
-        JMenuBar menuBar = new JMenuBar();
-
-        JMenu fileMenu = new FileMenu();
-        menuBar.add(fileMenu);
-
-        JMenu helpMenu = new HelpMenu();
-        menuBar.add(helpMenu);
-
-        // ... und bei Fenster anmelden
-        setJMenuBar(menuBar);
-    }
-
+    /**
+     * In dieser Methode wird die linke Seite (ShoppingCartPanel) des Kundenmenüs initialisiert
+     * im ShoppingCartPanel sind die wichtigen Funktionen eines Kunden:
+     * - Artikel in Warenkorb legen
+     * - Warenkorb öffnen
+     */
     private JPanel shoppingCartPanel() {
         JPanel shoppingCartPanel = new JPanel();
 
@@ -356,13 +319,7 @@ public class ShopClientGUI extends JFrame {
         return shoppingCartPanel;
     }
 
-
-    // ab hier wird das Mitarbeiter Menü erstellt, dazu gehört:
-    // - das Main Panel
-    // - das Menü innerhalb des Panels
-    // - ein SearchPanel
-    // - ein FunktionsPanel (Artikel anlegen, entfernen, verändern & EventLog anzeigen)
-    private JPanel createMitarbeiterPanel(){
+    private JPanel  createMitarbeiterPanel(){
         setupMitarbeiterMenu();
 
         mitarbeitermenu = new JPanel();
@@ -393,6 +350,36 @@ public class ShopClientGUI extends JFrame {
         return mitarbeitermenu;
     }
 
+    private JPanel createKundenPanel(){
+        setupKundenMenu();
+        JPanel kundenPanel = new JPanel();
+        kundenPanel.setLayout(new BorderLayout());
+
+        JPanel suchPanel = createSearchPanel();
+        JPanel warenkorbPanel = shoppingCartPanel();
+        JComponent artikelPanel = createArtikelPanel();
+
+        kundenPanel.add(suchPanel, BorderLayout.NORTH);
+        kundenPanel.add(warenkorbPanel, BorderLayout.WEST);
+        kundenPanel.add(artikelPanel, BorderLayout.CENTER);
+
+        HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
+
+        WarenkorbTableModel tableModel = new WarenkorbTableModel(inhalt);
+        warenkorbTabelle = new JTable(tableModel);
+        warenkorbTabelle.setAutoCreateRowSorter(true);
+
+        // setzt jede Spalte linksbündig (da ArtikelTableModel überschrieben wurde und alles rechtsbündig war)
+        CustomCellRenderer customRenderer = new CustomCellRenderer();
+        for (int i = 0; i < warenkorbTabelle.getColumnCount(); i++) {
+            warenkorbTabelle.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
+
+        this.setVisible(true);
+
+        return kundenPanel;
+    }
+
     private void setupMitarbeiterMenu() {
         // Menüleiste anlegen ...
         JMenuBar menuBar = new JMenuBar();
@@ -411,6 +398,29 @@ public class ShopClientGUI extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    private void setupKundenMenu() {
+        // Menüleiste anlegen ...
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu fileMenu = new FileMenu();
+        menuBar.add(fileMenu);
+
+        JMenu helpMenu = new HelpMenu();
+        menuBar.add(helpMenu);
+
+        // ... und bei Fenster anmelden
+        setJMenuBar(menuBar);
+    }
+
+    /**
+     * In dieser Methode wird die linke Seite (Funktionspanel) des Mitarbeitermenüs initialisiert
+     * im Funktionspanel sind die wichtigen Funktionen eines Mitarbeiter:
+     * - Artikel hinzufügen
+     * - Artikel entfernen
+     * - Bestand eines Artikels verändern
+     * - Ereignishistorie anzeigen
+     * - Bestandshistorie eines Artikels anzeigen
+     */
     private JPanel createFunktionsPanel(){
         JPanel funktionsPanel = new JPanel();
 
@@ -594,7 +604,6 @@ public class ShopClientGUI extends JFrame {
         return funktionsPanel;
     }
 
-
     private JPanel createSearchPanel() {
         JPanel suchPanel = new JPanel();
         // North: GridBagLayout
@@ -686,6 +695,120 @@ public class ShopClientGUI extends JFrame {
         return scrollPane;
     }
 
+
+    private JComponent createShoppingcart(){
+        JPanel warenkorbPanel = new JPanel();
+        warenkorbPanel.setLayout(new BoxLayout(warenkorbPanel, BoxLayout.Y_AXIS));
+
+        JScrollPane scrollPane = new JScrollPane(warenkorbTabelle);
+        warenkorbPanel.add(scrollPane);
+
+        warenkorbTabelle.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = warenkorbTabelle.getSelectedRow();
+                if (selectedRow != -1){
+                    selectedShoppingCartItemNummer = (int) warenkorbTabelle.getModel().getValueAt(selectedRow, 0);
+                    selectedShoppingCartItemBezeichnung = (String) warenkorbTabelle.getModel().getValueAt(selectedRow, 1);
+                }
+            }
+        });
+
+        JPanel buttonArea = new JPanel();
+        buttonArea.setLayout(new BoxLayout(buttonArea, BoxLayout.X_AXIS));
+
+        JButton kaufenButton = new JButton("Warenkorb kaufen");
+        kaufenButton.addActionListener(e -> {
+            try {
+                if(!aktuellerKunde.getWarenkorb().getInhalt().isEmpty()){
+                    Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
+                    // Rechnung muss noch ausgegeben werden (JDialog?)
+                    SwingUtilities.getWindowAncestor(warenkorbPanel).dispose();
+                    warenkorbOffen = false;
+
+                    rechnungAnzeigen(rechnung);
+
+                    updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                    java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                    updateArtikelPanel(artikel);
+                }
+            } catch (UnbekanntesAccountObjektException | MassengutException | ArtikelExistiertNichtException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        buttonArea.add(kaufenButton);
+
+        JButton entfernenButton = new JButton("Artikel entfernen");
+        entfernenButton.addActionListener(e -> {
+            try {
+                if(selectedShoppingCartItemNummer != 0){
+                    eshop.artikelAusWarenkorbEntfernen(aktuellerKunde, selectedShoppingCartItemBezeichnung);
+                    updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                    selectedShoppingCartItemNummer = 0;
+                }
+            } catch (ArtikelExistiertNichtException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        buttonArea.add(entfernenButton);
+
+        JButton veraendernButton = new JButton("Anzahl ändern");
+        veraendernButton.addActionListener(e -> {
+            if(selectedShoppingCartItemNummer != 0){
+                JDialog veraendernMenu = new JDialog(this, "Neue Anzahl", true);
+                Container contentPane = veraendernMenu.getContentPane();
+                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+                contentPane.add(new JLabel("Neue Anzahl: "));
+                JTextField neueAnzahlTextField = new JTextField();
+                contentPane.add(neueAnzahlTextField);
+
+                JButton neueAnzahlButton = new JButton("Bestand verändern");
+                neueAnzahlButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        int neueAnzahl = Integer.parseInt(neueAnzahlTextField.getText());
+                        veraendernMenu.dispose();
+                        try {
+                            eshop.warenkorbVeraendern(aktuellerKunde, selectedShoppingCartItemBezeichnung, neueAnzahl);
+                            updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                            selectedShoppingCartItemNummer = 0;
+                        } catch (MassengutException | ArtikelExistiertNichtException ex) {
+                            JOptionPane.showMessageDialog(null, "");
+                        } catch (NegativerBestandException ex) {
+                            JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+                        }
+                    }
+                });
+                contentPane.add(neueAnzahlButton);
+
+                veraendernMenu.setLocationRelativeTo(this);
+                veraendernMenu.setSize(280, 100);
+                veraendernMenu.setVisible(true);
+            }
+        });
+        buttonArea.add(veraendernButton);
+
+        JButton leerenButton = new JButton("Warenkorb leeren");
+        leerenButton.addActionListener(e -> {
+            eshop.warenkorbLeeren(aktuellerKunde);
+            updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+        });
+        buttonArea.add(leerenButton);
+
+        warenkorbPanel.add(buttonArea);
+
+        warenkorbPanel.setBorder(BorderFactory.createTitledBorder("Warenkorb"));
+        return warenkorbPanel;
+    }
+    private JComponent createEventlogPanel(){
+        JScrollPane scrollPane = new JScrollPane(ereignisTabelle);
+
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Ereignisse"));
+        return scrollPane;
+    }
+
+    // ButtonClick Events
     private void onKundeRegistrierenButtonClick(JTextField n, JTextField s, JTextField p, JTextField benutzer, JTextField pw) throws KundeExistiertBereitsException, IOException {
         String name = n.getText();
         String strasse = s.getText();
@@ -711,6 +834,15 @@ public class ShopClientGUI extends JFrame {
         eshop.mitarbeiterRegistrieren(nummer, name, benutzername, passwort);
     }
 
+    /**
+     * Methode wird ausgeführt, nach dem der Benutzer den Login Button im ersten Fenster betätigt
+     * Fallunterscheidung zwischen Mitarbeiter und Kunde
+     * wenn Mitarbeiter, dann wird ein mitarbeiterPanel erstellt und als Karte zum mainPanel hinzugefügt
+     * wenn Kunde, dann wird ein kundenPanel erstellt und als Karte zum mainPanel hinzugefügt
+     * mithilfe vom cardLayout wird dann richtige "Karte" aufgerufen und angezeigt
+     *
+     * @param istmitarbeiter Variable, um zu prüfen ob es sich um ein Mitarbeiter oder ein Kunden handelt
+     */
     private void onLoginButtonClick(boolean istmitarbeiter) throws RuntimeException {
         String benutzername = benutzernameTextField.getText();
         String passwort = passwortTextField.getText();
@@ -903,7 +1035,6 @@ public class ShopClientGUI extends JFrame {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     ereignisseOffen = false;
-                    System.out.println(ereignisseOffen);
                 }
             });
 
@@ -912,7 +1043,6 @@ public class ShopClientGUI extends JFrame {
             ereignisse.setSize(new Dimension(800, 600));
             ereignisse.setVisible(true);
             ereignisseOffen = true;
-            System.out.println(ereignisseOffen);
 
         }
     }
@@ -924,7 +1054,6 @@ public class ShopClientGUI extends JFrame {
                 bestandslogJDialog.setLayout(new BorderLayout());
 
                 ArrayList<Integer> bestandlog = eshop.getBestandhistorie(selectedArtikelnummer);
-                System.out.println(bestandlog);
                 JPanel bestandslogPanel = new Bestandshistorie(bestandlog);
                 bestandslogJDialog.add(bestandslogPanel, BorderLayout.CENTER);
                 setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -946,17 +1075,11 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
-    private JComponent createEventlogPanel(){
-        JScrollPane scrollPane = new JScrollPane(ereignisTabelle);
-
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Ereignisse"));
-        return scrollPane;
-    }
 
     private void onShoppingCartButtonClick(){
         if(!warenkorbOffen){
             JDialog warenkorb = new JDialog();
-            JComponent warenkorbTabelle = createShoppingCartPanel();
+            JComponent warenkorbTabelle = createShoppingcart();
             warenkorb.add(warenkorbTabelle);
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -975,111 +1098,6 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
-    private JComponent createShoppingCartPanel(){
-        JPanel warenkorbPanel = new JPanel();
-        warenkorbPanel.setLayout(new BoxLayout(warenkorbPanel, BoxLayout.Y_AXIS));
-
-        JScrollPane scrollPane = new JScrollPane(warenkorbTabelle);
-        warenkorbPanel.add(scrollPane);
-
-        warenkorbTabelle.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int selectedRow = warenkorbTabelle.getSelectedRow();
-                if (selectedRow != -1){
-                    selectedShoppingCartItemNummer = (int) warenkorbTabelle.getModel().getValueAt(selectedRow, 0);
-                    selectedShoppingCartItemBezeichnung = (String) warenkorbTabelle.getModel().getValueAt(selectedRow, 1);
-                }
-            }
-        });
-
-        JPanel buttonArea = new JPanel();
-        buttonArea.setLayout(new BoxLayout(buttonArea, BoxLayout.X_AXIS));
-
-        JButton kaufenButton = new JButton("Warenkorb kaufen");
-        kaufenButton.addActionListener(e -> {
-            try {
-                if(!aktuellerKunde.getWarenkorb().getInhalt().isEmpty()){
-                    Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
-                    // Rechnung muss noch ausgegeben werden (JDialog?)
-                    SwingUtilities.getWindowAncestor(warenkorbPanel).dispose();
-                    warenkorbOffen = false;
-
-                    rechnungAnzeigen(rechnung);
-
-                    updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-                    java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                    updateArtikelPanel(artikel);
-                }
-            } catch (UnbekanntesAccountObjektException | MassengutException | ArtikelExistiertNichtException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        buttonArea.add(kaufenButton);
-
-        JButton entfernenButton = new JButton("Artikel entfernen");
-        entfernenButton.addActionListener(e -> {
-            try {
-                if(selectedShoppingCartItemNummer != 0){
-                    eshop.artikelAusWarenkorbEntfernen(aktuellerKunde, selectedShoppingCartItemBezeichnung);
-                    updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-                    selectedShoppingCartItemNummer = 0;
-                }
-            } catch (ArtikelExistiertNichtException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
-        buttonArea.add(entfernenButton);
-
-        JButton veraendernButton = new JButton("Anzahl ändern");
-        veraendernButton.addActionListener(e -> {
-            if(selectedShoppingCartItemNummer != 0){
-                JDialog veraendernMenu = new JDialog(this, "Neue Anzahl", true);
-                Container contentPane = veraendernMenu.getContentPane();
-                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-
-                contentPane.add(new JLabel("Neue Anzahl: "));
-                JTextField neueAnzahlTextField = new JTextField();
-                contentPane.add(neueAnzahlTextField);
-
-                JButton neueAnzahlButton = new JButton("Bestand verändern");
-                neueAnzahlButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        int neueAnzahl = Integer.parseInt(neueAnzahlTextField.getText());
-                        veraendernMenu.dispose();
-                        try {
-                            eshop.warenkorbVeraendern(aktuellerKunde, selectedShoppingCartItemBezeichnung, neueAnzahl);
-                            updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-                            selectedShoppingCartItemNummer = 0;
-                        } catch (MassengutException | ArtikelExistiertNichtException ex) {
-                            JOptionPane.showMessageDialog(null, "");
-                        } catch (NegativerBestandException ex) {
-                            JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
-                        }
-                    }
-                });
-                contentPane.add(neueAnzahlButton);
-
-                veraendernMenu.setLocationRelativeTo(this);
-                veraendernMenu.setSize(280, 100);
-                veraendernMenu.setVisible(true);
-            }
-        });
-        buttonArea.add(veraendernButton);
-
-        JButton leerenButton = new JButton("Warenkorb leeren");
-        leerenButton.addActionListener(e -> {
-            eshop.warenkorbLeeren(aktuellerKunde);
-            updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-        });
-        buttonArea.add(leerenButton);
-
-        warenkorbPanel.add(buttonArea);
-
-        warenkorbPanel.setBorder(BorderFactory.createTitledBorder("Warenkorb"));
-        return warenkorbPanel;
-    }
 
     /**
      * Methode zum Anzeigen der Rechnung
@@ -1172,16 +1190,6 @@ public class ShopClientGUI extends JFrame {
             HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
             updateShoppingCart(inhalt);
         }
-    }
-
-    private JDialog showBestandslog(ArrayList<Integer> bestandslog){
-        JDialog bestandslogJDialog = new JDialog(this, "Bestandshistorie", true);
-        bestandslogJDialog.setLayout(new BorderLayout());
-
-        JPanel bestandslogPanel = new Bestandshistorie(bestandslog);
-
-        bestandslogJDialog.add(bestandslogPanel, BorderLayout.CENTER);
-        return bestandslogJDialog;
     }
 
     /**
