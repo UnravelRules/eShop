@@ -1,6 +1,6 @@
-package eShop.local.domain.exceptions;
+package eShop.common.exceptions;
 
-import eShop.local.entities.Mitarbeiter;
+import eShop.common.entities.Mitarbeiter;
 
 public class MitarbeiterExistiertBereitsException extends Exception{
     public MitarbeiterExistiertBereitsException(Mitarbeiter mitarbeiter){

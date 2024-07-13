@@ -1,10 +1,10 @@
 package eShop.local.domain;
 
-import eShop.local.domain.exceptions.ArtikelExistiertBereitsException;
-import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
-import eShop.local.domain.exceptions.MassengutException;
-import eShop.local.entities.Artikel;
-import eShop.local.entities.Massengutartikel;
+import eShop.common.exceptions.ArtikelExistiertBereitsException;
+import eShop.common.exceptions.ArtikelExistiertNichtException;
+import eShop.common.exceptions.MassengutException;
+import eShop.common.entities.Artikel;
+import eShop.common.entities.Massengutartikel;
 import eShop.local.persistence.FilePersistenceManager;
 import eShop.local.persistence.PersistenceManager;
 

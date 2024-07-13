@@ -2,12 +2,10 @@ package eShop.local.persistence;
 
 import java.io.IOException;
 
-import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
-import eShop.local.domain.exceptions.UnbekanntesAccountObjektException;
-import eShop.local.entities.Artikel;
-import eShop.local.entities.Ereignis;
-import eShop.local.entities.Kunde;
-import eShop.local.entities.Mitarbeiter;
+import eShop.common.entities.Artikel;
+import eShop.common.entities.Ereignis;
+import eShop.common.entities.Kunde;
+import eShop.common.entities.Mitarbeiter;
 
 /**
  * Allgemeine Schnittstelle für den Zugriff auf ein Speichermedium

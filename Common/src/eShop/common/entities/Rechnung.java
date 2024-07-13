@@ -1,8 +1,7 @@
-package eShop.local.entities;
+package eShop.common.entities;
 
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Rechnung {
     private Kunde kunde;

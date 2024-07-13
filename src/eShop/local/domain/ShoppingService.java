@@ -1,8 +1,8 @@
 package eShop.local.domain;
 
-import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
-import eShop.local.domain.exceptions.MassengutException;
-import eShop.local.entities.*;
+import eShop.common.exceptions.ArtikelExistiertNichtException;
+import eShop.common.exceptions.MassengutException;
+import eShop.common.entities.*;
 
 import java.util.HashMap;
 import java.util.Map;

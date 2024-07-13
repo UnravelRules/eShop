@@ -1,6 +1,6 @@
-package eShop.local.domain.exceptions;
+package eShop.common.exceptions;
 
-import eShop.local.entities.Artikel;
+import eShop.common.entities.Artikel;
 
 public class NegativerBestandException extends Exception {
     public NegativerBestandException(Artikel artikel, int neuerBestand) {

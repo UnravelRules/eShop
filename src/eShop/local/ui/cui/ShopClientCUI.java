@@ -1,7 +1,7 @@
 package eShop.local.ui.cui;
 import eShop.local.domain.eShop;
-import eShop.local.domain.exceptions.*;
-import eShop.local.entities.*;
+import eShop.common.exceptions.*;
+import eShop.common.entities.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;

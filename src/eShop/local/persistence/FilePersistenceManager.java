@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 
-import eShop.local.domain.ArtikelVerwaltung;
-import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
-import eShop.local.domain.exceptions.UnbekanntesAccountObjektException;
-import eShop.local.entities.*;
+import eShop.common.entities.*;
 
 /**
  * @author teschke

@@ -1,6 +1,4 @@
-package eShop.local.entities;
-
-import eShop.local.domain.exceptions.UnbekanntesAccountObjektException;
+package eShop.common.entities;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

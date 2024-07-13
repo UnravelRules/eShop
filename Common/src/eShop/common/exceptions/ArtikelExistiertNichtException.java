@@ -1,4 +1,4 @@
-package eShop.local.domain.exceptions;
+package eShop.common.exceptions;
 
 public class ArtikelExistiertNichtException extends Exception {
     public ArtikelExistiertNichtException(String Bezeichnung){

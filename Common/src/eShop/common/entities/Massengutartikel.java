@@ -1,6 +1,6 @@
-package eShop.local.entities;
+package eShop.common.entities;
 
-import eShop.local.domain.exceptions.MassengutException;
+import eShop.common.exceptions.MassengutException;
 
 public class Massengutartikel extends Artikel{
     private int packungsgroesse;

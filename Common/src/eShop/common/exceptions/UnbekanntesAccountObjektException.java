@@ -1,6 +1,4 @@
-package eShop.local.domain.exceptions;
-
-import eShop.local.entities.Benutzer;
+package eShop.common.exceptions;
 
 public class UnbekanntesAccountObjektException extends Exception{
 

@@ -1,6 +1,4 @@
-package eShop.local.domain.exceptions;
-
-import eShop.local.entities.Massengutartikel;
+package eShop.common.exceptions;
 
 public class MassengutException extends Exception {
     public MassengutException(int bestand, int packungsgroesse){

@@ -1,4 +1,4 @@
-package eShop.local.entities;
+package eShop.common.entities;
 
 public enum AccountTyp {
     MITARBEITER, KUNDE

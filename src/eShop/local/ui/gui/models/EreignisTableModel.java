@@ -1,6 +1,6 @@
 package eShop.local.ui.gui.models;
 
-import eShop.local.entities.Ereignis;
+import eShop.common.entities.Ereignis;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.LocalDate;

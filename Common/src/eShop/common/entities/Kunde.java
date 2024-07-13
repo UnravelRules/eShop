@@ -1,6 +1,5 @@
-package eShop.local.entities;
+package eShop.common.entities;
 
-import java.util.HashMap;
 import java.util.Objects;
 
 public class Kunde extends Benutzer {

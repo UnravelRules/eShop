@@ -1,14 +1,13 @@
 package eShop.local.domain;
 
-import eShop.local.domain.exceptions.*;
-import eShop.local.entities.*;
+import eShop.common.exceptions.*;
+import eShop.common.entities.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.LocalDate;
-import java.util.*;
 
 
 public class eShop {
@@ -130,7 +129,7 @@ public class eShop {
         return a;
     }
 
-    public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws  MassengutException {
+    public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws MassengutException {
         Massengutartikel massengutartikel = new Massengutartikel(nummer, bezeichnung, bestand, preis, packungsgroesse);
         if(bestand % packungsgroesse == 0){
             try {

@@ -1,4 +1,4 @@
-package eShop.local.entities;
+package eShop.common.entities;
 
 public class Benutzer {
     protected int nummer;

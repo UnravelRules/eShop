@@ -3,7 +3,6 @@ package eShop.local.ui.gui;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -13,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eShop.local.domain.eShop;
-import eShop.local.domain.exceptions.*;
-import eShop.local.entities.*;
+import eShop.common.exceptions.*;
+import eShop.common.entities.*;
 import eShop.local.ui.gui.models.ArtikelTableModel;
 import eShop.local.ui.gui.models.CustomCellRenderer;
 import eShop.local.ui.gui.models.EreignisTableModel;

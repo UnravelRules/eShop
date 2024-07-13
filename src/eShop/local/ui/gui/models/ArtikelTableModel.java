@@ -1,8 +1,7 @@
 package eShop.local.ui.gui.models;
 
-import eShop.local.domain.exceptions.ArtikelExistiertBereitsException;
-import eShop.local.entities.Artikel;
-import eShop.local.entities.Massengutartikel;
+import eShop.common.entities.Artikel;
+import eShop.common.entities.Massengutartikel;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;

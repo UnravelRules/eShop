@@ -1,8 +1,7 @@
 package eShop.local.domain;
 
-import eShop.local.domain.exceptions.ArtikelExistiertNichtException;
-import eShop.local.domain.exceptions.UnbekanntesAccountObjektException;
-import eShop.local.entities.*;
+import eShop.common.exceptions.UnbekanntesAccountObjektException;
+import eShop.common.entities.*;
 import eShop.local.persistence.FilePersistenceManager;
 import eShop.local.persistence.PersistenceManager;
 

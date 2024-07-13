@@ -1,6 +1,6 @@
-package eShop.local.domain.exceptions;
+package eShop.common.exceptions;
 
-import eShop.local.entities.Kunde;
+import eShop.common.entities.Kunde;
 
 public class KundeExistiertBereitsException extends Exception {
     

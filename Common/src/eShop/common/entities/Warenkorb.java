@@ -1,4 +1,4 @@
-package eShop.local.entities;
+package eShop.common.entities;
 
 import java.util.HashMap;
 

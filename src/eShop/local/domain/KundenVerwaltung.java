@@ -1,8 +1,8 @@
 package eShop.local.domain;
 
-import eShop.local.domain.exceptions.KundeExistiertBereitsException;
-import eShop.local.domain.exceptions.KundeExistiertNichtException;
-import eShop.local.entities.Kunde;
+import eShop.common.exceptions.KundeExistiertBereitsException;
+import eShop.common.exceptions.KundeExistiertNichtException;
+import eShop.common.entities.Kunde;
 import eShop.local.persistence.FilePersistenceManager;
 import eShop.local.persistence.PersistenceManager;
 

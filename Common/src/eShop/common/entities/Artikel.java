@@ -1,6 +1,6 @@
-package eShop.local.entities;
+package eShop.common.entities;
 
-import eShop.local.domain.exceptions.MassengutException;
+import eShop.common.exceptions.MassengutException;
 
 /** die Klasse Artikel steht für einen Artikel im EShop
  * jeden Artikel hat eine Artikel-Nr, Bezeichnung, Bestand und Preis
