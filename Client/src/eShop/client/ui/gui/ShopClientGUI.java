@@ -950,6 +950,26 @@ public class ShopClientGUI extends JFrame {
                 float preis = 0.0f;
 
                 try{
+                    try{
+                        artikelnummer = Integer.parseInt(artikelnummerTextField.getText());
+                        inputErrorArtikelnummer.setVisible(false);
+                    } catch (NumberFormatException e){
+                        inputErrorArtikelnummer.setVisible(true);
+                    }
+
+                    try{
+                        bestand = Integer.parseInt(bestandTextField.getText());
+                        inputErrorBestand.setVisible(false);
+                    } catch (NumberFormatException e){
+                        inputErrorBestand.setVisible(true);
+                    }
+
+                    try{
+                        preis = Float.parseFloat(preisTextField.getText());
+                        inputErrorPreis.setVisible(false);
+                    } catch (NumberFormatException e){
+                        inputErrorPreis.setVisible(true);
+                    }
                     eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
                     java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
                     updateArtikelPanel(artikel);
