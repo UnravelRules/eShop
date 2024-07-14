@@ -3,6 +3,7 @@ package eShop.client.ui.gui;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -323,7 +324,13 @@ public class ShopClientGUI extends JFrame {
         return shoppingCartPanel;
     }
 
-    private JPanel  createMitarbeiterPanel(){
+
+    // ab hier wird das Mitarbeiter Menü erstellt, dazu gehört:
+    // - das Main Panel
+    // - das Menü innerhalb des Panels
+    // - ein SearchPanel
+    // - ein FunktionsPanel (Artikel anlegen, entfernen, verändern & EventLog anzeigen)
+    private JPanel createMitarbeiterPanel(){
         setupMitarbeiterMenu();
 
         mitarbeitermenu = new JPanel();
@@ -724,8 +731,7 @@ public class ShopClientGUI extends JFrame {
         JButton kaufenButton = new JButton("Warenkorb kaufen");
         kaufenButton.addActionListener(e -> {
             try {
-                HashMap<Artikel, Integer> warenkorb = eshop.gibWarenkorb(this.aktuellerKunde);
-                if(!warenkorb.isEmpty()){
+                if(!aktuellerKunde.getWarenkorb().getInhalt().isEmpty()){
                     Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
                     // Rechnung muss noch ausgegeben werden (JDialog?)
                     SwingUtilities.getWindowAncestor(warenkorbPanel).dispose();
@@ -778,7 +784,9 @@ public class ShopClientGUI extends JFrame {
                             eshop.warenkorbVeraendern(aktuellerKunde, selectedShoppingCartItemBezeichnung, neueAnzahl);
                             updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
                             selectedShoppingCartItemNummer = 0;
-                        } catch (MassengutException | ArtikelExistiertNichtException | NegativerBestandException ex) {
+                        } catch (MassengutException | ArtikelExistiertNichtException ex) {
+                            JOptionPane.showMessageDialog(null, "");
+                        } catch (NegativerBestandException ex) {
                             JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                         }
                     }
