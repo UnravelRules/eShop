@@ -1,10 +1,10 @@
-package eShop.local.domain;
+package eshop.server.domain;
 
 import eShop.common.exceptions.MitarbeiterExistiertBereitsException;
 import eShop.common.exceptions.MitarbeiterExistiertNichtException;
 import eShop.common.entities.Mitarbeiter;
-import eShop.local.persistence.FilePersistenceManager;
-import eShop.local.persistence.PersistenceManager;
+import eshop.server.persistence.FilePersistenceManager;
+import eshop.server.persistence.PersistenceManager;
 
 import java.io.IOException;
 import java.util.ArrayList;

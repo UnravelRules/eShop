@@ -1,7 +1,8 @@
-package eShop.local.domain;
+package eshop.server.domain;
 
 import eShop.common.exceptions.*;
 import eShop.common.entities.*;
+import eShop.common.interfaces.eShopInterface;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.Map;
 import java.time.LocalDate;
 
 
-public class eShop {
+public class eShop implements eShopInterface {
     private String kundenDatei = "";
     private String mitarbeiterDatei = "";
     private String artikelDatei = "";
@@ -49,6 +50,7 @@ public class eShop {
      * @return Kundenobjekt
      * @throws KundeExistiertBereitsException
      */
+    @Override
     public Kunde kundeRegistrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException, FehlendeEingabenException {
         if(name == null || str == null || plz == null || benutzer == null || passwort == null){
             throw new FehlendeEingabenException("Registrierung");
@@ -67,6 +69,7 @@ public class eShop {
      * @return Kundenobjekt
      * @throws KundeExistiertNichtException
      */
+    @Override
     public Kunde kundeEinloggen(String benutzername, String passwort) throws KundeExistiertNichtException {
         return kundenVW.login(benutzername, passwort);
     }
@@ -78,6 +81,7 @@ public class eShop {
      * @return Mitarbeiterobjekt
      * @throws MitarbeiterExistiertNichtException
      */
+    @Override
     public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws MitarbeiterExistiertNichtException{
         return mitarbeiterVW.anmelden(benutzername, passwort);
     }
@@ -91,6 +95,7 @@ public class eShop {
      * @return Mitarbeiterobjekt
      * @throws MitarbeiterExistiertBereitsException
      */
+    @Override
     public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException {
         Mitarbeiter m = new Mitarbeiter(nummer, name, benutzer, passwort);
         mitarbeiterVW.registrieren(m);
@@ -101,6 +106,7 @@ public class eShop {
      * Entfernt einen Mitarbeiter
      * @param benutzername
      */
+    @Override
     public void mitarbeiterEntfernen(String benutzername){
         mitarbeiterVW.entfernen(benutzername);
     }
@@ -117,6 +123,7 @@ public class eShop {
      * @throws ArtikelExistiertBereitsException
      * @throws UnbekanntesAccountObjektException
      */
+    @Override
     public Artikel artikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter) throws RuntimeException {
         Artikel a = new Artikel(nummer, bezeichnung, bestand, preis);
         try{
@@ -129,6 +136,7 @@ public class eShop {
         return a;
     }
 
+    @Override
     public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws MassengutException {
         Massengutartikel massengutartikel = new Massengutartikel(nummer, bezeichnung, bestand, preis, packungsgroesse);
         if(bestand % packungsgroesse == 0){
@@ -153,6 +161,7 @@ public class eShop {
      * @throws ArtikelExistiertNichtException
      * @throws UnbekanntesAccountObjektException
      */
+    @Override
     public void bestandAendern(int artikel_nummer, int neuer_bestand, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
         Artikel artikel = artikelVW.getArtikelMitNummer(artikel_nummer);
         EreignisTyp ereignisTyp;
@@ -167,6 +176,7 @@ public class eShop {
         artikelVW.bestandAendern(artikel_nummer, neuer_bestand);
         ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikel, delta);
     }
+    @Override
     public ArrayList<Artikel> artikelSuchen(String bezeichnung) {
         return artikelVW.artikelSuchen(bezeichnung);
     }
@@ -179,6 +189,7 @@ public class eShop {
      * @throws ArtikelExistiertNichtException
      * @throws UnbekanntesAccountObjektException
      */
+    @Override
     public void artikelEntfernen(int nummer, String bezeichnung, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException {
         Artikel artikel = artikelVW.getArtikelMitNummer(nummer);
         int delta = artikel.getBestand();
@@ -188,6 +199,7 @@ public class eShop {
         ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikelKopie, delta);
     }
 
+    @Override
     public ArrayList<Artikel> gibAlleArtikel(){
         return artikelVW.getArtikelBestand();
     }
@@ -198,6 +210,7 @@ public class eShop {
      * @param anzahl
      * @param aktuellerKunde
      */
+    @Override
     public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
         Artikel artikel = artikelVW.getArtikelMitNummer(artikelnummer);
         shoppingService.artikelInWarenkorb(artikel, anzahl, aktuellerKunde);
@@ -207,6 +220,7 @@ public class eShop {
      * Leert den Warenkorb eines Kunden
      * @param aktuellerKunde
      */
+    @Override
     public void warenkorbLeeren(Kunde aktuellerKunde){
         shoppingService.warenkorbLeeren(aktuellerKunde);
     }
@@ -219,6 +233,7 @@ public class eShop {
      * @throws ArtikelExistiertNichtException
      * @throws UnbekanntesAccountObjektException
      */
+    @Override
     public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws UnbekanntesAccountObjektException, MassengutException, ArtikelExistiertNichtException {
         HashMap<Artikel, Integer> inhalt = new HashMap<>(aktuellerKunde.getWarenkorb().getInhalt());
         Rechnung rechnung = shoppingService.warenkorbKaufen(aktuellerKunde);
@@ -233,6 +248,7 @@ public class eShop {
         return rechnung;
     }
 
+    @Override
     public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, NegativerBestandException {
         Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
         if(neuerBestand > artikel.getBestand()){
@@ -241,34 +257,42 @@ public class eShop {
         shoppingService.warenkorbVeraendern(aktuellerKunde, artikel, neuerBestand);
     }
 
+    @Override
     public void artikelAusWarenkorbEntfernen(Kunde aktuellerKunde, String bezeichnung) throws ArtikelExistiertNichtException {
         Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
         shoppingService.artikelAusWarenkorbEntfernen(aktuellerKunde, artikel);
     }
 
+    @Override
     public HashMap<Artikel, Integer> gibWarenkorb(Kunde aktuellerKunde){
         return aktuellerKunde.getWarenkorb().getInhalt();
     }
 
+    @Override
     public ArrayList<Ereignis> eventlogAusgeben(){
         return ereignisVW.getEventlog();
     }
 
+    @Override
     public void schreibeKunde() throws IOException {
         kundenVW.schreibeDaten(kundenDatei+"_K.txt");
     }
+    @Override
     public void schreibeMitarbeiter() throws IOException {
         mitarbeiterVW.schreibeDaten(mitarbeiterDatei+"_M.txt");
     }
 
+    @Override
     public void schreibeArtikel() throws IOException {
         artikelVW.schreibeDaten(artikelDatei+"_A.txt");
     }
 
+    @Override
     public void schreibeEreignis() throws IOException {
         ereignisVW.schreibeDaten(ereignisDatei+"_E.txt");
     }
 
+    @Override
     public void sichereDaten() throws IOException{
         schreibeKunde();
         schreibeMitarbeiter();
@@ -276,6 +300,7 @@ public class eShop {
         schreibeEreignis();
     }
 
+    @Override
     public ArrayList<Integer> getBestandhistorie(int Artikelnummer) throws ArtikelExistiertNichtException {
         Artikel artikel = artikelVW.getArtikelMitNummer(Artikelnummer);
         ArrayList<Integer> bestandslog = new ArrayList<>();

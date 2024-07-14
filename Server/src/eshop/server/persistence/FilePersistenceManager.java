@@ -1,4 +1,4 @@
-package eShop.local.persistence;
+package eshop.server.persistence;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,7 +16,7 @@ import eShop.common.entities.*;
  *
  * Realisierung einer Schnittstelle zur persistenten Speicherung von
  * Daten in Dateien.
- * @see eShop.local.persistence.PersistenceManager
+ * @see PersistenceManager
  */
 public class FilePersistenceManager implements PersistenceManager {
 

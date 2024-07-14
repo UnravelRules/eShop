@@ -1,9 +1,9 @@
-package eShop.local.domain;
+package eshop.server.domain;
 
 import eShop.common.exceptions.UnbekanntesAccountObjektException;
 import eShop.common.entities.*;
-import eShop.local.persistence.FilePersistenceManager;
-import eShop.local.persistence.PersistenceManager;
+import eshop.server.persistence.FilePersistenceManager;
+import eshop.server.persistence.PersistenceManager;
 
 import java.io.IOException;
 import java.time.LocalDate;

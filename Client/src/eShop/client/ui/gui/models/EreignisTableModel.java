@@ -1,4 +1,4 @@
-package eShop.local.ui.gui.models;
+package eShop.client.ui.gui.models;
 
 import eShop.common.entities.Ereignis;
 

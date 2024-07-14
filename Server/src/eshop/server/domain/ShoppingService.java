@@ -1,4 +1,4 @@
-package eShop.local.domain;
+package eshop.server.domain;
 
 import eShop.common.exceptions.ArtikelExistiertNichtException;
 import eShop.common.exceptions.MassengutException;

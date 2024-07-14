@@ -2,4 +2,4 @@ eShop.local.domain
 eShop.local.domain.exceptions
 eShop.local.entities
 eShop.local.persistence
-eShop.local.ui.cui
+eShop.client.ui.cui

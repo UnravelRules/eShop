@@ -1,5 +1,5 @@
-package eShop.local.ui.cui;
-import eShop.local.domain.eShop;
+package eShop.client.ui.cui;
+import eShop.client.net.eShopFassade;
 import eShop.common.exceptions.*;
 import eShop.common.entities.*;
 
@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import java.net.InetAddress;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,14 +22,17 @@ import java.util.Map;
  * @author Fabian
  */
 public class ShopClientCUI {
-    private eShop eshop;
+
+    public static final int DEFAULT_PORT = 6789;
+
+    private eShopFassade eshop;
     private BufferedReader in;
     private Kunde aktuellerKunde;
     private Mitarbeiter aktuellerMitarbeiter;
 
     // Konstruktor (Datei als Parameter geben, BufferedReader)
-    public ShopClientCUI(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) throws IOException {
-        eshop = new eShop(kundenDatei, mitarbeiterDatei, artikelDatei, ereignisDatei);
+    public ShopClientCUI(String host, int port) throws IOException {
+        eshop = new eShopFassade(host, port);
 
         // Stream-Objekt fuer Texteingabe ueber Konsolenfenster erzeugen
         in = new BufferedReader(new InputStreamReader(System.in));
@@ -82,7 +86,6 @@ public class ShopClientCUI {
                     return 2;
                 } catch(MitarbeiterExistiertNichtException e){
                     System.out.println("Fehler beim Einloggen");
-                    e.printStackTrace();
                     return 0;
                 }
         }
@@ -162,7 +165,8 @@ public class ShopClientCUI {
                 break;
             case "w":
                 // Warenkorb ausgeben
-                gibWarenkorbAus(aktuellerKunde.getWarenkorb().getInhalt());
+                HashMap<Artikel, Integer> warenkorb = eshop.gibWarenkorb(this.aktuellerKunde);
+                gibWarenkorbAus(warenkorb);
                 break;
             case "v":
                 System.out.println("Bezeichnung: ");
@@ -429,6 +433,7 @@ public class ShopClientCUI {
                         e.printStackTrace();
                     }
                 } while(!input.equals("a"));
+                eshop.logout();
 
             } else if(benutzertyp == 2){
                 do{
@@ -440,21 +445,60 @@ public class ShopClientCUI {
                         e.printStackTrace();
                     }
                 } while (!input.equals("a"));
+                eshop.logout();
             }
         } while (!input.equals("q"));
         try {
             eshop.sichereDaten();
+            eshop.disconnect();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
-        try {
-            ShopClientCUI cui = new ShopClientCUI("Kunden", "Mitarbeiter", "Artikel", "Ereignis");
-            cui.run();
+        int port = 0;
+        String host = null;
+        InetAddress ia = null;
 
-        } catch (IOException e){
+        // Host- und Port-Argumente einlesen, wenn angegeben
+        if (args.length > 2) {
+            System.out.println("Aufruf: java BibClientGUI [<hostname> [<port>]]");
+            System.exit(0);
+        }
+        switch (args.length) {
+            case 0:
+                try {
+                    ia = InetAddress.getLocalHost();
+                } catch (Exception e) {
+                    System.out.println("XXX InetAdress-Fehler: " + e);
+                    System.exit(0);
+                }
+                host = ia.getHostName(); // host ist lokale Maschine
+                port = DEFAULT_PORT;
+                break;
+            case 1:
+                port = DEFAULT_PORT;
+                host = args[0];
+                break;
+            case 2:
+                host = args[0];
+                try {
+                    port = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    System.out
+                            .println("Aufruf: java BibClientGUI [<hostname> [<port>]]");
+                    System.exit(0);
+                }
+        }
+
+        // CUI auf Starten und mit Server auf Host und Port verbinden
+        ShopClientCUI cui;
+        try {
+            cui = new ShopClientCUI(host, port);
+            cui.run();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

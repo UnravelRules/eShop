@@ -1,4 +1,4 @@
-package eShop.local.persistence;
+package eshop.server.persistence;
 
 import java.io.IOException;
 

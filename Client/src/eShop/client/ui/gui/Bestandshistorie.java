@@ -1,4 +1,4 @@
-package eShop.local.ui.gui;
+package eShop.client.ui.gui;
 
 import javax.sound.sampled.Line;
 import javax.swing.*;

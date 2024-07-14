@@ -1,10 +1,10 @@
-package eShop.local.domain;
+package eshop.server.domain;
 
 import eShop.common.exceptions.KundeExistiertBereitsException;
 import eShop.common.exceptions.KundeExistiertNichtException;
 import eShop.common.entities.Kunde;
-import eShop.local.persistence.FilePersistenceManager;
-import eShop.local.persistence.PersistenceManager;
+import eshop.server.persistence.FilePersistenceManager;
+import eshop.server.persistence.PersistenceManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class KundenVerwaltung {
      */
     public Kunde registrieren(Kunde kunde) throws KundeExistiertBereitsException {
         if (kundenliste.contains(kunde)) {
-            throw new KundeExistiertBereitsException(kunde);
+            throw new KundeExistiertBereitsException(kunde.getBenutzername());
         } else {
             kundenliste.add(kunde);
             return kunde;

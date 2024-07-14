@@ -1,4 +1,4 @@
-package eShop.local.ui.gui;
+package eShop.client.ui.gui;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -6,21 +6,25 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import eShop.local.domain.eShop;
 import eShop.common.exceptions.*;
 import eShop.common.entities.*;
-import eShop.local.ui.gui.models.ArtikelTableModel;
-import eShop.local.ui.gui.models.CustomCellRenderer;
-import eShop.local.ui.gui.models.EreignisTableModel;
-import eShop.local.ui.gui.models.WarenkorbTableModel;
+import eShop.client.net.eShopFassade;
+import eShop.client.ui.gui.models.ArtikelTableModel;
+import eShop.client.ui.gui.models.CustomCellRenderer;
+import eShop.client.ui.gui.models.EreignisTableModel;
+import eShop.client.ui.gui.models.WarenkorbTableModel;
 
 public class ShopClientGUI extends JFrame {
-    private eShop eshop;
+
+    private static final int DEFAULT_PORT = 6789;
+
+    private eShopFassade eshop;
     private JPanel mainPanel;
     private CardLayout cardLayout;
     private JPanel mitarbeitermenu;
@@ -57,11 +61,11 @@ public class ShopClientGUI extends JFrame {
     private boolean bestandslogOffen = false;
 
 
-    public ShopClientGUI(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) {
+    public ShopClientGUI(String host, int port) {
         super("E-Shop");
 
         try {
-            this.eshop = new eShop(kundenDatei, mitarbeiterDatei, artikelDatei, ereignisDatei);
+            this.eshop = new eShopFassade(host, port);
             initialize();
         } catch (IOException e){
             e.printStackTrace();
@@ -1229,10 +1233,53 @@ public class ShopClientGUI extends JFrame {
 
 
     public static void main(String[] args){
+        int portArg = 0;
+        String hostArg = null;
+        InetAddress ia = null;
+
+        // ---
+        // Hier werden die main-Parameter geprüft:
+        // ---
+
+        // Host- und Port-Argument einlesen, wenn angegeben
+        if (args.length > 2) {
+            System.out.println("Aufruf: java <Klassenname> [<hostname> [<port>]]");
+            System.exit(0);
+        }
+        switch (args.length) {
+            case 0:
+                try {
+                    ia = InetAddress.getLocalHost();
+                } catch (Exception e) {
+                    System.out.println("XXX InetAdress-Fehler: " + e);
+                    System.exit(0);
+                }
+                hostArg = ia.getHostName(); // host ist lokale Maschine
+                portArg = DEFAULT_PORT;
+                break;
+            case 1:
+                portArg = DEFAULT_PORT;
+                hostArg = args[0];
+                break;
+            case 2:
+                hostArg = args[0];
+                try {
+                    portArg = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    System.out.println("Aufruf: java BibClientGUI [<hostname> [<port>]]");
+                    System.exit(0);
+                }
+        }
+
+
+        // Swing-UI auf dem GUI-Thread initialisieren
+        // (host und port müssen für Verwendung in inner class final sein)
+        final String host = hostArg;
+        final int port = portArg;
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                ShopClientGUI gui = new ShopClientGUI("Kunden", "Mitarbeiter", "Artikel", "Ereignis");
+                ShopClientGUI gui = new ShopClientGUI(host, port);
             }
         });
     }
@@ -1279,12 +1326,14 @@ public class ShopClientGUI extends JFrame {
 
                     aktuellerKunde = null;
                     aktuellerMitarbeiter = null;
+                    eshop.logout();
                     break;
 
                 case "Programm beenden":
                     ShopClientGUI.this.dispose();
                     try {
                         eshop.sichereDaten();
+                        eshop.disconnect();
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }

@@ -4,8 +4,8 @@ import eShop.common.entities.Kunde;
 
 public class KundeExistiertBereitsException extends Exception {
     
-    public KundeExistiertBereitsException(Kunde kunde){
-        super("Kunde " + kunde.getBenutzername() + " existiert bereits");
+    public KundeExistiertBereitsException(String benutzername){
+        super("Kunde " + benutzername + " existiert bereits");
     }
     
 }

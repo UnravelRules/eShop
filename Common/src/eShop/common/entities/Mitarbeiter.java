@@ -16,7 +16,7 @@ public class Mitarbeiter extends Benutzer {
     }
 
     /**
-     * Gibt den Namen des des Mitarbeiterobjektes zurück.
+     * Gibt den Namen des Mitarbeiterobjektes zurück.
      * @return Name
      */
     public String getName(){
