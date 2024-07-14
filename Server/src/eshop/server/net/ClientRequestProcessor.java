@@ -227,6 +227,7 @@ public class ClientRequestProcessor implements Runnable{
             ArrayList<Integer> historie = eshop.getBestandhistorie(nummer);
             out.println("Erfolg");
             int size = historie.size();
+            out.println(size);
             for (int i = 0; i < size; i++) {
                 out.println(historie.get(i));
             }
