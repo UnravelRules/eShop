@@ -247,7 +247,7 @@ public class ShopClientCUI {
                     break;
                 } else if(massengut == 'J' || massengut == 'j') {
                     try {
-                        System.out.println("Packungsgröße: ");
+                        System.out.print("Packungsgröße: ");
                         int packungsgroesse = Integer.parseInt(liesEingabe());
                         eshop.massengutartikelAnlegen(artikelNummer, bezeichnung, bestand, preis, aktuellerMitarbeiter, packungsgroesse);
                     } catch (RuntimeException e) {
@@ -350,7 +350,7 @@ public class ShopClientCUI {
                 break;
             case "h":
                 // Bestandshistorie ausgeben
-                System.out.println("Bestandshistorie des Artikels mit Nummer:");
+                System.out.print("Bestandshistorie des Artikels mit Nummer: ");
                 int artikel_nummer = Integer.parseInt(liesEingabe());
                 try {
                     ArrayList<Integer> bestands_historie = eshop.getBestandhistorie(artikel_nummer);

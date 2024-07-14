@@ -54,7 +54,7 @@ public class ClientRequestProcessor implements Runnable{
             } catch (Exception e) {
                 System.out.println("Exception bei Lesen vom Client: ");
                 System.out.println(e.getMessage());
-                continue;
+                input = null;
             }
             switch (input){
                 case null:
@@ -114,6 +114,7 @@ public class ClientRequestProcessor implements Runnable{
             } catch (Exception e) {
                 System.out.println("Exception bei Lesen vom Client: Kundenmenü");
                 System.out.println(e.getMessage());
+                input = null;
             }
             switch(input){
                 case null:
@@ -167,6 +168,7 @@ public class ClientRequestProcessor implements Runnable{
             } catch (Exception e) {
                 System.out.println("Exception bei Lesen vom Client: Mitarbeitermenü");
                 System.out.println(e.getMessage());
+                input = null;
             }
             switch(input){
                 case null:
@@ -179,12 +181,130 @@ public class ClientRequestProcessor implements Runnable{
                 case "p":
                     gibAlleArtikel();
                     break;
+                case "na":
+                    artikelAnlegen();
+                    break;
+                case "nm":
+                    massengutArtikelAnlegen();
+                    break;
+                case "b":
+                    bestandaendern();
+                    break;
+                case "l":
+                    eventlogAusgeben();
+                    break;
+                case "h":
+                    bestandHistorieAusgeben();
+                    break;
+                case "rm":
+                    artikelEntfernen();
+                    break;
                 default:
                     System.out.println("Unbekannte Aktion: " + input);
             }
 
         } while (!(input.equals("a")));
         this.aktuellerMitarbeiter = null;
+    }
+
+    private void artikelEntfernen() {
+        int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
+        String bezeichnung = liesEingabeVonClient("Bezeichnung");
+        try {
+            eshop.artikelEntfernen(nummer, bezeichnung, this.aktuellerMitarbeiter);
+            out.println("Erfolg");
+        } catch (ArtikelExistiertNichtException e) {
+            out.println("ArtikelExistiertNichtException");
+            out.println(e.getBezeichnung());
+        } catch (UnbekanntesAccountObjektException e) {
+            out.println("UnbekanntesAccountObjektException");
+        }
+    }
+
+    private void bestandHistorieAusgeben() {
+        int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
+        try {
+            ArrayList<Integer> historie = eshop.getBestandhistorie(nummer);
+            out.println("Erfolg");
+            int size = historie.size();
+            for (int i = 0; i < size; i++) {
+                out.println(historie.get(i));
+            }
+        } catch (ArtikelExistiertNichtException e) {
+            out.println("Fehler");
+            out.println(e.getBezeichnung());
+        }
+    }
+
+    private void eventlogAusgeben() {
+        ArrayList<Ereignis> eventlog = eshop.eventlogAusgeben();
+        int anzahl = eventlog.size();
+        out.println(anzahl);
+        for(Ereignis ereignis : eventlog){
+            sendeEventAnClient(ereignis);
+        }
+    }
+
+    private void sendeEventAnClient(Ereignis ereignis) {
+        out.println(ereignis.getEreignisTyp().name());
+        out.println(ereignis.getAccountTyp().name());
+        out.println(ereignis.getBenutzerName());
+        out.println(ereignis.getBestandsaenderung());
+        String dateString = ereignis.getDatum().toString();
+        out.println(dateString);
+        out.println(ereignis.getArtikelbezeichnung());
+
+    }
+
+    private void bestandaendern() {
+        int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
+        int neuerBestand = Integer.parseInt(liesEingabeVonClient("Neuer Bestand"));
+        try {
+            eshop.bestandAendern(nummer, neuerBestand, aktuellerMitarbeiter);
+            out.println("Erfolg");
+        } catch (ArtikelExistiertNichtException e) {
+            out.println("ArtikelExistiertNichtException");
+            out.println(e.getBezeichnung());
+        } catch (UnbekanntesAccountObjektException e) {
+            out.println("UnbekanntesAccountObjektException");
+        } catch (MassengutException e) {
+            out.println("MassengutException");
+            out.println(e.getBestand());
+            out.println(e.getPackungsgroesse());
+        }
+    }
+
+    private void massengutArtikelAnlegen() {
+        int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
+        String bezeichnung = liesEingabeVonClient("Bezeichnung");
+        int bestand = Integer.parseInt(liesEingabeVonClient("Bestand"));
+        float preis = Float.parseFloat(liesEingabeVonClient("Preis"));
+        int packungsgroesse = Integer.parseInt(liesEingabeVonClient("Packungsgroesse"));
+        try {
+            Massengutartikel massengutartikel = eshop.massengutartikelAnlegen(nummer, bezeichnung, bestand, preis, this.aktuellerMitarbeiter, packungsgroesse);
+            out.println("Erfolg");
+            sendeArtikelAnClient(massengutartikel);
+        } catch (MassengutException e) {
+            out.println("Fehler");
+            out.println(e.getBestand());
+            out.println(e.getPackungsgroesse());
+        }
+    }
+
+    private void artikelAnlegen() {
+        int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
+        String bezeichnung = liesEingabeVonClient("Bezeichnung");
+        int bestand = Integer.parseInt(liesEingabeVonClient("Bestand"));
+        float preis = Float.parseFloat(liesEingabeVonClient("Preis"));
+        try {
+            Artikel artikel = eshop.artikelAnlegen(nummer, bezeichnung, bestand, preis, this.aktuellerMitarbeiter);
+            out.println("Erfolg");
+            sendeArtikelAnClient(artikel);
+        } catch (RuntimeException e) {
+            out.println("Fehler");
+            out.println(e.getMessage());
+        }
+
     }
 
     private void kundeRegistrieren() {

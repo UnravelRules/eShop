@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class eShopFassade implements eShopInterface {
 
@@ -202,7 +203,25 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public Artikel artikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter) throws RuntimeException {
-        return null;
+        // Neuen normalen Artikel anlegen ist auf Serverseite mit dieser Kombination versehen, da die CUI
+        // bereits zwischen Artikel und Massengutartikel im Methodenaufruf unterscheidet.
+        sout.println("na");
+        sout.println(nummer);
+        sout.println(bezeichnung);
+        sout.println(bestand);
+        sout.println(preis);
+        String input = "";
+        try {
+            input = sin.readLine();
+            if (input.equals("Erfolg")){
+                return liesArtikelVonServer();
+            } else {
+                input = sin.readLine();
+                throw new RuntimeException(input);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -217,7 +236,32 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws MassengutException {
-        return null;
+        // Neuen Massengutartikel anlegen ist auf Serverseite mit dieser Kombination versehen, da die CUI
+        // bereits zwischen Artikel und Massengutartikel im Methodenaufruf unterscheidet.
+        sout.println("nm");
+        sout.println(nummer);
+        sout.println(bezeichnung);
+        sout.println(bestand);
+        sout.println(preis);
+        sout.println(packungsgroesse);
+        String input = "";
+        try {
+            input = sin.readLine();
+            if (input.equals("Erfolg")){
+                 Object artikelObject = liesArtikelVonServer();
+                 if (artikelObject instanceof Massengutartikel){
+                     return (Massengutartikel) artikelObject;
+                 } else {
+                     throw new RuntimeException("Unerwartetes Artikelobjekt beim Erstellen eines Massengutartikel");
+                 }
+            } else {
+                int ex_bestand = Integer.parseInt(sin.readLine());
+                int ex_packungsgroesse = Integer.parseInt(sin.readLine());
+                throw new MassengutException(ex_bestand, ex_packungsgroesse);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -230,7 +274,25 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void bestandAendern(int artikel_nummer, int neuer_bestand, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
-
+        sout.println("b");
+        sout.println(artikel_nummer);
+        sout.println(neuer_bestand);
+        String input;
+        try {
+            input = sin.readLine();
+            if (input.equals("ArtikelExistiertNichtException")){
+                String bezeichnung = sin.readLine();
+                throw new ArtikelExistiertNichtException(bezeichnung);
+            }else if (input.equals("UnbekanntesAccountObjektException")){
+                throw new UnbekanntesAccountObjektException();
+            } else if (input.equals("MassengutException")){
+                int ex_bestand = Integer.parseInt(sin.readLine());
+                int ex_packungsgroesse = Integer.parseInt(sin.readLine());
+                throw new MassengutException(ex_bestand, ex_packungsgroesse);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -263,7 +325,20 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void artikelEntfernen(int nummer, String bezeichnung, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException {
-
+        sout.println("rm");
+        sout.println(nummer);
+        sout.println(bezeichnung);
+        try {
+            String antwort = sin.readLine();
+            if(antwort.equals("ArtikelExistiertNichtException")){
+                String ex_bezeichnung = sin.readLine();
+                throw new ArtikelExistiertNichtException(bezeichnung);
+            } else if (antwort.equals("UnbekanntesAccountObjektException")){
+                throw new UnbekanntesAccountObjektException();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -475,7 +550,37 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public ArrayList<Ereignis> eventlogAusgeben() {
-        return null;
+        ArrayList<Ereignis> eventlog = new ArrayList<Ereignis>();
+        sout.println("l");
+        String input = null;
+        try {
+            input = sin.readLine();
+            int anzahlEvents = Integer.parseInt(input);
+            for (int i = 0; i < anzahlEvents; i++) {
+                Ereignis event = liesEventVonServer();
+                eventlog.add(event);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return eventlog;
+    }
+
+    private Ereignis liesEventVonServer() {
+        try {
+            String input = sin.readLine();
+            EreignisTyp ereignisTyp = EreignisTyp.valueOf(input);
+            input = sin.readLine();
+            AccountTyp accountTyp = AccountTyp.valueOf(input);
+            String benutzername = sin.readLine();
+            int delta = Integer.parseInt(sin.readLine());
+            String dateString = sin.readLine();
+            LocalDate datum = LocalDate.parse(dateString);
+            String bezeichnung = sin.readLine();
+            return new Ereignis(ereignisTyp, accountTyp, benutzername, delta, datum, bezeichnung);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -525,7 +630,29 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public ArrayList<Integer> getBestandhistorie(int Artikelnummer) throws ArtikelExistiertNichtException {
-        return null;
+        ArrayList<Integer> historie = new ArrayList<Integer>();
+        sout.println("h");
+        sout.println(Artikelnummer);
+        int laenge = 0;
+        int bestand;
+        try {
+            String antwort  = sin.readLine();
+            if(antwort.equals("Erfolg")){
+                laenge = Integer.parseInt(sin.readLine());
+                for (int i = 0; i < laenge; i++) {
+                    bestand = Integer.parseInt(sin.readLine());
+                    historie.add(bestand);
+                }
+            } else {
+                String bezeichnung = sin.readLine();
+                throw new ArtikelExistiertNichtException(bezeichnung);
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return historie;
     }
 
     public void logout(){
