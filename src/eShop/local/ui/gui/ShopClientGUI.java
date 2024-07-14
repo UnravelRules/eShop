@@ -19,6 +19,12 @@ import eShop.local.ui.gui.models.CustomCellRenderer;
 import eShop.local.ui.gui.models.EreignisTableModel;
 import eShop.local.ui.gui.models.WarenkorbTableModel;
 
+
+/**
+ * Klasse zur Verwaltung der Shop-GUI
+ *
+ *
+ */
 public class ShopClientGUI extends JFrame {
     private eShop eshop;
     private JPanel mainPanel;
@@ -56,7 +62,14 @@ public class ShopClientGUI extends JFrame {
     private boolean ereignisseOffen = false;
     private boolean bestandslogOffen = false;
 
-
+    /**
+     * der Konstruktor initialisiert einen eshop und übergibt die Textdateien für die Persistenz
+     * daraufhin wird Methode initialize() aufgerufen
+     * @param kundenDatei Präfix für die Datei, in der alle Kunden gespeichert und ausgelesen werden
+     * @param mitarbeiterDatei Präfix für die Datei, in der alle Mitarbeiter gespeichert und ausgelesen werden
+     * @param artikelDatei Präfix für die Datei, in der alle Artikel gespeichert und ausgelesen werden
+     * @param ereignisDatei Präfix für die Datei, in der alle Ereignisse gespeichert und ausgelesen werden
+     */
     public ShopClientGUI(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) {
         super("E-Shop");
 
@@ -68,6 +81,11 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Methode, die das Hauptfenster mainPanel mit einem CardLayout initialisiert.
+     * CardLayout kann mehrere "Karten" beinhalten und zwischen diesen hin und her wechseln
+     * sinnvoll, da wir zwischen Loginfenster, Kundenmenü & Mitarbeitermenü hin und her wechseln
+     */
     private void initialize(){
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
@@ -76,11 +94,18 @@ public class ShopClientGUI extends JFrame {
 
         this.add(mainPanel);
 
-        this.setSize(new Dimension(224, 266));
+        this.setMinimumSize(new Dimension(224, 266));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
     }
 
+    /**
+     * Methode, welches das erste JPanel loginPanel erstellt.
+     * LoginPanel ist ein kleines Fenster zu Beginn des Programmes, in welchem man sich entweder mit seinen vorhandenen
+     * Daten anmeldet oder einen neuen Account erstellt
+     * Es wird ein GridBagLayout verwendet, um die Elemente
+     * @return JPanel, welcher alle Elemente zum Einloggen beinhaltet und zum mainPanel als Karte "LoginPanel" eingefügt wird
+     */
     private JPanel createLoginPanel(){
         JPanel loginPanel = new JPanel();
         GridBagLayout gridBagLayout = new GridBagLayout();
@@ -92,7 +117,7 @@ public class ShopClientGUI extends JFrame {
         c.gridx = 0;
 
         JCheckBox checkboxMitarbeiter = new JCheckBox("Mitarbeiter");
-        // wenn sich der Zustand der checkBox verändert, soll dieser in Variable istMitarbeiter gespeichert werden.
+        // wenn sich der Zustand der checkBox verändert, wird dieser in Variable istMitarbeiter gespeichert werden.
         checkboxMitarbeiter.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -136,12 +161,9 @@ public class ShopClientGUI extends JFrame {
         loginPanel.add(filler);
 
         loginButton = new JButton("Login");
+        // bei einem ButtonClick wird die Methode onLoginButtonClick() aufgerufen
         loginButton.addActionListener(e -> {
-            try {
-                onLoginButtonClick(istMitarbeiter);
-            } catch (RuntimeException ex) {
-                JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
-            }
+            onLoginButtonClick(istMitarbeiter);
         });
         c.gridy = 6;
         c.weighty = 0.2;
@@ -154,12 +176,14 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(filler, c);
         loginPanel.add(filler2);
 
+        // erstellt einen Registrieren Button, welcher wie ein normaler Text aussieht
         neuRegistrierenButton = new JButton("Als Kunde registrieren");
         neuRegistrierenButton.setContentAreaFilled(false);
         neuRegistrierenButton.setBorderPainted(false);
         neuRegistrierenButton.setFocusPainted(false);
         neuRegistrierenButton.setOpaque(true);
         neuRegistrierenButton.getModel().addChangeListener(new ChangeListener() {
+            // wenn man drüber hovert, wird die Farbe des Buttons verändert
             @Override
             public void stateChanged(ChangeEvent e) {
                 ButtonModel model = (ButtonModel) e.getSource();
@@ -170,6 +194,7 @@ public class ShopClientGUI extends JFrame {
                 }
             }
         });
+        // bei einem ButtonClick wird die Methode kundeRegistrierenMenu() aufgerufen
         neuRegistrierenButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -185,6 +210,10 @@ public class ShopClientGUI extends JFrame {
         return loginPanel;
     }
 
+    /**
+     * Methode, um ein Menü zum Registrieren aufzurufen. Wird nach einem ButtonClick im LoginFenster aufgerufen
+     *
+     */
     private void kundeRegistrierenMenu(){
         JDialog registrationMenu = new JDialog(this, "Registrieren", true);
         Container contentPane = registrationMenu.getContentPane();
@@ -225,9 +254,8 @@ public class ShopClientGUI extends JFrame {
         contentPane.add(registrierenButton);
 
         registrationMenu.setLocationRelativeTo(this);
-
-
-        registrationMenu.setSize(300, 320);
+        registrationMenu.setMinimumSize(new Dimension(200, 250));
+        registrationMenu.pack();
         registrationMenu.setVisible(true);
     }
 
@@ -319,7 +347,7 @@ public class ShopClientGUI extends JFrame {
         return shoppingCartPanel;
     }
 
-    private JPanel  createMitarbeiterPanel(){
+    private JPanel createMitarbeiterPanel(){
         setupMitarbeiterMenu();
 
         mitarbeitermenu = new JPanel();
@@ -606,10 +634,7 @@ public class ShopClientGUI extends JFrame {
 
     private JPanel createSearchPanel() {
         JPanel suchPanel = new JPanel();
-        // North: GridBagLayout
-        // (Hinweis: Das ist schon ein komplexerer LayoutManager, der mehr kann als hier gezeigt.
-        //  Hervorzuheben ist hier die Idee, explizit Constraints (also Nebenbedindungen) für
-        //  die Positionierung / Ausrichtung / Größe von GUI-Komponenten anzugeben.)
+
         GridBagLayout gridBagLayout = new GridBagLayout();
         suchPanel.setLayout(gridBagLayout);
 
@@ -662,8 +687,6 @@ public class ShopClientGUI extends JFrame {
 
     private JComponent createArtikelPanel(){
         java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-
-
 
         ArtikelTableModel tableModel = new ArtikelTableModel(artikel, istMitarbeiter);
         artikelTabelle = new JTable(tableModel);
@@ -819,7 +842,7 @@ public class ShopClientGUI extends JFrame {
         try {
             eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
         } catch (FehlendeEingabenException e) {
-            throw new RuntimeException(e);
+            JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
 
         }
         System.out.println("Kunde wurde angelegt!");
@@ -856,7 +879,7 @@ public class ShopClientGUI extends JFrame {
                     resizeFrame(new Dimension(800, 600));
                 }
             } catch (MitarbeiterExistiertNichtException e) {
-                throw new RuntimeException(e);
+                JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
             }
         } else {
             try {
@@ -868,7 +891,7 @@ public class ShopClientGUI extends JFrame {
                     resizeFrame(new Dimension(800, 600));
                 }
             } catch (KundeExistiertNichtException e) {
-                throw new RuntimeException(e);
+                JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
             }
         }
     }
@@ -939,15 +962,39 @@ public class ShopClientGUI extends JFrame {
                 float preis = 0.0f;
 
                 try{
-                    eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
-                    java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                    updateArtikelPanel(artikel);
-                    java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
-                    updateEreignisPanel(eventlog);
-                    artikelnummerTextField.setText("");
-                    bezeichnungTextField.setText("");
-                    bestandTextField.setText("");
-                    preisTextField.setText("");
+                    artikelnummer = Integer.parseInt(artikelnummerTextField.getText());
+                    inputErrorArtikelnummer.setVisible(false);
+                } catch (NumberFormatException e){
+                    inputErrorArtikelnummer.setVisible(true);
+                }
+
+                try{
+                    bestand = Integer.parseInt(bestandTextField.getText());
+                    inputErrorBestand.setVisible(false);
+                } catch (NumberFormatException e){
+                    inputErrorBestand.setVisible(true);
+                }
+
+                try{
+                    preis = Float.parseFloat(preisTextField.getText());
+                    inputErrorPreis.setVisible(false);
+                } catch (NumberFormatException e){
+                    inputErrorPreis.setVisible(true);
+                }
+
+                try{
+                    if(artikelnummer != 0 && bestand != 0 && preis != 0){
+                        eshop.artikelAnlegen(artikelnummer, bezeichnung, bestand, preis, aktuellerMitarbeiter);
+                        java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
+                        updateArtikelPanel(artikel);
+                        java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
+                        updateEreignisPanel(eventlog);
+                        artikelnummerTextField.setText("");
+                        bezeichnungTextField.setText("");
+                        bestandTextField.setText("");
+                        preisTextField.setText("");
+                    }
+
                 } catch(RuntimeException e){
                     JOptionPane.showMessageDialog(null, "Fehler: "+ e.getMessage());
                 }
@@ -1275,7 +1322,7 @@ public class ShopClientGUI extends JFrame {
                     resizeFrame(new Dimension(224, 266));
                     ShopClientGUI.this.setPreferredSize(new Dimension(224, 266));
                     ShopClientGUI.this.pack();
-                    setJMenuBar(null); // Remove the menu bar
+                    setJMenuBar(null);
 
                     aktuellerKunde = null;
                     aktuellerMitarbeiter = null;

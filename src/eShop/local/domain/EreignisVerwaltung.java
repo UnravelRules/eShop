@@ -64,7 +64,7 @@ public class EreignisVerwaltung {
             accountTyp = AccountTyp.KUNDE;
             benutzerName = ((Kunde) account).getBenutzername();
         } else
-            throw  new UnbekanntesAccountObjektException();
+            throw new UnbekanntesAccountObjektException();
         Ereignis ereignis = new Ereignis(ereignisTyp, accountTyp , benutzerName, delta, datum, artikel.getBezeichnung());
         eventlog.add(ereignis);
         return eventlog;

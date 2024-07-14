@@ -29,14 +29,13 @@ public class ShoppingService {
         warenkorb.warenkorbLeeren();
     }
 
-    // Unsicher, ob Teschke damit einverstanden ist: NACHFRAGEN! (for-Schleife benötigt sowohl HashMap als auch artikelVW)
     public Rechnung warenkorbKaufen(Kunde k) throws ArtikelExistiertNichtException, MassengutException {
         Warenkorb warenkorb = k.getWarenkorb();
         HashMap<Artikel, Integer> inhalt = warenkorb.getInhalt();
         float gesamtpreis = 0;
 
         // den Bestand der Artikel, die gekauft werden, ändern
-        for (Map.Entry<Artikel, Integer> eintrag : warenkorb.getInhalt().entrySet()) {
+        for (Map.Entry<Artikel, Integer> eintrag : inhalt.entrySet()) {
             int artikelnummer = eintrag.getKey().getArtikelnummer();
             int anzahl = eintrag.getValue();
             for (Artikel a : artikelVW.getArtikelBestand()) {
@@ -53,7 +52,6 @@ public class ShoppingService {
         return rechnung;
     }
 
-    // Unsicher, ob Teschke damit einverstanden ist: NACHFRAGEN! (man muss auf HashMap direkt zugreifen, also getInhalt())
     public void warenkorbVeraendern(Kunde aktuellerKunde, Artikel artikel, int neuerBestand) throws MassengutException{
         Warenkorb warenkorb = aktuellerKunde.getWarenkorb();
         HashMap<Artikel, Integer> inhalt = warenkorb.getInhalt();

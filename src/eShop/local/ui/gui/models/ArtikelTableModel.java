@@ -1,6 +1,5 @@
 package eShop.local.ui.gui.models;
 
-import eShop.local.domain.exceptions.ArtikelExistiertBereitsException;
 import eShop.local.entities.Artikel;
 import eShop.local.entities.Massengutartikel;
 
@@ -37,6 +36,12 @@ public class ArtikelTableModel extends AbstractTableModel {
         return spaltenNamen[col];
     }
 
+    /**
+     * Überschreibt die Standardmethode von AbstractTableModel, um unsere Werte richtig in der Tabelle darzustellen.
+     * @param columnIndex die einzelnen Indizes der Spalten
+     * @param rowIndex die einzelnen Idizes der Zeilen
+     * @see javax.swing.table.AbstractTableModel#getValueAt(int, int)
+     */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         // Wichtige Überprüfung, falls eine row für Kunden gelöscht wird, sodass kein IndexOutOfBounds geworfen wird
@@ -46,24 +51,9 @@ public class ArtikelTableModel extends AbstractTableModel {
 
         Artikel gewaehlterArtikel = artikel.get(rowIndex);
 
-        if(istMitarbeiter) {
-            switch (columnIndex) {
-                case 0:
-                    return gewaehlterArtikel.getArtikelnummer();
-                case 1:
-                    return gewaehlterArtikel.getBezeichnung();
-                case 2:
-                    return gewaehlterArtikel.getBestand();
-                case 3:
-                    return gewaehlterArtikel.getPreis();
-                case 4:
-                    if (gewaehlterArtikel instanceof Massengutartikel) {
-                        return ((Massengutartikel) gewaehlterArtikel).getPackungsgroesse();
-                    }
-                default:
-                    return null;
-            }
-        } else if(!(gewaehlterArtikel.getBestand() <= 0)) {
+        // ein Mitarbeiter kann auch Artikel mit Bestand 0 sehen,
+        // ein Kunde kann Artikel mit Bestand 0 nicht sehen!
+        if(istMitarbeiter || !(gewaehlterArtikel.getBestand() <= 0)) {
             switch (columnIndex) {
                 case 0:
                     return gewaehlterArtikel.getArtikelnummer();
@@ -88,18 +78,22 @@ public class ArtikelTableModel extends AbstractTableModel {
     }
 
     /**
-     * Überschreibt die Standardmethode von TableModel, in welchem standardmäßig ein Object.class zurückgegeben wird.
+     * Überschreibt die Standardmethode von AbstractTableModel, in welchem standardmäßig ein Object.class zurückgegeben wird.
      * Gibt nun den richtigen Datentypen für die einzelnen Spalten zurück.
      * Wichtig, damit die Sortierfunktion mit allen Datentypen funktioniert.
      * @param columnIndex die einzelnen Indizes der Spalten
+     * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
      */
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
+            // Für Spalten 0, 2, 4 (Nummer, Bestand, Packungsgröße) wird Integer zurückgegeben
             case 0, 2, 4:
                 return Integer.class;
+            // Für Spalte 3 (Preis) wird Float zurückgegeben
             case 3:
                 return Float.class;
+            // standardmäßig wird Object zurückgegeben
             default:
                 return Object.class;
         }

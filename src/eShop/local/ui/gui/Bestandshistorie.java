@@ -90,15 +90,15 @@ public class Bestandshistorie extends JPanel {
         for (int i = 0; i < tage.length; i++) {
             int xPixel = (int) (originX + (tage[i] - min_x) * xScale);
             int yPixel = (int) (originY - (this.bestandlog.get(i) - min_y) * yScale);
-            Ellipse2D point = new Ellipse2D.Double(xPixel - 2, yPixel - 2, 6, 6);
+            Ellipse2D point = new Ellipse2D.Double(xPixel, yPixel, 1, 1);
             g2d.fill(point);
             if(i == 0){
-                g2d.draw(new Line2D.Double(point.getX() + 2 - xScale, point.getY() + 2, point.getX() + 2, point.getY() + 2));
+                g2d.draw(new Line2D.Double(point.getX() - xScale, point.getY(), point.getX(), point.getY()));
             } else {
-                g2d.draw(new Line2D.Double(oldX, oldY, point.getX() + 2, point.getY() + 2));
+                g2d.draw(new Line2D.Double(oldX, oldY, point.getX(), point.getY()));
             }
-            oldX = point.getX() + 2;
-            oldY = point.getY() + 2;
+            oldX = point.getX();
+            oldY = point.getY();
         }
     }
 
@@ -111,24 +111,4 @@ public class Bestandshistorie extends JPanel {
         }
         return maxValue + 5;
     }
-
-    public int getMinimumValue(ArrayList<Integer> bestandlog){
-        int minValue = getMaximumValue(bestandlog);
-        for(Integer value : bestandlog){
-            if(value < minValue){
-                minValue = value;
-            }
-        }
-        return minValue;
-    }
-
-/*    public static void main(String[] args) {
-        JFrame frame = new JFrame("Cartesian Plane");
-        ArrayList<Integer> test = new ArrayList<>();
-        Bestandshistorie bh = new Bestandshistorie(test);
-        frame.add(bh);
-        frame.setSize(1000, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }*/
 }
