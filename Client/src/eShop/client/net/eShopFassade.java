@@ -7,6 +7,7 @@ import eShop.common.interfaces.eShopInterface;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -315,7 +316,7 @@ public class eShopFassade implements eShopInterface {
      * @throws MassengutException
      */
     @Override
-    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
+    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, NegativerBestandException {
         sout.println("h");
         sout.println(artikelnummer);
         sout.println(anzahl);
@@ -329,6 +330,10 @@ public class eShopFassade implements eShopInterface {
                 int bestand = Integer.parseInt(sin.readLine());
                 int packungsgroesse = Integer.parseInt(sin.readLine());
                 throw new MassengutException(bestand, packungsgroesse);
+            } else if (input.equals("NegativerBestandException")) {
+                Artikel artikel = liesArtikelVonServer();
+                int ex_anzahl = Integer.parseInt(sin.readLine());
+                throw new NegativerBestandException(artikel, ex_anzahl);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -340,7 +345,17 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void warenkorbLeeren(Kunde aktuellerKunde) {
-
+        sout.println("l");
+        String input = null;
+        try {
+            input = sin.readLine();
+            if(input.equals("Fehler")){
+                input = sin.readLine();
+                System.out.println("Fehler");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -352,7 +367,41 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws UnbekanntesAccountObjektException, MassengutException, ArtikelExistiertNichtException {
+        sout.println("k");
+        String input = "";
+        try {
+            input = sin.readLine();
+            if(input.equals("Erfolg")){
+                return liesRechnungVonServer();
+            } else {
+                input = sin.readLine();
+                System.out.println("Fehler: " + input);
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
         return null;
+    }
+
+    private Rechnung liesRechnungVonServer() throws IOException {
+        Kunde kunde = liesKundeVonServer();
+        HashMap<Artikel, Integer> warenkorb = liesWarenkorbVonServer();
+        float gesamt = Float.parseFloat(sin.readLine());
+        return new Rechnung(kunde, gesamt, warenkorb);
+    }
+
+    private HashMap<Artikel, Integer> liesWarenkorbVonServer() throws IOException {
+        HashMap<Artikel, Integer> warenkorb = new HashMap<>();
+        String input = null;
+        input = sin.readLine();
+        // Wie viele Einträge hat der Warenkorb
+        int anzahlArtikel = Integer.parseInt(input);
+        for (int i = 0; i < anzahlArtikel; i++) {
+            Artikel artikel = liesArtikelVonServer();
+            int anzahl = Integer.parseInt(sin.readLine());
+            warenkorb.put(artikel, anzahl);
+        }
+        return warenkorb;
     }
 
     /**
@@ -365,7 +414,27 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, NegativerBestandException {
-
+        sout.println("v");
+        sout.println(bezeichnung);
+        sout.println(neuerBestand);
+        String input = null;
+        try{
+            input = sin.readLine();
+            if(input.equals("MassengutException")){
+                int bestand = Integer.parseInt(sin.readLine());
+                int packungsgroesse = Integer.parseInt(sin.readLine());
+                throw new MassengutException(bestand, packungsgroesse);
+            } else if (input.equals("ArtikelExistiertNichtException")){
+                String e_bezeichnung = sin.readLine();
+                throw new ArtikelExistiertNichtException(e_bezeichnung);
+            } else if (input.equals("NegativerBestandException")) {
+                Artikel artikel = liesArtikelVonServer();
+                int anzahl = Integer.parseInt(sin.readLine());
+                throw new NegativerBestandException(artikel, anzahl);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -375,7 +444,13 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void artikelAusWarenkorbEntfernen(Kunde aktuellerKunde, String bezeichnung) throws ArtikelExistiertNichtException {
-
+        // Artikel können einfach entfernt werden, indem wir die Anzahl auf 0 setzen.
+        // Dadurch ist die implementierung auf dem Server leichter, da die Eshop-Seite eine Anzahl von 0 handeln kann
+        try {
+            warenkorbVeraendern(aktuellerKunde, bezeichnung, 0);
+        } catch (MassengutException | NegativerBestandException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -386,17 +461,9 @@ public class eShopFassade implements eShopInterface {
     public HashMap<Artikel, Integer> gibWarenkorb(Kunde aktuellerKunde) {
         sout.println("w");
         String input = null;
-        HashMap<Artikel, Integer> warenkorb = new HashMap<>();
-        try{
-            input = sin.readLine();
-            // Wie viele Einträge hat der Warenkorb
-            int anzahlArtikel = Integer.parseInt(input);
-            for (int i = 0; i < anzahlArtikel; i++) {
-                Artikel artikel = liesArtikelVonServer();
-                int anzahl = Integer.parseInt(sin.readLine());
-                warenkorb.put(artikel, anzahl);
-                return warenkorb;
-            }
+        HashMap<Artikel, Integer> warenkorb = null;
+        try {
+            warenkorb = liesWarenkorbVonServer();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

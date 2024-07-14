@@ -3,6 +3,7 @@ package eshop.server.domain;
 import eShop.common.exceptions.ArtikelExistiertNichtException;
 import eShop.common.exceptions.MassengutException;
 import eShop.common.entities.*;
+import eShop.common.exceptions.NegativerBestandException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +13,11 @@ public class ShoppingService {
     public ShoppingService(ArtikelVerwaltung artikelVW){
         this.artikelVW = artikelVW;
     }
-    public void artikelInWarenkorb(Artikel a, int anzahl, Kunde k) throws MassengutException {
+    public void artikelInWarenkorb(Artikel a, int anzahl, Kunde k) throws MassengutException, NegativerBestandException {
         Warenkorb warenkorb = k.getWarenkorb();
+        if(anzahl > a.getBestand()){
+            throw new NegativerBestandException(a, anzahl);
+        }
         if(a instanceof Massengutartikel){
             int packungs_gr = ((Massengutartikel) a).getPackungsgroesse();
             if(anzahl % packungs_gr != 0){

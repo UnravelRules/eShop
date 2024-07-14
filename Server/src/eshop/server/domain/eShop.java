@@ -211,7 +211,7 @@ public class eShop implements eShopInterface {
      * @param aktuellerKunde
      */
     @Override
-    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
+    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, NegativerBestandException {
         Artikel artikel = artikelVW.getArtikelMitNummer(artikelnummer);
         shoppingService.artikelInWarenkorb(artikel, anzahl, aktuellerKunde);
     }

@@ -31,7 +31,7 @@ public interface eShopInterface {
 
     ArrayList<Artikel> gibAlleArtikel();
 
-    void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException;
+    void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, NegativerBestandException;
 
     void warenkorbLeeren(Kunde aktuellerKunde);
 

@@ -1,10 +1,7 @@
 package eshop.server.net;
 
 import eShop.common.entities.*;
-import eShop.common.exceptions.ArtikelExistiertNichtException;
-import eShop.common.exceptions.KundeExistiertNichtException;
-import eShop.common.exceptions.MassengutException;
-import eShop.common.exceptions.MitarbeiterExistiertNichtException;
+import eShop.common.exceptions.*;
 import eShop.common.interfaces.eShopInterface;
 
 import java.io.*;
@@ -135,12 +132,31 @@ public class ClientRequestProcessor implements Runnable{
                 case "w":
                     gibWarenkorb();
                     break;
+                case "k":
+                    warenkorbKaufen();
+                    break;
+                case "v":
+                    warenkorbVeraendern();
+                    break;
+                case "l":
+                    warenkorbLeeren();
+                    break;
                 default:
                     System.out.println("Unbekannte Aktion im Kundenmenü: " + input);
             }
 
         } while (!(input.equals("a")));
         this.aktuellerKunde = null;
+    }
+
+    private void warenkorbLeeren() {
+        try{
+            eshop.warenkorbLeeren(this.aktuellerKunde);
+            out.println("Erfolg");
+        } catch (Exception e) {
+            out.println("Fehler");
+        }
+
     }
 
     private void mitarbeiterMenu(){
@@ -290,16 +306,64 @@ public class ClientRequestProcessor implements Runnable{
             out.println("MassengutException");
             out.println(e.getBestand());
             out.println(e.getPackungsgroesse());
+        } catch (NegativerBestandException e) {
+            out.println("NegativerBestandException");
+            Artikel artikel = e.getArtikel();
+            sendeArtikelAnClient(artikel);
+            out.println(e.getNeuerBestand());
         }
     }
 
     private void gibWarenkorb(){
         HashMap<Artikel, Integer> warenkorb = eshop.gibWarenkorb(this.aktuellerKunde);
+        sendeWarenkorbAnClient(warenkorb);
+    }
+
+    private void sendeWarenkorbAnClient(HashMap<Artikel, Integer> warenkorb) {
         int size = warenkorb.size();
         out.println(size);
         for (Artikel artikel : warenkorb.keySet()) {
             sendeArtikelAnClient(artikel);
             out.println(warenkorb.get(artikel));
+        }
+    }
+
+    private void warenkorbKaufen(){
+        try {
+            Rechnung rechnung = eshop.warenkorbKaufen(this.aktuellerKunde);
+            out.println("Erfolg");
+            sendeRechnungAnClient(rechnung);
+        } catch (UnbekanntesAccountObjektException | MassengutException | ArtikelExistiertNichtException e) {
+            out.println("Fehler");
+            out.println(e.getMessage());
+        }
+    }
+
+    private void sendeRechnungAnClient(Rechnung rechnung){
+        sendeKundeAnClient(rechnung.getKunde());
+        sendeWarenkorbAnClient(rechnung.getGekaufteArtikel());
+        out.println(rechnung.getGesamtpreis());
+    }
+
+    private void warenkorbVeraendern(){
+        Kunde kunde = this.aktuellerKunde;
+        String bezeichnung = liesEingabeVonClient("Bezeichnung");
+        int neuerBestand = Integer.parseInt(liesEingabeVonClient("Neuer Bestand"));
+        try {
+            eshop.warenkorbVeraendern(kunde, bezeichnung, neuerBestand);
+            out.println("Erfolg");
+        } catch (MassengutException e) {
+            out.println("MassengutException");
+            out.println(e.getBestand());
+            out.println(e.getPackungsgroesse());
+        } catch (ArtikelExistiertNichtException e) {
+            out.println("ArtikelExistiertNichtException");
+            out.println(e.getBezeichnung());
+        } catch (NegativerBestandException e) {
+            out.println("NegativerBestandException");
+            Artikel artikel = e.getArtikel();
+            sendeArtikelAnClient(artikel);
+            out.println(e.getNeuerBestand());
         }
     }
 }

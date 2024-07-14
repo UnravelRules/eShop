@@ -161,6 +161,8 @@ public class ShopClientCUI {
                     System.out.println("Kein Artikel mit dieser Nummer gefunden");
                 } catch (MassengutException e){
                     System.out.println("Anzahl ist nicht mit Packungsgroesse kompatibel");
+                } catch (NegativerBestandException e){
+                    System.out.println(e.getMessage());
                 }
                 break;
             case "w":

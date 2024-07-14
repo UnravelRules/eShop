@@ -724,7 +724,8 @@ public class ShopClientGUI extends JFrame {
         JButton kaufenButton = new JButton("Warenkorb kaufen");
         kaufenButton.addActionListener(e -> {
             try {
-                if(!aktuellerKunde.getWarenkorb().getInhalt().isEmpty()){
+                HashMap<Artikel, Integer> warenkorb = eshop.gibWarenkorb(this.aktuellerKunde);
+                if(!warenkorb.isEmpty()){
                     Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
                     // Rechnung muss noch ausgegeben werden (JDialog?)
                     SwingUtilities.getWindowAncestor(warenkorbPanel).dispose();
@@ -777,9 +778,7 @@ public class ShopClientGUI extends JFrame {
                             eshop.warenkorbVeraendern(aktuellerKunde, selectedShoppingCartItemBezeichnung, neueAnzahl);
                             updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
                             selectedShoppingCartItemNummer = 0;
-                        } catch (MassengutException | ArtikelExistiertNichtException ex) {
-                            JOptionPane.showMessageDialog(null, "");
-                        } catch (NegativerBestandException ex) {
+                        } catch (MassengutException | ArtikelExistiertNichtException | NegativerBestandException ex) {
                             JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                         }
                     }
@@ -1178,7 +1177,7 @@ public class ShopClientGUI extends JFrame {
                     inputError.setVisible(true);
                 } catch (ArtikelExistiertNichtException ex) {
                     throw new RuntimeException(ex);
-                } catch (MassengutException ex) {
+                } catch (MassengutException | NegativerBestandException ex) {
                     JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                 }
 
