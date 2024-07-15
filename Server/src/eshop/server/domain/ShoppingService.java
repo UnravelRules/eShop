@@ -4,7 +4,6 @@ import eShop.common.exceptions.ArtikelExistiertNichtException;
 import eShop.common.exceptions.BestandUeberschrittenException;
 import eShop.common.exceptions.MassengutException;
 import eShop.common.entities.*;
-import eShop.common.exceptions.NegativerBestandException;
 
 import java.util.HashMap;
 import java.util.Map;

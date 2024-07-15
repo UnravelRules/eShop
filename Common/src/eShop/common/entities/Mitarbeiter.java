@@ -2,7 +2,19 @@ package eShop.common.entities;
 
 import java.util.Objects;
 
+/**
+ * Diese Klasse repräsentiert einen Mitarbeiter im eShop-System.
+ * Ein Mitarbeiter ist ein spezieller Benutzer mit zusätzlichen Informationen wie Mitarbeiternummer.
+ */
 public class Mitarbeiter extends Benutzer {
+    /**
+     * Konstruktor zur Initialisierung eines Mitarbeiterobjekts.
+     *
+     * @param nummer     Die Mitarbeiternummer des Mitarbeiters
+     * @param name       Der Name des Mitarbeiters
+     * @param benutzer   Der Benutzername des Mitarbeiters
+     * @param pw         Das Passwort des Mitarbeiters
+     */
     public Mitarbeiter(int nummer, String name, String benutzer, String pw){
         super(nummer, name, benutzer, pw);
     }
@@ -40,6 +52,13 @@ public class Mitarbeiter extends Benutzer {
         return passwort;
     }
 
+    /**
+     * Überschriebene equals-Methode zur Überprüfung der Gleichheit von Mitarbeiterobjekten.
+     * Zwei Mitarbeiter sind gleich, wenn entweder ihre Benutzernamen oder ihre Mitarbeiternummern übereinstimmen.
+     *
+     * @param anderesObjekt Das andere Objekt, mit dem verglichen wird
+     * @return true, wenn die Mitarbeiter gleich sind, ansonsten false
+     */
     @Override
     public boolean equals(Object anderesObjekt) {
         if(anderesObjekt instanceof Mitarbeiter andererMitarbeiter){
@@ -50,6 +69,12 @@ public class Mitarbeiter extends Benutzer {
         }
     }
 
+    /**
+     * Überschriebene hashCode-Methode zur Berechnung des Hashcodes für Mitarbeiterobjekte.
+     * Der Hashcode wird basierend auf dem Benutzernamen des Mitarbeiters berechnet.
+     *
+     * @return Der berechnete Hashcode des Mitarbeiters
+     */
     @Override
     public int hashCode() {
         return Objects.hash(benutzername);
