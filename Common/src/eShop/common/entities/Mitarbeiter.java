@@ -43,7 +43,8 @@ public class Mitarbeiter extends Benutzer {
     @Override
     public boolean equals(Object anderesObjekt) {
         if(anderesObjekt instanceof Mitarbeiter andererMitarbeiter){
-            return this.benutzername.equals(andererMitarbeiter.getBenutzername());
+            return (this.benutzername.equals(andererMitarbeiter.getBenutzername())
+                    || this.nummer == andererMitarbeiter.getMitarbeiterNummer());
         } else {
             return false;
         }

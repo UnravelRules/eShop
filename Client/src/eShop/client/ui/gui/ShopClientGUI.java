@@ -21,12 +21,14 @@ import eShop.client.ui.gui.models.EreignisTableModel;
 import eShop.client.ui.gui.models.WarenkorbTableModel;
 
 /**
- * Klasse zur Verwaltung der Shop-GUI
- *
- *
+ * Die Klasse ShopClientGUI ist die Hauptklasse der grafischen Benutzeroberfläche (GUI) für den Shop-Client.
+ * Sie ist verantwortlich für die Verwaltung und Darstellung der verschiedenen Panels (Login, Mitarbeiter-Menü, Kunden-Menü)
+ * und die Kommunikation mit dem E-Shop-Server.
+ * <p>
+ * Die Klasse verwendet ein CardLayout, um zwischen den verschiedenen Panels zu wechseln.
+ * Beim Schließen des Fensters wird die Verbindung zum Server getrennt.
  */
 public class ShopClientGUI extends JFrame {
-
     private static final int DEFAULT_PORT = 6789;
 
     private eShopFassade eshop;
@@ -61,11 +63,19 @@ public class ShopClientGUI extends JFrame {
     private JLabel inputErrorBestand;
     private JLabel inputErrorPreis;
     private JLabel inputErrorPackungsgroesse;
+    private JLabel inputErrorMitarbeiternummer;
     private boolean warenkorbOffen = false;
     private boolean ereignisseOffen = false;
     private boolean bestandslogOffen = false;
 
 
+    /**
+     * Konstruktor der Klasse ShopClientGUI.
+     * Initialisiert die GUI und stellt die Verbindung zum E-Shop-Server her.
+     *
+     * @param host Der Hostname des Servers
+     * @param port Der Port des Servers
+     */
     public ShopClientGUI(String host, int port) {
         super("E-Shop");
 
@@ -81,6 +91,7 @@ public class ShopClientGUI extends JFrame {
      * Methode, die das Hauptfenster mainPanel mit einem CardLayout initialisiert.
      * CardLayout kann mehrere "Karten" beinhalten und zwischen diesen hin und her wechseln
      * sinnvoll, da wir zwischen Loginfenster, Kundenmenü & Mitarbeitermenü hin und her wechseln
+     * WindowListener, um bei einem Abbruch des Programms den Client vom Server abzumelden
      */
     private void initialize(){
         cardLayout = new CardLayout();
@@ -264,6 +275,13 @@ public class ShopClientGUI extends JFrame {
         registrationMenu.setVisible(true);
     }
 
+    /**
+     * Öffnet einen Dialog zur Eingabe und Registrierung eines neuen Mitarbeiters.
+     * <p>
+     * Der Dialog enthält Eingabefelder für Mitarbeiternummer, Name, Benutzername und Passwort.
+     * Zeigt eine Fehlermeldung an, wenn die Mitarbeitennummer keine ganze Zahl ist
+     * oder der Mitarbeiter bereits existiert.
+     */
     private void mitarbeiterAnlegenMenu(){
         JDialog registrationMenu = new JDialog(this, "Registrieren", true);
         Container contentPane = registrationMenu.getContentPane();
@@ -275,6 +293,11 @@ public class ShopClientGUI extends JFrame {
         contentPane.add(new JLabel("Mitarbeiternummer: "));
         JTextField mitarbeiterNummer = new JTextField();
         contentPane.add(mitarbeiterNummer);
+
+        inputErrorMitarbeiternummer = new JLabel("Fehler! Ganze Zahl eingeben");
+        contentPane.add(inputErrorMitarbeiternummer);
+        inputErrorMitarbeiternummer.setForeground(Color.RED);
+        inputErrorMitarbeiternummer.setVisible(false);
 
         contentPane.add(new JLabel("Name: "));
         JTextField name = new JTextField();
@@ -292,16 +315,18 @@ public class ShopClientGUI extends JFrame {
         registrierenButton.addActionListener(e -> {
             try {
                 onMitarbeiterAnlegenButtonClick(registrationMenu, mitarbeiterNummer, name, benutzernameEingabe, passwortEingabe);
+                inputErrorMitarbeiternummer.setVisible(false);
             } catch (MitarbeiterExistiertBereitsException ex) {
                 JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+            } catch (NumberFormatException ex){
+                inputErrorMitarbeiternummer.setVisible(true);
             }
         });
         contentPane.add(registrierenButton);
 
         registrationMenu.setLocationRelativeTo(this);
-
-
-        registrationMenu.setSize(300, 240);
+        registrationMenu.setMinimumSize(new Dimension(300, 240));
+        registrationMenu.pack();
         registrationMenu.setVisible(true);
     }
 
@@ -352,11 +377,12 @@ public class ShopClientGUI extends JFrame {
     }
 
 
-    // ab hier wird das Mitarbeiter Menü erstellt, dazu gehört:
-    // - das Main Panel
-    // - das Menü innerhalb des Panels
-    // - ein SearchPanel
-    // - ein FunktionsPanel (Artikel anlegen, entfernen, verändern & EventLog anzeigen)
+    /**
+     * Erstellt und initialisiert das Mitarbeiterpanel mit Such-, Funktions- und Artikelbereich.
+     * Verwendet ein BorderLayout, um die einzelnen Panels richtig anzuordnen.
+     * SuchPanel im Norden, FunktionsPanel im Westen & ArtikelPanel im Zentrum
+     * @return Das erstellte JPanel für das Mitarbeitermenü.
+     */
     private JPanel createMitarbeiterPanel(){
         setupMitarbeiterMenu();
 
@@ -388,6 +414,12 @@ public class ShopClientGUI extends JFrame {
         return mitarbeitermenu;
     }
 
+    /**
+     * Erstellt und initialisiert das Kundenpanel mit Such-, Warenkorb- und Artikelbereich.
+     * Verwendet ein BorderLayout, um die einzelnen Panels richtig anzuordnen.
+     * SuchPanel im Norden, WarenkorbPanel im Westen & ArtikelPanel im Zentrum
+     * @return Das erstellte JPanel für das Kundenmenü.
+     */
     private JPanel createKundenPanel(){
         setupKundenMenu();
         JPanel kundenPanel = new JPanel();
@@ -418,6 +450,10 @@ public class ShopClientGUI extends JFrame {
         return kundenPanel;
     }
 
+    /**
+     * Diese Methode erstellt die Menüleiste mit den Menüs "File", "Mitarbeiter" und "Help",
+     * und setzt sie als die Menüleiste des Hauptfensters.
+     */
     private void setupMitarbeiterMenu() {
         // Menüleiste anlegen ...
         JMenuBar menuBar = new JMenuBar();
@@ -436,6 +472,10 @@ public class ShopClientGUI extends JFrame {
         setJMenuBar(menuBar);
     }
 
+    /**
+     * Diese Methode erstellt die Menüleiste mit den Menüs "File" und "Help",
+     * und setzt sie als die Menüleiste des Hauptfensters.
+     */
     private void setupKundenMenu() {
         // Menüleiste anlegen ...
         JMenuBar menuBar = new JMenuBar();
@@ -596,7 +636,7 @@ public class ShopClientGUI extends JFrame {
         c.gridy = 16;
         c.weighty = 0;
         gridBagLayout.setConstraints(addArtikelButton, c);
-        addArtikelButton.addActionListener(e -> onAddButtonClick());
+        addArtikelButton.addActionListener(e -> onAddArtikelButtonClick());
         funktionsPanel.add(addArtikelButton);
 
         JPanel filler = new JPanel();
@@ -642,6 +682,15 @@ public class ShopClientGUI extends JFrame {
         return funktionsPanel;
     }
 
+    /**
+     * Erstellt das Suchpanel für die Mitarbeitermenü-Oberfläche.
+     * <p>
+     * Dieses Panel enthält ein Textfeld für die Sucheingabe und einen Button, um die Suche auszuführen.
+     * Das Layout verwendet GridBagLayout, um die Komponenten anzuordnen. Die Suche wird durch einen ActionListener
+     * ausgelöst, der die Artikel im Shop nach dem eingegebenen Suchbegriff filtert.
+     *
+     * @return JPanel das Suchpanel für die Mitarbeitermenü-Oberfläche
+     */
     private JPanel createSearchPanel() {
         JPanel suchPanel = new JPanel();
 
@@ -672,7 +721,6 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(suchButton, c);
         suchPanel.add(suchButton);
 
-        // ActionListener über Mitgliedsklasse
         suchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -695,6 +743,19 @@ public class ShopClientGUI extends JFrame {
         return suchPanel;
     }
 
+    /**
+     * Erstellt das Panel für die Anzeige der Artikel.
+     * <p>
+     * Dieses Panel enthält eine Tabelle, die alle Artikel im Shop anzeigt. Die Artikel werden durch
+     * ein ArtikelTableModel dargestellt, das die Daten für die Tabelle bereitstellt. Die Tabelle unterstützt
+     * das Sortieren nach Spalten und verwendet einen CustomCellRenderer, um die Inhalte linksbündig anzuzeigen.
+     * Ein JScrollPane wird um die Tabelle herum erstellt, um das Scrollen zu ermöglichen.
+     * <p>
+     * Ein MouseListener wird hinzugefügt, um auf Klicks in der Tabelle zu reagieren.
+     * Dabei wird der ausgewählte Artikel ermittelt und einige Details dazu ausgegeben.
+     *
+     * @return JComponent das Panel für die Anzeige der Artikel
+     */
     private JComponent createArtikelPanel(){
         java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
 
@@ -728,7 +789,22 @@ public class ShopClientGUI extends JFrame {
         return scrollPane;
     }
 
-    private JComponent createShoppingcart(){
+    /**
+     * Erstellt das Panel für die Anzeige des Warenkorbs.
+     * <p>
+     * Das Panel enthält eine Tabelle, die die Artikel im Warenkorb anzeigt. Ein JScrollPane wird um die Tabelle
+     * herum erstellt, um das Scrollen zu ermöglichen. Ein MouseListener wird hinzugefügt, um auf Klicks in der
+     * Tabelle zu reagieren und den ausgewählten Artikel im Warenkorb zu ermitteln.
+     * <p>
+     * Darunter befindet sich ein Bereich mit verschiedenen Buttons:
+     * - "Warenkorb kaufen": Kauft den gesamten Warenkorb.
+     * - "Artikel entfernen": Entfernt den ausgewählten Artikel aus dem Warenkorb.
+     * - "Anzahl ändern": Ändert die Anzahl des ausgewählten Artikels im Warenkorb.
+     * - "Warenkorb leeren": Leert den gesamten Warenkorb.
+     *
+     * @return JComponent das Panel für die Anzeige des Warenkorbs
+     */
+    private JComponent createShoppingcartPanel(){
         JPanel warenkorbPanel = new JPanel();
         warenkorbPanel.setLayout(new BoxLayout(warenkorbPanel, BoxLayout.Y_AXIS));
 
@@ -746,40 +822,26 @@ public class ShopClientGUI extends JFrame {
             }
         });
 
+        // Bereich mit Buttons
         JPanel buttonArea = new JPanel();
         buttonArea.setLayout(new BoxLayout(buttonArea, BoxLayout.X_AXIS));
 
+        // Button: Warenkorb kaufen
         JButton kaufenButton = new JButton("Warenkorb kaufen");
-        kaufenButton.addActionListener(e -> {
-            try {
-                HashMap<Artikel, Integer> warenkorb = eshop.gibWarenkorb(this.aktuellerKunde);
-                if(!(warenkorb.isEmpty())){
-                    Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
-                    // Rechnung muss noch ausgegeben werden (JDialog?)
-                    SwingUtilities.getWindowAncestor(warenkorbPanel).dispose();
-                    warenkorbOffen = false;
-
-                    rechnungAnzeigen(rechnung);
-
-                    updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-                    java.util.List<Artikel> artikel = eshop.gibAlleArtikel();
-                    updateArtikelPanel(artikel);
-                }
-            } catch (UnbekanntesAccountObjektException | MassengutException | ArtikelExistiertNichtException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
         kaufenButton.addActionListener(e -> onWarenkorbKaufenButtonClick(warenkorbPanel));
         buttonArea.add(kaufenButton);
 
+        // Button: Artikel entfernen
         JButton entfernenButton = new JButton("Artikel entfernen");
         entfernenButton.addActionListener(e -> onWarenkorbArtikelEntfernenButtonClick());
         buttonArea.add(entfernenButton);
 
+        // Button: Anzahl ändern
         JButton veraendernButton = new JButton("Anzahl ändern");
         veraendernButton.addActionListener(e -> onWarenkorbVeraendernButtonClick());
         buttonArea.add(veraendernButton);
 
+        // Button: Warenkorb leeren
         JButton leerenButton = new JButton("Warenkorb leeren");
         leerenButton.addActionListener(e -> onWarenkorbLeerenButtonClick());
         buttonArea.add(leerenButton);
@@ -790,6 +852,15 @@ public class ShopClientGUI extends JFrame {
         return warenkorbPanel;
     }
 
+    /**
+     * Erstellt das Panel zur Anzeige des Eventlogs.
+     * <p>
+     * Das Panel enthält ein JScrollPane, das ein JTable mit den Ereignissen anzeigt.
+     * Die Ereignisse werden aus einem EreignisTableModel geladen und können sortiert werden.
+     * Jede Zelle in der Tabelle wird linksbündig gerendert.
+     *
+     * @return JComponent das Panel für die Anzeige des Eventlogs
+     */
     private JComponent createEventlogPanel(){
         JScrollPane scrollPane = new JScrollPane(ereignisTabelle);
 
@@ -797,8 +868,24 @@ public class ShopClientGUI extends JFrame {
         return scrollPane;
     }
 
-    // ButtonClick Events
-    private void onKundeRegistrierenButtonClick(JDialog registrationMenu, JTextField n, JTextField s, JTextField p, JTextField benutzer, JTextField pw) throws KundeExistiertBereitsException {
+    /**
+     * Verarbeitet den Klick auf den "Kunde registrieren" Button im Registrierungsmenü.
+     * <p>
+     * Extrahiert die eingegebenen Daten aus den Textfeldern für Name, Straße, PLZ, Benutzername und Passwort.
+     * Ruft dann die Methode eshop.kundeRegistrieren auf, um den Kunden zu registrieren. Schließt das Registrierungsmenü,
+     * wenn die Registrierung erfolgreich ist.
+     * <p>
+     * Zeigt eine Fehlermeldung an, wenn eine FehlendeEingabenException auftritt,
+     * die durch fehlende Eingaben in den Pflichtfeldern ausgelöst wird.
+     *
+     * @param registrationMenu das JDialog-Fenster des Registrierungsmenüs
+     * @param n das JTextField für den Namen des Kunden
+     * @param s das JTextField für die Straße des Kunden
+     * @param p das JTextField für die PLZ des Kunden
+     * @param benutzer das JTextField für den Benutzernamen des Kunden
+     * @param pw das JTextField für das Passwort des Kunden
+     * @throws KundeExistiertBereitsException wenn der Kunde bereits existiert
+     */    private void onKundeRegistrierenButtonClick(JDialog registrationMenu, JTextField n, JTextField s, JTextField p, JTextField benutzer, JTextField pw) throws KundeExistiertBereitsException {
         String name = n.getText();
         String strasse = s.getText();
         String plz = p.getText();
@@ -813,6 +900,23 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Verarbeitet den Klick auf den "Registrieren" Button im Mitarbeiter-Anlegen-Menü.
+     * <p>
+     * Extrahiert die eingegebenen Daten aus den Textfeldern für Mitarbeiternummer, Name, Benutzername und Passwort.
+     * Versucht dann, einen neuen Mitarbeiter mit diesen Daten über die Methode eshop.mitarbeiterRegistrieren anzulegen.
+     * Schließt das Registrierungsmenü, wenn die Registrierung erfolgreich ist.
+     * <p>
+     * Zeigt eine Fehlermeldung an, wenn eine FehlendeEingabenException auftritt,
+     * die durch fehlende Eingaben in den Pflichtfeldern ausgelöst wird.
+     *
+     * @param registrationMenu das JDialog-Fenster des Registrierungsmenüs
+     * @param mitarbeiterNummer das JTextField für die Mitarbeiternummer
+     * @param n das JTextField für den Namen des Mitarbeiters
+     * @param benutzer das JTextField für den Benutzernamen des Mitarbeiters
+     * @param pw das JTextField für das Passwort des Mitarbeiters
+     * @throws MitarbeiterExistiertBereitsException wenn der Mitarbeiter bereits existiert
+     */
     private void onMitarbeiterAnlegenButtonClick(JDialog registrationMenu, JTextField mitarbeiterNummer, JTextField n, JTextField benutzer, JTextField pw) throws MitarbeiterExistiertBereitsException {
         try {
             int nummer = Integer.parseInt(mitarbeiterNummer.getText());
@@ -821,7 +925,7 @@ public class ShopClientGUI extends JFrame {
             String passwort = pw.getText();
             eshop.mitarbeiterRegistrieren(nummer, name, benutzername, passwort);
             registrationMenu.dispose();
-        } catch (FehlendeEingabenException | NumberFormatException e){
+        } catch (FehlendeEingabenException e){
             JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
         }
     }
@@ -835,7 +939,7 @@ public class ShopClientGUI extends JFrame {
      *
      * @param istmitarbeiter Variable, um zu prüfen ob es sich um ein Mitarbeiter oder ein Kunden handelt
      */
-    private void onLoginButtonClick(boolean istmitarbeiter) throws RuntimeException {
+    private void onLoginButtonClick(boolean istmitarbeiter) {
         String benutzername = benutzernameTextField.getText();
         String passwort = passwortTextField.getText();
         if(istmitarbeiter){
@@ -865,7 +969,19 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
-    private void onAddButtonClick() {
+    /**
+     * Verarbeitet den Klick auf den "Artikel hinzufügen" Button.
+     *
+     * Extrahiert die eingegebenen Daten aus den Textfeldern für Artikelnummer, Bezeichnung, Bestand, Preis und
+     * Packungsgröße (falls es sich um einen Massengutartikel handelt). Validiert die Eingaben auf numerische Werte und
+     * zeigt ggf. Fehlermeldungen an. Versucht dann, je nach Art des Artikels (Standardartikel oder Massengutartikel),
+     * einen neuen Artikel über die entsprechende Methode (eshop.artikelAnlegen oder eshop.massengutartikelAnlegen)
+     * anzulegen. Aktualisiert nach erfolgreicher Anlegung die Anzeige der Artikel und ggf. das Ereignislog.
+     * <p>
+     * Zeigt eine Fehlermeldung an, wenn eine FehlendeEingabenException oder MassengutException auftritt,
+     * die durch fehlende oder ungültige Eingaben in den Pflichtfeldern ausgelöst werden.
+     */
+    private void onAddArtikelButtonClick() {
         String artikelnummerText = artikelnummerTextField.getText();
         String bezeichnung = bezeichnungTextField.getText();
         String bestandText = bestandTextField.getText();
@@ -920,7 +1036,7 @@ public class ShopClientGUI extends JFrame {
                         inputErrorPreis.setVisible(false);
                         inputErrorPackungsgroesse.setVisible(false);
                     }
-                } catch (MassengutException | RuntimeException ex){
+                } catch (MassengutException ex){
                     JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                 }
             }
@@ -963,7 +1079,6 @@ public class ShopClientGUI extends JFrame {
                         bestandTextField.setText("");
                         preisTextField.setText("");
                     }
-
                 } catch(RuntimeException e){
                     JOptionPane.showMessageDialog(null, "Fehler: "+ e.getMessage());
                 }
@@ -971,6 +1086,14 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Verarbeitet den Klick auf den "Artikel entfernen" Button.
+     * <p>
+     * Prüft, ob ein Artikel ausgewählt wurde (über die globalen Variablen selectedArtikelnummer und
+     * selectedArtikelbezeichnung). Falls ja, versucht er den entsprechenden Artikel aus dem System zu entfernen.
+     * Aktualisiert anschließend die Anzeige der Artikel und das Ereignislog. Zeigt eine Fehlermeldung an, wenn der
+     * Artikel nicht gefunden wurde, nicht existiert oder ein anderer Fehler aufgetreten ist.
+     */
     private void onRemoveButtonClick(){
         try{
             if(!selectedArtikelbezeichnung.isEmpty() && !(selectedArtikelnummer == 0)) {
@@ -980,7 +1103,6 @@ public class ShopClientGUI extends JFrame {
                 java.util.List<Ereignis> eventlog = eshop.eventlogAusgeben();
                 updateEreignisPanel(eventlog);
             }
-
         } catch (UnbekanntesAccountObjektException | ArtikelExistiertNichtException | NullPointerException e) {
             JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
         }
@@ -1019,8 +1141,9 @@ public class ShopClientGUI extends JFrame {
                             selectedArtikelnummer = 0;
                             selectedArtikelbezeichnung = "";
                             errorInput.setVisible(false);
+                        } else {
+                            errorInput.setVisible(true);
                         }
-                        errorInput.setVisible(true);
                     } catch (NumberFormatException nfe) {
                         errorInput.setVisible(true);
                     } catch (MassengutException | ArtikelExistiertNichtException | UnbekanntesAccountObjektException ex) {
@@ -1038,6 +1161,14 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Verarbeitet den Klick auf den "Anzahl ändern" Button für einen Artikel.
+     * <p>
+     * Wenn ein Artikel ausgewählt ist (über selectedArtikelnummer), öffnet diese Methode ein Dialogfenster,
+     * um den neuen Bestand einzugeben. Nach Bestätigung der Eingabe versucht sie, den Bestand des ausgewählten
+     * Artikels zu ändern. Dabei wird die Anzeige der Artikel und das Ereignislog aktualisiert.
+     * Zeigt eine Fehlermeldung an, falls die Eingabe ungültig ist oder ein anderer Fehler auftritt.
+     */
     private void onEreignisseButtonClick(){
         if(!ereignisseOffen){
             JDialog ereignisse = new JDialog();
@@ -1062,6 +1193,12 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Verarbeitet den Klick auf den "Bestandslog" Button.
+     * Öffnet ein Dialogfenster mit der Bestandshistorie des ausgewählten Artikels, falls dieser existiert.
+     * Setzt die Variable bestandslogOffen auf true, wenn der Dialog geöffnet wird, und false, wenn er geschlossen wird.
+     * Zeigt eine Fehlermeldung an, falls der ausgewählte Artikel nicht existiert.
+     */
     private void onBestandslogButtonClick(){
         if(!bestandslogOffen && selectedArtikelnummer != 0){
             try{
@@ -1121,7 +1258,7 @@ public class ShopClientGUI extends JFrame {
             hinzufuegenButton.addActionListener(e -> {
                 try{
                     anzahlArtikelInWarenkorb = Integer.parseInt(anzahlArtikelTextField.getText());
-                    if(anzahlArtikelInWarenkorb != 0){
+                    if(!(anzahlArtikelInWarenkorb <= 0)){
                         eshop.artikelInWarenkorb(selectedArtikelnummer, anzahlArtikelInWarenkorb, aktuellerKunde);
                         HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
                         updateShoppingCart(inhalt);
@@ -1160,7 +1297,7 @@ public class ShopClientGUI extends JFrame {
     private void onOpenShoppingCartButtonClick(){
         if(!warenkorbOffen){
             JDialog warenkorb = new JDialog();
-            JComponent warenkorbTabelle = createShoppingcart();
+            JComponent warenkorbTabelle = createShoppingcartPanel();
             warenkorb.add(warenkorbTabelle);
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -1258,10 +1395,11 @@ public class ShopClientGUI extends JFrame {
                         if(!(neueAnzahl < 0)){
                             eshop.warenkorbVeraendern(aktuellerKunde, selectedShoppingCartItemBezeichnung, neueAnzahl);
                             updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                            veraendernMenu.dispose();
                             selectedShoppingCartItemNummer = 0;
+                        } else {
+                            errorInput.setVisible(true);
                         }
-                        veraendernMenu.dispose();
-                        errorInput.setVisible(true);
                     } catch (MassengutException | ArtikelExistiertNichtException | BestandUeberschrittenException ex) {
                         JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                     } catch (NumberFormatException ex){
@@ -1277,6 +1415,10 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Verarbeitet den Klick auf den "Warenkorb leeren" Button.
+     * Leert den Warenkorb des aktuellen Kunden und aktualisiert die Ansicht des Warenkorbs.
+     */
     private void onWarenkorbLeerenButtonClick() {
         eshop.warenkorbLeeren(aktuellerKunde);
         updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
@@ -1353,12 +1495,23 @@ public class ShopClientGUI extends JFrame {
         tableModel.setEreignisse(eventlog);
     }
 
+    /**
+     * Ändert die Größe des Frames auf die angegebene Dimension.
+     * Setzt sowohl die Größe als auch die minimale Größe des Frames.
+     *
+     * @param dimension Die neue Dimension für den Frame
+     */
     private void resizeFrame(Dimension dimension){
         this.setSize(dimension);
         this.setMinimumSize(dimension);
     }
 
-
+    /**
+     * Die Hauptmethode, die beim Start des Programms aufgerufen wird. Überprüft die Argumente für Host und Port,
+     * initialisiert das Swing-UI auf dem GUI-Thread und erstellt eine Instanz der ShopClientGUI.
+     *
+     * @param args Die Argumente beim Programmstart
+     */
     public static void main(String[] args){
         int portArg = 0;
         String hostArg = null;
@@ -1411,7 +1564,16 @@ public class ShopClientGUI extends JFrame {
         });
     }
 
+    /**
+     * Die Klasse FileMenu erweitert JMenu und implementiert ActionListener für Menüaktionen.
+     * Sie erstellt das Datei-Menü mit Optionen zum Sichern von Daten, Ausloggen und Beenden des Programms.
+     */
     class FileMenu extends JMenu implements ActionListener {
+        /**
+         * Konstruktor für das FileMenu.
+         * Erstellt die Menüpunkte für Daten sichern, Ausloggen und Programm beenden.
+         * @see ActionListener#actionPerformed(ActionEvent)
+         */
         public FileMenu() {
             super("Datei");
 
@@ -1434,6 +1596,16 @@ public class ShopClientGUI extends JFrame {
             this.add(quitItem);
         }
 
+        /**
+         * Behandelt die Aktionen der Menüpunkte.
+         * - "Daten sichern": Ruft die Methode zum Sichern der Daten im eShop auf.
+         * - "Ausloggen": Zeigt das LoginPanel an, setzt die Dimension des Frames zurück,
+         *   setzt die aktuelle Benutzerinstanz auf null und meldet den aktuellen Benutzer ab.
+         * - "Programm beenden": Schließt das Programm nach dem Sichern der Daten, dem Ausloggen
+         *   und dem Trennen der Verbindung zum Server.
+         *
+         * @param e Das ActionEvent, das die ausgelöste Aktion repräsentiert.
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             switch (e.getActionCommand()) {
@@ -1449,17 +1621,17 @@ public class ShopClientGUI extends JFrame {
                     resizeFrame(new Dimension(224, 266));
                     ShopClientGUI.this.setPreferredSize(new Dimension(224, 266));
                     ShopClientGUI.this.pack();
-                    setJMenuBar(null); // Remove the menu bar
+                    setJMenuBar(null);
 
                     aktuellerKunde = null;
                     aktuellerMitarbeiter = null;
                     eshop.logout();
                     break;
-
                 case "Programm beenden":
-                    ShopClientGUI.this.dispose();
                     try {
+                        ShopClientGUI.this.dispose();
                         eshop.sichereDaten();
+                        eshop.logout();
                         eshop.disconnect();
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
@@ -1469,7 +1641,17 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Die Klasse HelpMenu erweitert JMenu und implementiert ActionListener für Menüaktionen.
+     * Sie erstellt das Hilfe-Menü mit der Option "Über uns".
+     */
     class HelpMenu extends JMenu implements ActionListener {
+        /**
+         * Konstruktor für das HelpMenu.
+         * Erstellt den Menüpunkt "Über uns".
+         * @see ActionListener#actionPerformed(ActionEvent)
+         */
+
         public HelpMenu() {
             super("Hilfe");
 
@@ -1478,6 +1660,12 @@ public class ShopClientGUI extends JFrame {
             this.add(aboutItem);
         }
 
+        /**
+         * Behandelt die Aktionen des Menüpunkts "Über uns".
+         * Zeigt ein Dialogfenster mit Informationen über die Entwickler an.
+         *
+         * @param e Das ActionEvent, das die ausgelöste Aktion repräsentiert.
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getActionCommand().equals("Über uns")) {
@@ -1501,14 +1689,23 @@ public class ShopClientGUI extends JFrame {
                 contentPane.add(closeButton);
 
                 aboutMenu.setLocationRelativeTo(this);
-
-                aboutMenu.setSize(130, 130);
+                aboutMenu.pack();
+                aboutMenu.setMinimumSize(new Dimension(130, 130));
                 aboutMenu.setVisible(true);
             }
         }
     }
 
+    /**
+     * Die Klasse MitarbeiterMenu erweitert JMenu und implementiert ActionListener für Menüaktionen.
+     * Sie erstellt das Mitarbeiter-Menü mit der Option "Mitarbeiter anlegen".
+     */
     class MitarbeiterMenu extends JMenu implements ActionListener {
+        /**
+         * Konstruktor für das MitarbeiterMenu.
+         * Erstellt den Menüpunkt "Mitarbeiter anlegen".
+         * @see ActionListener#actionPerformed(ActionEvent)
+         */
         public MitarbeiterMenu() {
             super("Mitarbeiter");
 
@@ -1517,13 +1714,18 @@ public class ShopClientGUI extends JFrame {
             this.add(createCustomer);
         }
 
+        /**
+         * Behandelt die Aktionen des Menüpunkts "Mitarbeiter anlegen".
+         * Öffnet das Dialogfenster zum Anlegen eines neuen Mitarbeiters.
+         *
+         * @param e Das ActionEvent, das die ausgelöste Aktion repräsentiert.
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
             switch (e.getActionCommand()) {
                 case "Mitarbeiter anlegen":
                     mitarbeiterAnlegenMenu();
                     break;
-
             }
         }
     }
