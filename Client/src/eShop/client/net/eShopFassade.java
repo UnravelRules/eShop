@@ -147,7 +147,7 @@ public class eShopFassade implements eShopInterface {
                 Mitarbeiter mitarbeiter = liesMitarbeiterVonServer();
                 return mitarbeiter;
             } else {
-                // Registrierung Fehlgeschlagen
+                String ex_message = sin.readLine();
                 throw new MitarbeiterExistiertNichtException(benutzername);
             }
         } catch (IOException e){
@@ -181,7 +181,22 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException {
-        return null;
+        sout.println("m");
+        sout.println(nummer);
+        sout.println(name);
+        sout.println(benutzer);
+        sout.println(passwort);
+        try {
+            String antwort = sin.readLine();
+            if (antwort.equals("Erfolg")){
+                return liesMitarbeiterVonServer();
+            } else {
+                Mitarbeiter ex_mitarbeiter = liesMitarbeiterVonServer();
+                throw new MitarbeiterExistiertBereitsException(ex_mitarbeiter);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -189,6 +204,17 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void mitarbeiterEntfernen(String benutzername) {
+        sout.println("d");
+        sout.println(benutzername);
+        try {
+            String antwort = sin.readLine();
+            if (!(antwort.equals("Erfolg"))){
+                String ex_message = sin.readLine();
+                System.out.println(ex_message);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

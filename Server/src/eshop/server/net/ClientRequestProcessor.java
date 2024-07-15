@@ -64,12 +64,16 @@ public class ClientRequestProcessor implements Runnable{
                     kundeRegistrieren();
                     break;
                 case "k":
-                    kundeEinloggen();
-                    kundenMenu();
+                    int status_k = kundeEinloggen();
+                    if(status_k == 0){
+                        kundenMenu();
+                    }
                     break;
                 case "m":
-                    mitarbeiterEinloggen();
-                    mitarbeiterMenu();
+                    int status_m = mitarbeiterEinloggen();
+                    if(status_m == 0){
+                        mitarbeiterMenu();
+                    }
                     break;
                 case "q":
                     break;
@@ -199,12 +203,44 @@ public class ClientRequestProcessor implements Runnable{
                 case "rm":
                     artikelEntfernen();
                     break;
+                case "m":
+                    mitarbeiterRegistrieren();
+                    break;
+                case "d":
+                    mitarbeiterLoeschen();
+                    break;
                 default:
                     System.out.println("Unbekannte Aktion: " + input);
             }
 
         } while (!(input.equals("a")));
         this.aktuellerMitarbeiter = null;
+    }
+
+    private void mitarbeiterLoeschen() {
+        String benutzername = liesEingabeVonClient("Benutzername");
+        try {
+            eshop.mitarbeiterEntfernen(benutzername);
+            out.println("Erfolg");
+        } catch (Exception e) {
+            out.println("Fehler");
+            out.println(e.getMessage());
+        }
+    }
+
+    private void mitarbeiterRegistrieren() {
+        int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
+        String name = liesEingabeVonClient("Name");
+        String benutzername = liesEingabeVonClient("Benutzername");
+        String passwort = liesEingabeVonClient("Passwort");
+        try {
+            Mitarbeiter mitarbeiter = eshop.mitarbeiterRegistrieren(nummer, name, benutzername, passwort);
+            out.println("Erfolg");
+            sendeMitarbeiterAnClient(mitarbeiter);
+        } catch (MitarbeiterExistiertBereitsException e) {
+            out.println("Fehler");
+            sendeMitarbeiterAnClient(e.getMitarbeiter());
+        }
     }
 
     private void artikelEntfernen() {
@@ -326,7 +362,7 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
-    private void kundeEinloggen(){
+    private int kundeEinloggen(){
         String benutzername = liesEingabeVonClient("Benutzername");
         String passwort = liesEingabeVonClient("Passwort");
 
@@ -335,9 +371,11 @@ public class ClientRequestProcessor implements Runnable{
             out.println("Erfolg");
             sendeKundeAnClient(kunde);
             this.aktuellerKunde = kunde;
+            return 0;
         } catch (KundeExistiertNichtException e) {
             out.println("Fehler");
             out.println(e.getMessage());
+            return 1;
         }
 
 
@@ -352,7 +390,7 @@ public class ClientRequestProcessor implements Runnable{
         out.println(kunde.getPasswort());
     }
 
-    private void mitarbeiterEinloggen(){
+    private int mitarbeiterEinloggen(){
         String benutzername = liesEingabeVonClient("Benutzername");
         String passwort = liesEingabeVonClient("Passwort");
 
@@ -361,9 +399,11 @@ public class ClientRequestProcessor implements Runnable{
             out.println("Erfolg");
             sendeMitarbeiterAnClient(mitarbeiter);
             this.aktuellerMitarbeiter = mitarbeiter;
-        } catch (MitarbeiterExistiertNichtException e) {
+            return 0;
+        } catch (MitarbeiterExistiertNichtException | NumberFormatException e) {
             out.println("Fehler");
             out.println(e.getMessage());
+            return 1;
         }
 
     }
