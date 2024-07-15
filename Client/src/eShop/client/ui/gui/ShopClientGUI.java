@@ -811,19 +811,17 @@ public class ShopClientGUI extends JFrame {
         } catch (FehlendeEingabenException e) {
             JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
         }
-        System.out.println("Kunde wurde angelegt!");
     }
 
     private void onMitarbeiterAnlegenButtonClick(JDialog registrationMenu, JTextField mitarbeiterNummer, JTextField n, JTextField benutzer, JTextField pw) throws MitarbeiterExistiertBereitsException {
-        int nummer = Integer.parseInt(mitarbeiterNummer.getText());
-        String name = n.getText();
-        String benutzername = benutzer.getText();
-        String passwort = pw.getText();
-
         try {
+            int nummer = Integer.parseInt(mitarbeiterNummer.getText());
+            String name = n.getText();
+            String benutzername = benutzer.getText();
+            String passwort = pw.getText();
             eshop.mitarbeiterRegistrieren(nummer, name, benutzername, passwort);
             registrationMenu.dispose();
-        } catch (FehlendeEingabenException e){
+        } catch (FehlendeEingabenException | NumberFormatException e){
             JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
         }
     }
