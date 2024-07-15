@@ -1,5 +1,6 @@
 package eShop.client.ui.gui;
 
+
 import javax.sound.sampled.Line;
 import javax.swing.*;
 import java.awt.*;
@@ -7,11 +8,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventListener;
 
 public class Bestandshistorie extends JPanel {
     private ArrayList<Integer> bestandlog;
-    private int[] tage;
+    private ArrayList<Integer> tage;
     private final int min_x = 0;
     private final int max_x = 31;
     private int min_y;
@@ -21,10 +23,12 @@ public class Bestandshistorie extends JPanel {
     public Bestandshistorie(ArrayList<Integer> bestandlog) {
         this.bestandlog = bestandlog;
 
-        tage = new int[30];
+        tage = new ArrayList<>();
         for(int i = 1; i <= 30; i++){
-            tage[i - 1] = i;
+            tage.add(i);
         }
+
+        System.out.println(tage);
 
         min_y = 0;
         max_y = getMaximumValue(bestandlog);
@@ -87,18 +91,18 @@ public class Bestandshistorie extends JPanel {
 
         double oldX = 0;
         double oldY = 0;
-        for (int i = 0; i < tage.length; i++) {
-            int xPixel = (int) (originX + (tage[i] - min_x) * xScale);
+        for (int i = 0; i < tage.size(); i++) {
+            int xPixel = (int) (originX + (tage.get(i) - min_x) * xScale);
             int yPixel = (int) (originY - (this.bestandlog.get(i) - min_y) * yScale);
-            Ellipse2D point = new Ellipse2D.Double(xPixel - 2, yPixel - 2, 6, 6);
+            Ellipse2D point = new Ellipse2D.Double(xPixel, yPixel, 1, 1);
             g2d.fill(point);
             if(i == 0){
-                g2d.draw(new Line2D.Double(point.getX() + 2 - xScale, point.getY() + 2, point.getX() + 2, point.getY() + 2));
+                g2d.draw(new Line2D.Double(point.getX() - xScale, point.getY(), point.getX(), point.getY()));
             } else {
-                g2d.draw(new Line2D.Double(oldX, oldY, point.getX() + 2, point.getY() + 2));
+                g2d.draw(new Line2D.Double(oldX, oldY, point.getX(), point.getY()));
             }
-            oldX = point.getX() + 2;
-            oldY = point.getY() + 2;
+            oldX = point.getX();
+            oldY = point.getY();
         }
     }
 
@@ -111,24 +115,4 @@ public class Bestandshistorie extends JPanel {
         }
         return maxValue + 5;
     }
-
-    public int getMinimumValue(ArrayList<Integer> bestandlog){
-        int minValue = getMaximumValue(bestandlog);
-        for(Integer value : bestandlog){
-            if(value < minValue){
-                minValue = value;
-            }
-        }
-        return minValue;
-    }
-
-/*    public static void main(String[] args) {
-        JFrame frame = new JFrame("Cartesian Plane");
-        ArrayList<Integer> test = new ArrayList<>();
-        Bestandshistorie bh = new Bestandshistorie(test);
-        frame.add(bh);
-        frame.setSize(1000, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }*/
 }
