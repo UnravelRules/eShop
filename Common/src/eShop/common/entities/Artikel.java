@@ -4,7 +4,7 @@ import eShop.common.exceptions.MassengutException;
 
 /** die Klasse Artikel steht für einen Artikel im EShop
  * jeden Artikel hat eine Artikel-Nr, Bezeichnung, Bestand und Preis
-  */
+ */
 public class Artikel {
     // Attribute eines Artikels
 

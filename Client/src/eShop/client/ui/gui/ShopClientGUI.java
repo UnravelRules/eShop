@@ -1326,8 +1326,9 @@ public class ShopClientGUI extends JFrame {
      * @param warenkorbPanel Das Panel, das den Warenkorb enthält und geschlossen wird.
      */
     private void onWarenkorbKaufenButtonClick(JPanel warenkorbPanel) {
+        HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
         try {
-            if(!aktuellerKunde.getWarenkorb().getInhalt().isEmpty()){
+            if(!inhalt.isEmpty()){
                 Rechnung rechnung = eshop.warenkorbKaufen(aktuellerKunde);
                 SwingUtilities.getWindowAncestor(warenkorbPanel).dispose();
                 warenkorbOffen = false;
