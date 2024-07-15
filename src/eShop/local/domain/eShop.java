@@ -92,7 +92,12 @@ public class eShop {
      * @return Mitarbeiterobjekt
      * @throws MitarbeiterExistiertBereitsException
      */
-    public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException {
+    public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException, FehlendeEingabenException {
+        if(nummer == 0 || name == null || benutzer == null || passwort == null){
+            throw new FehlendeEingabenException("Registrierung");
+        } else if (name.isEmpty() || benutzer.isEmpty() || passwort.isEmpty()) {
+            throw new FehlendeEingabenException("Registrierung");
+        }
         Mitarbeiter m = new Mitarbeiter(nummer, name, benutzer, passwort);
         mitarbeiterVW.registrieren(m);
         return m;

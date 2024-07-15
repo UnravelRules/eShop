@@ -321,7 +321,7 @@ public class ShopClientCUI {
                     Mitarbeiter m = eshop.mitarbeiterRegistrieren(mitarbeiterNummer, name, benutzername, passwort);
                     System.out.println("Neuer Mitarbeiter " + m.getName() + " angelegt");
                     break;
-                } catch (MitarbeiterExistiertBereitsException e){
+                } catch (MitarbeiterExistiertBereitsException | FehlendeEingabenException e){
                     System.out.println("Mitarbeiter existiert bereits!");
                     e.printStackTrace();
                 }
