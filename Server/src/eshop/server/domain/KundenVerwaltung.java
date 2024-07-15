@@ -2,6 +2,7 @@ package eshop.server.domain;
 
 import eShop.common.exceptions.KundeExistiertBereitsException;
 import eShop.common.exceptions.KundeExistiertNichtException;
+import eShop.common.exceptions.LoginFehlgeschlagenException;
 import eShop.common.entities.Kunde;
 import eshop.server.persistence.FilePersistenceManager;
 import eshop.server.persistence.PersistenceManager;
@@ -61,13 +62,13 @@ public class KundenVerwaltung {
      * @return Kundenobjekt
      * @throws KundeExistiertNichtException
      */
-    public Kunde login(String benutzername, String passwort) throws KundeExistiertNichtException {
+    public Kunde login(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         for (Kunde k : kundenliste){
             if(k.getBenutzername().equals(benutzername) && k.getPasswort().equals(passwort)){
                 return k;
             }
         }
-        throw new KundeExistiertNichtException(benutzername);
+        throw new LoginFehlgeschlagenException(benutzername, passwort);
     }
 
     /**

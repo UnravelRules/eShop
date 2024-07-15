@@ -96,7 +96,12 @@ public class eShop implements eShopInterface {
      * @throws MitarbeiterExistiertBereitsException
      */
     @Override
-    public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException {
+    public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException, FehlendeEingabenException {
+        if(nummer == 0 || name == null || benutzer == null || passwort == null){
+            throw new FehlendeEingabenException("Registrierung");
+        } else if (name.isEmpty() || benutzer.isEmpty() || passwort.isEmpty()) {
+            throw new FehlendeEingabenException("Registrierung");
+        }
         Mitarbeiter m = new Mitarbeiter(nummer, name, benutzer, passwort);
         mitarbeiterVW.registrieren(m);
         return m;
@@ -213,6 +218,9 @@ public class eShop implements eShopInterface {
     @Override
     public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, NegativerBestandException {
         Artikel artikel = artikelVW.getArtikelMitNummer(artikelnummer);
+        if(anzahl > artikel.getBestand()){
+            throw new BestandUeberschrittenException(artikel, anzahl);
+        }
         shoppingService.artikelInWarenkorb(artikel, anzahl, aktuellerKunde);
     }
 
@@ -252,7 +260,7 @@ public class eShop implements eShopInterface {
     public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, NegativerBestandException {
         Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
         if(neuerBestand > artikel.getBestand()){
-            throw new NegativerBestandException(artikel, neuerBestand);
+            throw new BestandUeberschrittenException(artikel, neuerBestand);
         }
         shoppingService.warenkorbVeraendern(aktuellerKunde, artikel, neuerBestand);
     }

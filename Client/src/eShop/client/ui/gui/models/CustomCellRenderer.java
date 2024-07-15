@@ -14,9 +14,9 @@ public class CustomCellRenderer extends DefaultTableCellRenderer {
         Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         if (value instanceof Float) {
             if(hasDecimal((Float) value)){
-                setText(String.format("%.2f €", (Float) value));
+                setText(String.format("%.2f€", (Float) value));
             } else {
-                setText(String.format("%.0f €", (Float) value));
+                setText(String.format("%.0f€", (Float) value));
             }
         }
         return c;

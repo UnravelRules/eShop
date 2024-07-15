@@ -1,11 +1,8 @@
 package eshop.server.domain;
 
-import eShop.common.exceptions.MitarbeiterExistiertBereitsException;
-import eShop.common.exceptions.MitarbeiterExistiertNichtException;
-import eShop.common.entities.Mitarbeiter;
 import eshop.server.persistence.FilePersistenceManager;
 import eshop.server.persistence.PersistenceManager;
-
+import eshop.common.exceptions.*;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -62,13 +59,13 @@ public class MitarbeiterVerwaltung {
      * @throws MitarbeiterExistiertNichtException Falls der Mitarbeiter nicht existiert
      * @return Mitarbeiterobjekt
      */
-    public  Mitarbeiter anmelden(String benutzername, String passwort) throws MitarbeiterExistiertNichtException {
+    public  Mitarbeiter anmelden(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         for(Mitarbeiter aktuellerMitarbeiter: registrierteMitarbeiter){
             if(benutzername.equals(aktuellerMitarbeiter.getBenutzername()) && (passwort.equals(aktuellerMitarbeiter.getPasswort()))){
                 return aktuellerMitarbeiter;
             }
         }
-        throw new MitarbeiterExistiertNichtException(benutzername);
+        throw new LoginFehlgeschlagenException(benutzername, passwort);
     }
 
     /**
