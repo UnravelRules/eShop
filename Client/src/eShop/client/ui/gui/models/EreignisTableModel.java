@@ -7,15 +7,29 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * TableModel für die Darstellung der Ereignisse in der ShopClientGUI.
+ * Erweitert AbstractTableModel, um Daten für eine JTable-Komponente bereitzustellen.
+ */
 public class EreignisTableModel extends AbstractTableModel {
     private List<Ereignis> eventlog;
     private String[] spaltenNamen = {"Typ", "Datum", "Benutzer", "Benutzername", "Artikel", "Menge"};
 
+    /**
+     * Konstruktor für WarenkorbTableModel mit den initialen Inhalten aus einer HashMap.
+     *
+     * @param aktuelleEreignisse Die anfänglichen Inhalte der Ereignisse als Liste von Ereignissen.
+     */
     public EreignisTableModel(List<Ereignis> aktuelleEreignisse){
         super();
         eventlog = new ArrayList<>(aktuelleEreignisse);
     }
 
+    /**
+     * Setzt den Inhalt der Ereignistabelle auf eine neue Liste.
+     *
+     * @param aktuelleEreignisse Der aktualisierte Inhalt des Ereignislogs.
+     */
     public void setEreignisse(List<Ereignis> aktuelleEreignisse){
         eventlog.clear();
         eventlog.addAll(aktuelleEreignisse);
@@ -37,6 +51,12 @@ public class EreignisTableModel extends AbstractTableModel {
         return spaltenNamen[col];
     }
 
+    /**
+     * Überschreibt die Standardmethode von AbstractTableModel, um unsere Werte richtig in der Tabelle darzustellen.
+     * @param columnIndex die einzelnen Indizes der Spalten
+     * @param rowIndex die einzelnen Idizes der Zeilen
+     * @see javax.swing.table.AbstractTableModel#getValueAt(int, int)
+     */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Ereignis gewaehltesEreignis = eventlog.get(rowIndex);

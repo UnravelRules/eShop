@@ -7,13 +7,22 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * TableModel für die Darstellung der Artikel in der ShopClientGUI.
+ * Erweitert AbstractTableModel, um Daten für eine JTable-Komponente bereitzustellen.
+ */
 public class ArtikelTableModel extends AbstractTableModel {
     private List<Artikel> artikel;
     private List<Artikel> sichtbareArtikel;  // Liste nur für sichtbare Artikel
-
     private boolean istMitarbeiter;
     private String[] spaltenNamen = {"Nummer", "Bezeichnung", "Bestand", "Preis", "Packungsgröße"};
 
+    /**
+     * Konstruktor für ArtikelTableModel mit den initialen Inhalten aus einer HashMap.
+     *
+     * @param aktuelleArtikel Die anfänglichen Inhalte des Artikelbestands als Liste von Artikeln.
+     * @param istMitarbeiter Sagt aus, ob Benutzer ein Kunde oder Mitarbeiter ist. true = Mitarbeiter, false = Kunde
+     */
     public ArtikelTableModel(List<Artikel> aktuelleArtikel, boolean istMitarbeiter){
         super();
         this.istMitarbeiter = istMitarbeiter;
@@ -21,6 +30,11 @@ public class ArtikelTableModel extends AbstractTableModel {
         updateSichtbareArtikel();
     }
 
+    /**
+     * Setzt den Inhalt der Artikeltabelle auf eine neue Liste.
+     *
+     * @param aktuelleArtikel Der aktualisierte Inhalt des Artikelbestands.
+     */
     public void setArtikel(List<Artikel> aktuelleArtikel){
         artikel.clear();
         artikel.addAll(aktuelleArtikel);
@@ -28,6 +42,11 @@ public class ArtikelTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    /**
+     * Methode, um alle Artikel in einer ArrayListe sichtbareArtikel zu speichern, die sichtbar sein sollen.
+     * Ein Mitarbeiter kann alle Artikel sehen.
+     * Ein Kunde kann nur Artikel sehen, welche einen Bestand > 0 haben.
+     */
     private void updateSichtbareArtikel() {
         sichtbareArtikel = new ArrayList<>();
         for (Artikel a : artikel) {

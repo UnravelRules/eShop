@@ -7,16 +7,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
+/**
+ * TableModel für die Darstellung des Warenkorbs in der ShopClientGUI.
+ * Erweitert AbstractTableModel, um Daten für eine JTable-Komponente bereitzustellen.
+ */
 public class WarenkorbTableModel extends AbstractTableModel {
     private HashMap<Artikel, Integer> inhalt;
     private List<Artikel> keys;
     private String[] spaltenNamen = {"Artikelnummer", "Bezeichnung", "Preis", "Anzahl", "Gesamtpreis"};
 
+    /**
+     * Konstruktor für WarenkorbTableModel mit den initialen Inhalten aus einer HashMap.
+     *
+     * @param aktuellerInhalt Die anfänglichen Inhalte des Warenkorbs als HashMap von Artikel zu Integer (Menge).
+     */
     public WarenkorbTableModel(HashMap<Artikel, Integer> aktuellerInhalt){
         super();
         inhalt = new HashMap<>(aktuellerInhalt);
     }
 
+    /**
+     * Setzt den Inhalt des Warenkorbs auf eine neue HashMap.
+     *
+     * @param aktuellerInhalt Der aktualisierte Inhalt des Warenkorbs.
+     */
     public void setInhalt(HashMap<Artikel, Integer> aktuellerInhalt){
         inhalt.clear();
         inhalt.putAll(aktuellerInhalt);
@@ -37,6 +52,12 @@ public class WarenkorbTableModel extends AbstractTableModel {
         return spaltenNamen[col];
     }
 
+    /**
+     * Überschreibt die Standardmethode von AbstractTableModel, um unsere Werte richtig in der Tabelle darzustellen.
+     * @param columnIndex die einzelnen Indizes der Spalten
+     * @param rowIndex die einzelnen Idizes der Zeilen
+     * @see javax.swing.table.AbstractTableModel#getValueAt(int, int)
+     */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         keys = new ArrayList<>(inhalt.keySet());
