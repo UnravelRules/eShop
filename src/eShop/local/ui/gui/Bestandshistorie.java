@@ -7,11 +7,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventListener;
 
 public class Bestandshistorie extends JPanel {
     private ArrayList<Integer> bestandlog;
-    private int[] tage;
+    private ArrayList<Integer> tage;
     private final int min_x = 0;
     private final int max_x = 31;
     private int min_y;
@@ -21,10 +22,12 @@ public class Bestandshistorie extends JPanel {
     public Bestandshistorie(ArrayList<Integer> bestandlog) {
         this.bestandlog = bestandlog;
 
-        tage = new int[30];
+        tage = new ArrayList<>();
         for(int i = 1; i <= 30; i++){
-            tage[i - 1] = i;
+            tage.add(i);
         }
+
+        System.out.println(tage);
 
         min_y = 0;
         max_y = getMaximumValue(bestandlog);
@@ -87,8 +90,8 @@ public class Bestandshistorie extends JPanel {
 
         double oldX = 0;
         double oldY = 0;
-        for (int i = 0; i < tage.length; i++) {
-            int xPixel = (int) (originX + (tage[i] - min_x) * xScale);
+        for (int i = 0; i < tage.size(); i++) {
+            int xPixel = (int) (originX + (tage.get(i) - min_x) * xScale);
             int yPixel = (int) (originY - (this.bestandlog.get(i) - min_y) * yScale);
             Ellipse2D point = new Ellipse2D.Double(xPixel, yPixel, 1, 1);
             g2d.fill(point);

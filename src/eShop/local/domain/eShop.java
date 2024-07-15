@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.LocalDate;
-import java.util.*;
 
 
 public class eShop {
@@ -68,7 +67,7 @@ public class eShop {
      * @return Kundenobjekt
      * @throws KundeExistiertNichtException
      */
-    public Kunde kundeEinloggen(String benutzername, String passwort) throws KundeExistiertNichtException {
+    public Kunde kundeEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         return kundenVW.login(benutzername, passwort);
     }
 
@@ -79,7 +78,7 @@ public class eShop {
      * @return Mitarbeiterobjekt
      * @throws MitarbeiterExistiertNichtException
      */
-    public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws MitarbeiterExistiertNichtException{
+    public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         return mitarbeiterVW.anmelden(benutzername, passwort);
     }
 
@@ -204,8 +203,11 @@ public class eShop {
      * @param anzahl
      * @param aktuellerKunde
      */
-    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException {
+    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws MassengutException, BestandUeberschrittenException, ArtikelExistiertNichtException {
         Artikel artikel = artikelVW.getArtikelMitNummer(artikelnummer);
+        if(anzahl > artikel.getBestand()){
+            throw new BestandUeberschrittenException(artikel, anzahl);
+        }
         shoppingService.artikelInWarenkorb(artikel, anzahl, aktuellerKunde);
     }
 
@@ -239,10 +241,10 @@ public class eShop {
         return rechnung;
     }
 
-    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, NegativerBestandException {
+    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, BestandUeberschrittenException {
         Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
         if(neuerBestand > artikel.getBestand()){
-            throw new NegativerBestandException(artikel, neuerBestand);
+            throw new BestandUeberschrittenException(artikel, neuerBestand);
         }
         shoppingService.warenkorbVeraendern(aktuellerKunde, artikel, neuerBestand);
     }

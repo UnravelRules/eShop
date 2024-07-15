@@ -66,7 +66,7 @@ public class ShopClientCUI {
                     aktuellerKunde = eshop.kundeEinloggen(kundeBenutzername, kundePasswort);
                     System.out.println("Willkommen zurück, " + aktuellerKunde.getName());
                     return 1;
-                } catch(KundeExistiertNichtException e){
+                } catch(LoginFehlgeschlagenException e){
                     System.out.println("Fehler: " + e.getMessage());
                     return 0;
                 }
@@ -80,7 +80,7 @@ public class ShopClientCUI {
                     System.out.println("Willkommen zurück, " + m.getName());
                     aktuellerMitarbeiter = m;
                     return 2;
-                } catch(MitarbeiterExistiertNichtException e){
+                } catch(LoginFehlgeschlagenException e){
                     System.out.println("Fehler beim Einloggen");
                     e.printStackTrace();
                     return 0;
@@ -158,6 +158,8 @@ public class ShopClientCUI {
                     System.out.println("Kein Artikel mit dieser Nummer gefunden");
                 } catch (MassengutException e){
                     System.out.println("Anzahl ist nicht mit Packungsgroesse kompatibel");
+                } catch (BestandUeberschrittenException e){
+                    System.out.println("Die Anzahl überschreitet den Artikelbestand");
                 }
                 break;
             case "w":
@@ -173,7 +175,7 @@ public class ShopClientCUI {
                     eshop.warenkorbVeraendern(aktuellerKunde, bezeichnung, neuerBestand);
                 } catch (MassengutException e){
                     System.out.println("Anzahl nicht mit Packungsgroesse kompatibel");
-                } catch (NegativerBestandException e) {
+                } catch (BestandUeberschrittenException e) {
                     throw new RuntimeException(e);
                 }
                 break;

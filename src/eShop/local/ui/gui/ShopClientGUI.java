@@ -331,7 +331,7 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(openShoppingCartButton, c);
         shoppingCartPanel.add(openShoppingCartButton);
 
-        openShoppingCartButton.addActionListener(e -> onShoppingCartButtonClick());
+        openShoppingCartButton.addActionListener(e -> onOpenShoppingCartButtonClick());
 
         JPanel filler = new JPanel();
         c.gridy = 3;
@@ -606,7 +606,7 @@ public class ShopClientGUI extends JFrame {
         gridBagLayout.setConstraints(bestandAendernButton, c);
         funktionsPanel.add(bestandAendernButton);
 
-        bestandAendernButton.addActionListener(e -> onChangeButtonClick());
+        bestandAendernButton.addActionListener(e -> onArtikelVeraendernButtonClick());
 
         JButton eventlogAnzeigen = new JButton("Eventlog anzeigen");
         c.gridy = 20;
@@ -715,7 +715,6 @@ public class ShopClientGUI extends JFrame {
         return scrollPane;
     }
 
-
     private JComponent createShoppingcart(){
         JPanel warenkorbPanel = new JPanel();
         warenkorbPanel.setLayout(new BoxLayout(warenkorbPanel, BoxLayout.Y_AXIS));
@@ -742,28 +741,15 @@ public class ShopClientGUI extends JFrame {
         buttonArea.add(kaufenButton);
 
         JButton entfernenButton = new JButton("Artikel entfernen");
-        entfernenButton.addActionListener(e -> {
-            try {
-                if(selectedShoppingCartItemNummer != 0){
-                    eshop.artikelAusWarenkorbEntfernen(aktuellerKunde, selectedShoppingCartItemBezeichnung);
-                    updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-                    selectedShoppingCartItemNummer = 0;
-                }
-            } catch (ArtikelExistiertNichtException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        entfernenButton.addActionListener(e -> onWarenkorbArtikelEntfernenButtonClick());
         buttonArea.add(entfernenButton);
 
         JButton veraendernButton = new JButton("Anzahl ändern");
-        veraendernButton.addActionListener(e -> onWarenkornVeraendernButtonClick());
+        veraendernButton.addActionListener(e -> onWarenkorbVeraendernButtonClick());
         buttonArea.add(veraendernButton);
 
         JButton leerenButton = new JButton("Warenkorb leeren");
-        leerenButton.addActionListener(e -> {
-            eshop.warenkorbLeeren(aktuellerKunde);
-            updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-        });
+        leerenButton.addActionListener(e -> onWarenkorbLeerenButtonClick());
         buttonArea.add(leerenButton);
 
         warenkorbPanel.add(buttonArea);
@@ -830,7 +816,7 @@ public class ShopClientGUI extends JFrame {
                     cardLayout.show(mainPanel, "MitarbeiterMenu");
                     resizeFrame(new Dimension(800, 600));
                 }
-            } catch (MitarbeiterExistiertNichtException e) {
+            } catch (LoginFehlgeschlagenException e) {
                 JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
             }
         } else {
@@ -842,7 +828,7 @@ public class ShopClientGUI extends JFrame {
                     cardLayout.show(mainPanel, "KundenMenu");
                     resizeFrame(new Dimension(800, 600));
                 }
-            } catch (KundeExistiertNichtException e) {
+            } catch (LoginFehlgeschlagenException e) {
                 JOptionPane.showMessageDialog(null, "Fehler: " + e.getMessage());
             }
         }
@@ -969,7 +955,7 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
-    private void onChangeButtonClick(){
+    private void onArtikelVeraendernButtonClick(){
         if(selectedArtikelnummer != 0) {
             JDialog neuerBestandMenu = new JDialog(this, "Neuer Bestand", true);
             Container contentPane = neuerBestandMenu.getContentPane();
@@ -1009,7 +995,6 @@ public class ShopClientGUI extends JFrame {
                     } catch (MassengutException | ArtikelExistiertNichtException | UnbekanntesAccountObjektException ex) {
                         JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
                     }
-
                 }
             });
             contentPane.add(neuerBestandButton);
@@ -1074,8 +1059,74 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Öffnet ein Dialogfenster zur Eingabe der Artikelanzahl für den Warenkorb.
+     * Wird aufgerufen, wenn ein Artikel in den Warenkorb hinzugefügt werden soll.
+     * <p>
+     * Der Dialog enthält ein Eingabefeld für die Anzahl und einen Button zum Hinzufügen.
+     * Bei erfolgreicher Eingabe wird der Artikel dem Warenkorb hinzugefügt und das Dialogfenster geschlossen.
+     * <p>
+     * Fehlerbehandlung:
+     * - Zeigt eine Fehlermeldung an, wenn die eingegebene Anzahl keine gültige Zahl ist oder null ist.
+     * - Zeigt eine Fehlermeldung an, wenn der Artikel nicht existiert oder ein Fehler bei Massengutartikeln auftritt.
+     */
+    private void onAddToShoppingCartClick(){
+        if(selectedArtikelnummer != 0) {
+            JDialog artikelInWarenkornMenu = new JDialog(this, "Anzahl", true);
+            Container contentPane = artikelInWarenkornMenu.getContentPane();
 
-    private void onShoppingCartButtonClick(){
+            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+            contentPane.add(new JLabel("Anzahl des Artikels: "));
+            JTextField anzahlArtikelTextField = new JTextField();
+            contentPane.add(anzahlArtikelTextField);
+
+            JLabel inputError = new JLabel("Fehler! Positive ganze Zahl eintragen!!");
+            inputError.setForeground(Color.RED);
+            inputError.setVisible(false);
+            contentPane.add(inputError);
+
+            JButton hinzufuegenButton = new JButton("In Warenkorb hinzufügen");
+            hinzufuegenButton.addActionListener(e -> {
+                try{
+                    anzahlArtikelInWarenkorb = Integer.parseInt(anzahlArtikelTextField.getText());
+                    if(anzahlArtikelInWarenkorb != 0){
+                        eshop.artikelInWarenkorb(selectedArtikelnummer, anzahlArtikelInWarenkorb, aktuellerKunde);
+                        HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
+                        updateShoppingCart(inhalt);
+                        inputError.setVisible(false);
+                        artikelInWarenkornMenu.dispose();
+                    } else {
+                        inputError.setVisible(true);
+                    }
+                } catch (NumberFormatException nfe){
+                    inputError.setVisible(true);
+                } catch (MassengutException | ArtikelExistiertNichtException | BestandUeberschrittenException ex) {
+                    JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+                }
+
+            });
+            contentPane.add(hinzufuegenButton);
+
+            artikelInWarenkornMenu.setLocationRelativeTo(this);
+
+            artikelInWarenkornMenu.setSize(280, 120);
+            artikelInWarenkornMenu.setModal(true);
+            artikelInWarenkornMenu.setVisible(true);
+        }
+    }
+
+
+    /**
+     * Öffnet einen Dialog zur Anzeige des aktuellen Warenkorbs.
+     * <p>
+     * Diese Methode wird aufgerufen, wenn der Benutzer den Button zum Öffnen des Warenkorbs betätigt.
+     * Sie erstellt und zeigt einen modalen Dialog mit dem Inhalt des Warenkorbs an,
+     * sofern der Warenkorb noch nicht geöffnet ist.
+     * <p>
+     * Der Dialog wird beim Schließen als nicht geöffnet markiert.
+     */
+    private void onOpenShoppingCartButtonClick(){
         if(!warenkorbOffen){
             JDialog warenkorb = new JDialog();
             JComponent warenkorbTabelle = createShoppingcart();
@@ -1097,6 +1148,15 @@ public class ShopClientGUI extends JFrame {
         }
     }
 
+    /**
+     * Verarbeitet den Kauf aller Artikel im Warenkorb des aktuellen Kunden.
+     * <p>
+     * Diese Methode wird aufgerufen, wenn der Benutzer den Button zum Kaufen des Warenkorns betätigt.
+     * Die Methode erstellt eine Rechnung, schließt das aktuelle Warenkorb-Fenster,
+     * zeigt die Rechnung an und aktualisiert den Warenkorb sowie das Artikel-Panel.
+     *
+     * @param warenkorbPanel Das Panel, das den Warenkorb enthält und geschlossen wird.
+     */
     private void onWarenkorbKaufenButtonClick(JPanel warenkorbPanel) {
         try {
             if(!aktuellerKunde.getWarenkorb().getInhalt().isEmpty()){
@@ -1111,11 +1171,39 @@ public class ShopClientGUI extends JFrame {
                 updateArtikelPanel(artikel);
             }
         } catch (UnbekanntesAccountObjektException | MassengutException | ArtikelExistiertNichtException ex) {
-            throw new RuntimeException(ex);
+            JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+        }
+    }
+    /**
+     * Entfernt einen ausgewählten Artikel aus dem Warenkorb des aktuellen Kunden.
+     * <p>
+     * Diese Methode wird aufgerufen, wenn der Benutzer einen Artikel aus dem Warenkorb entfernen möchte.
+     * Sie überprüft, ob ein Artikel ausgewählt ist, entfernt diesen Artikel aus dem Warenkorb des aktuellen Kunden,
+     * und aktualisiert die Anzeige des Warenkorbs.
+     */
+    private void onWarenkorbArtikelEntfernenButtonClick() {
+        try {
+            if(selectedShoppingCartItemNummer != 0){
+                eshop.artikelAusWarenkorbEntfernen(aktuellerKunde, selectedShoppingCartItemBezeichnung);
+                updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                selectedShoppingCartItemNummer = 0;
+            }
+        } catch (ArtikelExistiertNichtException ex) {
+            JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
         }
     }
 
-    private void onWarenkornVeraendernButtonClick() {
+    /**
+     * Verarbeitet die Änderung der Anzahl eines ausgewählten Artikels im Warenkorb.
+     * <p>
+     * Diese Methode wird aufgerufen, wenn der Benutzer die Anzahl eines Artikels im Warenkorb ändern möchte.
+     * Sie öffnet ein Dialogfenster zur Eingabe der neuen Anzahl und verarbeitet die Eingabe,
+     * um den Warenkorb entsprechend zu aktualisieren.
+     * <p>
+     * Der Dialog ermöglicht es dem Benutzer, die neue Anzahl einzugeben und die Änderung zu bestätigen.
+     * Bei erfolgreicher Änderung wird der Warenkorb aktualisiert und die Auswahl des Artikels zurückgesetzt.
+     */
+    private void onWarenkorbVeraendernButtonClick() {
         if(selectedShoppingCartItemNummer != 0){
             JDialog veraendernMenu = new JDialog(this, "Neue Anzahl", true);
             Container contentPane = veraendernMenu.getContentPane();
@@ -1125,40 +1213,51 @@ public class ShopClientGUI extends JFrame {
             JTextField neueAnzahlTextField = new JTextField();
             contentPane.add(neueAnzahlTextField);
 
+            JLabel errorInput = new JLabel("Fehler! Positive ganze Zahl eintragen!");
+            errorInput.setForeground(Color.RED);
+            errorInput.setVisible(false);
+            contentPane.add(errorInput);
+
             JButton neueAnzahlButton = new JButton("Bestand verändern");
             neueAnzahlButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    int neueAnzahl = Integer.parseInt(neueAnzahlTextField.getText());
-                    veraendernMenu.dispose();
                     try {
-                        eshop.warenkorbVeraendern(aktuellerKunde, selectedShoppingCartItemBezeichnung, neueAnzahl);
-                        updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
-                        selectedShoppingCartItemNummer = 0;
-                    } catch (MassengutException | ArtikelExistiertNichtException ex) {
-                        JOptionPane.showMessageDialog(null, "");
-                    } catch (NegativerBestandException ex) {
+                        int neueAnzahl = Integer.parseInt(neueAnzahlTextField.getText());
+                        if(!(neueAnzahl < 0)){
+                            eshop.warenkorbVeraendern(aktuellerKunde, selectedShoppingCartItemBezeichnung, neueAnzahl);
+                            updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+                            selectedShoppingCartItemNummer = 0;
+                        }
+                        veraendernMenu.dispose();
+                        errorInput.setVisible(true);
+                    } catch (MassengutException | ArtikelExistiertNichtException | BestandUeberschrittenException ex) {
                         JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
+                    } catch (NumberFormatException ex){
+                        errorInput.setVisible(true);
                     }
                 }
             });
             contentPane.add(neueAnzahlButton);
 
             veraendernMenu.setLocationRelativeTo(this);
-            veraendernMenu.setSize(280, 100);
+            veraendernMenu.setMinimumSize(new Dimension(230, 115));
             veraendernMenu.setVisible(true);
         }
     }
 
+    private void onWarenkorbLeerenButtonClick() {
+        eshop.warenkorbLeeren(aktuellerKunde);
+        updateShoppingCart(eshop.gibWarenkorb(aktuellerKunde));
+    }
 
     /**
-     * Methode zum Anzeigen der Rechnung
-     * fragt alle Eigenschaften der Rechnung ab und fügt diese über JLabels zum Panel hinzu
+     * Diese Methode erstellt und zeigt einen JDialog, der die Details der gegebenen
+     * Rechnung anzeigt, einschließlich Kundendaten und gekaufter Artikel.
      *
-     * @param rechnung Rechnungs-Objekt, welches nach einem Kauf des Warenkorbs zurückgegeben wird
-     * @author Fabian
+     * @param rechnung Rechnungs-Objekt, welches nach einem Kauf des Warenkorbs zurückgegeben wird.
      */
-    private JDialog rechnungAnzeigen(Rechnung rechnung) {
+    private void rechnungAnzeigen(Rechnung rechnung) {
         Kunde kunde = rechnung.getKunde();
         HashMap<Artikel, Integer> gekaufteArtikel= rechnung.getGekaufteArtikel();
         int kundenNummer = kunde.getNummer();
@@ -1191,57 +1290,6 @@ public class ShopClientGUI extends JFrame {
         rechnungsJDialog.setLocationRelativeTo(this);
         rechnungsJDialog.pack();
         rechnungsJDialog.setVisible(true);
-
-        return rechnungsJDialog;
-    }
-
-    private void onAddToShoppingCartClick(){
-        if(selectedArtikelnummer != 0) {
-            JDialog artikelInWarenkornMenu = new JDialog(this, "Anzahl", true);
-            Container contentPane = artikelInWarenkornMenu.getContentPane();
-
-            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-
-            contentPane.add(new JLabel("Anzahl des Artikels: "));
-            JTextField anzahlArtikelTextField = new JTextField();
-            contentPane.add(anzahlArtikelTextField);
-
-            JLabel inputError = new JLabel("Fehler!");
-            inputError.setForeground(Color.RED);
-            inputError.setVisible(false);
-            contentPane.add(inputError);
-
-            JButton hinzufuegenButton = new JButton("In Warenkorb hinzufügen");
-            hinzufuegenButton.addActionListener(e -> {
-                try{
-                    anzahlArtikelInWarenkorb = Integer.parseInt(anzahlArtikelTextField.getText());
-                    if(anzahlArtikelInWarenkorb != 0){
-                        eshop.artikelInWarenkorb(selectedArtikelnummer, anzahlArtikelInWarenkorb, aktuellerKunde);
-                        inputError.setVisible(false);
-                        artikelInWarenkornMenu.dispose();
-                    } else {
-                        inputError.setVisible(true);
-                    }
-                } catch (NumberFormatException nfe){
-                    inputError.setVisible(true);
-                } catch (ArtikelExistiertNichtException ex) {
-                    throw new RuntimeException(ex);
-                } catch (MassengutException ex) {
-                    JOptionPane.showMessageDialog(null, "Fehler: " + ex.getMessage());
-                }
-
-            });
-            contentPane.add(hinzufuegenButton);
-
-            artikelInWarenkornMenu.setLocationRelativeTo(this);
-
-            artikelInWarenkornMenu.setSize(280, 120);
-            artikelInWarenkornMenu.setModal(true);
-            artikelInWarenkornMenu.setVisible(true);
-
-            HashMap<Artikel, Integer> inhalt = eshop.gibWarenkorb(aktuellerKunde);
-            updateShoppingCart(inhalt);
-        }
     }
 
     /**

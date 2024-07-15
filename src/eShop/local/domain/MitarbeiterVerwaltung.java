@@ -1,6 +1,7 @@
 package eShop.local.domain;
 
 import eShop.local.domain.exceptions.KundeExistiertBereitsException;
+import eShop.local.domain.exceptions.LoginFehlgeschlagenException;
 import eShop.local.domain.exceptions.MitarbeiterExistiertBereitsException;
 import eShop.local.domain.exceptions.MitarbeiterExistiertNichtException;
 import eShop.local.entities.Kunde;
@@ -64,13 +65,13 @@ public class MitarbeiterVerwaltung {
      * @throws MitarbeiterExistiertNichtException Falls der Mitarbeiter nicht existiert
      * @return Mitarbeiterobjekt
      */
-    public  Mitarbeiter anmelden(String benutzername, String passwort) throws MitarbeiterExistiertNichtException {
+    public  Mitarbeiter anmelden(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         for(Mitarbeiter aktuellerMitarbeiter: registrierteMitarbeiter){
             if(benutzername.equals(aktuellerMitarbeiter.getBenutzername()) && (passwort.equals(aktuellerMitarbeiter.getPasswort()))){
                 return aktuellerMitarbeiter;
             }
         }
-        throw new MitarbeiterExistiertNichtException(benutzername);
+        throw new LoginFehlgeschlagenException(benutzername, passwort);
     }
 
     /**
