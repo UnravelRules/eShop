@@ -1,6 +1,7 @@
 package eshop.server.domain;
 
 import eShop.common.exceptions.ArtikelExistiertNichtException;
+import eShop.common.exceptions.BestandUeberschrittenException;
 import eShop.common.exceptions.MassengutException;
 import eShop.common.entities.*;
 import eShop.common.exceptions.NegativerBestandException;
@@ -13,10 +14,10 @@ public class ShoppingService {
     public ShoppingService(ArtikelVerwaltung artikelVW){
         this.artikelVW = artikelVW;
     }
-    public void artikelInWarenkorb(Artikel a, int anzahl, Kunde k) throws MassengutException, NegativerBestandException {
+    public void artikelInWarenkorb(Artikel a, int anzahl, Kunde k) throws MassengutException, BestandUeberschrittenException {
         Warenkorb warenkorb = k.getWarenkorb();
         if(anzahl > a.getBestand()){
-            throw new NegativerBestandException(a, anzahl);
+            throw new BestandUeberschrittenException(a, anzahl);
         }
         if(a instanceof Massengutartikel){
             int packungs_gr = ((Massengutartikel) a).getPackungsgroesse();

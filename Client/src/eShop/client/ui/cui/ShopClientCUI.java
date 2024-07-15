@@ -110,7 +110,6 @@ public class ShopClientCUI {
             System.out.println("Herzlich Willkommen, " + k.getName());
         } catch (Exception e) {
             System.out.println("Fehler beim Registrieren");
-            e.printStackTrace();
         }
     }
 

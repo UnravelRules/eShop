@@ -1,4 +1,4 @@
-package eShop.local.domain.exceptions;
+package eShop.common.exceptions;
 
 public class LoginFehlgeschlagenException extends Exception {
     public LoginFehlgeschlagenException(String benutzername, String passwort){

@@ -11,11 +11,11 @@ public interface eShopInterface {
 
     Kunde kundeRegistrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException, FehlendeEingabenException;
 
-    Kunde kundeEinloggen(String benutzername, String passwort) throws KundeExistiertNichtException;
+    Kunde kundeEinloggen(String benutzername, String passwort) throws  LoginFehlgeschlagenException;
 
-    Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws MitarbeiterExistiertNichtException;
+    Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException;
 
-    Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException;
+    Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException, FehlendeEingabenException;
 
     void mitarbeiterEntfernen(String benutzername);
 
@@ -31,13 +31,13 @@ public interface eShopInterface {
 
     ArrayList<Artikel> gibAlleArtikel();
 
-    void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, NegativerBestandException;
+    void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, BestandUeberschrittenException;
 
     void warenkorbLeeren(Kunde aktuellerKunde);
 
     Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws UnbekanntesAccountObjektException, MassengutException, ArtikelExistiertNichtException;
 
-    void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, NegativerBestandException;
+    void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, BestandUeberschrittenException;
 
     void artikelAusWarenkorbEntfernen(Kunde aktuellerKunde, String bezeichnung) throws ArtikelExistiertNichtException;
 

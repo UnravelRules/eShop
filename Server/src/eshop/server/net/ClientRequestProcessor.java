@@ -238,8 +238,11 @@ public class ClientRequestProcessor implements Runnable{
             out.println("Erfolg");
             sendeMitarbeiterAnClient(mitarbeiter);
         } catch (MitarbeiterExistiertBereitsException e) {
-            out.println("Fehler");
+            out.println("MitarbeiterExistiertBereitsException");
             sendeMitarbeiterAnClient(e.getMitarbeiter());
+        } catch (FehlendeEingabenException e) {
+            out.println("FehlendeEingabenException");
+            out.println(e.getAction());
         }
     }
 
@@ -356,9 +359,11 @@ public class ClientRequestProcessor implements Runnable{
             Kunde k = eshop.kundeRegistrieren(name, strasse, plz, benutzername, passwort);
             out.println("Erfolg");
             sendeKundeAnClient(k);
-        } catch (Exception e) {
-            System.out.println("Fehler");
-            // Hier senden wir nicht die Exception, da wir sonst den Kunden mitschicken müssten.
+        } catch (KundeExistiertBereitsException e) {
+            out.println("KundeExistiertBereitsException");
+        } catch (FehlendeEingabenException e) {
+            out.println("FehlendeEingabenException");
+            out.println(e.getAction());
         }
     }
 
@@ -372,9 +377,8 @@ public class ClientRequestProcessor implements Runnable{
             sendeKundeAnClient(kunde);
             this.aktuellerKunde = kunde;
             return 0;
-        } catch (KundeExistiertNichtException e) {
+        } catch (LoginFehlgeschlagenException e) {
             out.println("Fehler");
-            out.println(e.getMessage());
             return 1;
         }
 
@@ -400,9 +404,8 @@ public class ClientRequestProcessor implements Runnable{
             sendeMitarbeiterAnClient(mitarbeiter);
             this.aktuellerMitarbeiter = mitarbeiter;
             return 0;
-        } catch (MitarbeiterExistiertNichtException | NumberFormatException e) {
+        } catch (LoginFehlgeschlagenException e) {
             out.println("Fehler");
-            out.println(e.getMessage());
             return 1;
         }
 
@@ -467,8 +470,8 @@ public class ClientRequestProcessor implements Runnable{
             out.println("MassengutException");
             out.println(e.getBestand());
             out.println(e.getPackungsgroesse());
-        } catch (NegativerBestandException e) {
-            out.println("NegativerBestandException");
+        } catch (BestandUeberschrittenException e) {
+            out.println("BestandUeberschrittenException");
             Artikel artikel = e.getArtikel();
             sendeArtikelAnClient(artikel);
             out.println(e.getNeuerBestand());
@@ -520,8 +523,8 @@ public class ClientRequestProcessor implements Runnable{
         } catch (ArtikelExistiertNichtException e) {
             out.println("ArtikelExistiertNichtException");
             out.println(e.getBezeichnung());
-        } catch (NegativerBestandException e) {
-            out.println("NegativerBestandException");
+        } catch (BestandUeberschrittenException e) {
+            out.println("BestandUeberschrittenException");
             Artikel artikel = e.getArtikel();
             sendeArtikelAnClient(artikel);
             out.println(e.getNeuerBestand());

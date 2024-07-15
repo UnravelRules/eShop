@@ -70,7 +70,7 @@ public class eShop implements eShopInterface {
      * @throws KundeExistiertNichtException
      */
     @Override
-    public Kunde kundeEinloggen(String benutzername, String passwort) throws KundeExistiertNichtException {
+    public Kunde kundeEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         return kundenVW.login(benutzername, passwort);
     }
 
@@ -82,7 +82,7 @@ public class eShop implements eShopInterface {
      * @throws MitarbeiterExistiertNichtException
      */
     @Override
-    public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws MitarbeiterExistiertNichtException{
+    public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         return mitarbeiterVW.anmelden(benutzername, passwort);
     }
 
@@ -216,7 +216,7 @@ public class eShop implements eShopInterface {
      * @param aktuellerKunde
      */
     @Override
-    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, NegativerBestandException {
+    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, BestandUeberschrittenException {
         Artikel artikel = artikelVW.getArtikelMitNummer(artikelnummer);
         if(anzahl > artikel.getBestand()){
             throw new BestandUeberschrittenException(artikel, anzahl);
@@ -257,7 +257,7 @@ public class eShop implements eShopInterface {
     }
 
     @Override
-    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, NegativerBestandException {
+    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, BestandUeberschrittenException {
         Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
         if(neuerBestand > artikel.getBestand()){
             throw new BestandUeberschrittenException(artikel, neuerBestand);

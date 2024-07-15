@@ -2,7 +2,8 @@ package eshop.server.domain;
 
 import eshop.server.persistence.FilePersistenceManager;
 import eshop.server.persistence.PersistenceManager;
-import eshop.common.exceptions.*;
+import eShop.common.exceptions.*;
+import eShop.common.entities.*;
 import java.io.IOException;
 import java.util.ArrayList;
 

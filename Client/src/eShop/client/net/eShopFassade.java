@@ -73,9 +73,14 @@ public class eShopFassade implements eShopInterface {
             if (antwort.equals("Erfolg")){
                 Kunde kunde = liesKundeVonServer();
                 return kunde;
-            } else {
+            } else if (antwort.equals("KundeExistiertBereitsException")) {
                 // Registrierung Fehlgeschlagen
                 throw new KundeExistiertBereitsException(benutzer);
+            } else if (antwort.equals("FehlendeEingabenException")) {
+                String ex_message = sin.readLine();
+                throw new FehlendeEingabenException(ex_message);
+            } else {
+                throw new IOException();
             }
         } catch (IOException e){
             System.err.println(e.getMessage());
@@ -107,7 +112,7 @@ public class eShopFassade implements eShopInterface {
      * @throws KundeExistiertNichtException
      */
     @Override
-    public Kunde kundeEinloggen(String benutzername, String passwort) throws KundeExistiertNichtException {
+    public Kunde kundeEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         sout.println("k");
         sout.println(benutzername);
         sout.println(passwort);
@@ -119,8 +124,7 @@ public class eShopFassade implements eShopInterface {
                 Kunde kunde = liesKundeVonServer();
                 return kunde;
             } else {
-                // Registrierung Fehlgeschlagen
-                throw new KundeExistiertNichtException("Benutzername nicht gefunden");
+                throw new LoginFehlgeschlagenException(benutzername, passwort);
             }
         } catch (IOException e){
             System.err.println(e.getMessage());
@@ -135,7 +139,7 @@ public class eShopFassade implements eShopInterface {
      * @throws MitarbeiterExistiertNichtException
      */
     @Override
-    public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws MitarbeiterExistiertNichtException {
+    public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         sout.println("m");
         sout.println(benutzername);
         sout.println(passwort);
@@ -147,8 +151,7 @@ public class eShopFassade implements eShopInterface {
                 Mitarbeiter mitarbeiter = liesMitarbeiterVonServer();
                 return mitarbeiter;
             } else {
-                String ex_message = sin.readLine();
-                throw new MitarbeiterExistiertNichtException(benutzername);
+                throw new LoginFehlgeschlagenException(benutzername, passwort);
             }
         } catch (IOException e){
             System.err.println(e.getMessage());
@@ -180,7 +183,7 @@ public class eShopFassade implements eShopInterface {
      * @throws MitarbeiterExistiertBereitsException
      */
     @Override
-    public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException {
+    public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException, FehlendeEingabenException {
         sout.println("m");
         sout.println(nummer);
         sout.println(name);
@@ -190,9 +193,14 @@ public class eShopFassade implements eShopInterface {
             String antwort = sin.readLine();
             if (antwort.equals("Erfolg")){
                 return liesMitarbeiterVonServer();
-            } else {
+            } else if(antwort.equals("MitarbeiterExistiertBereitsException")) {
                 Mitarbeiter ex_mitarbeiter = liesMitarbeiterVonServer();
                 throw new MitarbeiterExistiertBereitsException(ex_mitarbeiter);
+            } else if(antwort.equals("FehlendeEingabenException")){
+                String ex_message = sin.readLine();
+                throw new FehlendeEingabenException(ex_message);
+            } else {
+                throw new IOException();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -417,7 +425,7 @@ public class eShopFassade implements eShopInterface {
      * @throws MassengutException
      */
     @Override
-    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException, NegativerBestandException {
+    public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException , BestandUeberschrittenException{
         sout.println("h");
         sout.println(artikelnummer);
         sout.println(anzahl);
@@ -431,10 +439,10 @@ public class eShopFassade implements eShopInterface {
                 int bestand = Integer.parseInt(sin.readLine());
                 int packungsgroesse = Integer.parseInt(sin.readLine());
                 throw new MassengutException(bestand, packungsgroesse);
-            } else if (input.equals("NegativerBestandException")) {
+            } else if (input.equals("BestandUeberschrittenException")) {
                 Artikel artikel = liesArtikelVonServer();
                 int ex_anzahl = Integer.parseInt(sin.readLine());
-                throw new NegativerBestandException(artikel, ex_anzahl);
+                throw new BestandUeberschrittenException(artikel, ex_anzahl);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -514,7 +522,7 @@ public class eShopFassade implements eShopInterface {
      * @throws NegativerBestandException
      */
     @Override
-    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, NegativerBestandException {
+    public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, BestandUeberschrittenException {
         sout.println("v");
         sout.println(bezeichnung);
         sout.println(neuerBestand);
@@ -528,10 +536,10 @@ public class eShopFassade implements eShopInterface {
             } else if (input.equals("ArtikelExistiertNichtException")){
                 String e_bezeichnung = sin.readLine();
                 throw new ArtikelExistiertNichtException(e_bezeichnung);
-            } else if (input.equals("NegativerBestandException")) {
+            } else if (input.equals("BestandUeberschrittenException")) {
                 Artikel artikel = liesArtikelVonServer();
                 int anzahl = Integer.parseInt(sin.readLine());
-                throw new NegativerBestandException(artikel, anzahl);
+                throw new BestandUeberschrittenException(artikel, anzahl);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -549,7 +557,7 @@ public class eShopFassade implements eShopInterface {
         // Dadurch ist die implementierung auf dem Server leichter, da die Eshop-Seite eine Anzahl von 0 handeln kann
         try {
             warenkorbVeraendern(aktuellerKunde, bezeichnung, 0);
-        } catch (MassengutException | NegativerBestandException e) {
+        } catch (MassengutException | BestandUeberschrittenException e) {
             throw new RuntimeException(e);
         }
     }
