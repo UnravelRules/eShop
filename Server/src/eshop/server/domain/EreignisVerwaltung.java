@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * Verwaltet alle Ereignisse
+ */
 public class EreignisVerwaltung {
     private ArrayList<Ereignis> eventlog = new ArrayList<>();
     private PersistenceManager pm = new FilePersistenceManager();
@@ -16,6 +19,11 @@ public class EreignisVerwaltung {
     private AccountTyp accountTyp;
 
 
+    /**
+     * Liest den Ereignislog aus einer Datei
+     * @param datei Datei
+     * @throws IOException Fehler beim Einlesen
+     */
     public void liesDaten(String datei) throws IOException {
         pm.openForReading(datei);
         Ereignis einEreignis;
@@ -29,6 +37,11 @@ public class EreignisVerwaltung {
         pm.close();
     }
 
+    /**
+     * Speichert die Ereignisse aus dem Log in einer Datei
+     * @param datei Ereignislogdatei
+     * @throws IOException Fehler beim Speichern
+     */
     public void schreibeDaten(String datei) throws IOException{
         pm.openForWriting(datei);
 

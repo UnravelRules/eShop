@@ -19,6 +19,11 @@ public class ArtikelVerwaltung {
 
     private PersistenceManager pm = new FilePersistenceManager();
 
+    /**
+     * Liest die Daten aus einer Datei
+     * @param datei Datei
+     * @throws IOException Fehler beim Lesen
+     */
     public void liesDaten(String datei) throws IOException {
         pm.openForReading(datei);
         Artikel einArtikel;
@@ -36,6 +41,11 @@ public class ArtikelVerwaltung {
         pm.close();
     }
 
+    /**
+     * Speichert die Daten in einer Datei
+     * @param datei Datei
+     * @throws IOException Fehler beim Schreiben
+     */
     public void schreibeDaten(String datei) throws IOException {
         pm.openForWriting(datei);
 
@@ -48,8 +58,8 @@ public class ArtikelVerwaltung {
 
     /**
      * Fügt einen neuen Artikel dem Bestand hinzu.
-     * @param artikel
-     * @throws ArtikelExistiertBereitsException
+     * @param artikel Artikel
+     * @throws ArtikelExistiertBereitsException Artikel existiert bereits
      */
     public void artikelHinzufuegen(Artikel artikel) throws ArtikelExistiertBereitsException {
         if(artikelBestand.contains(artikel)) {
@@ -58,6 +68,11 @@ public class ArtikelVerwaltung {
         artikelBestand.add(artikel);
     }
 
+    /**
+     * Fügt einen Massengutartikel hinzu
+     * @param massengutartikel Massengutartikel
+     * @throws ArtikelExistiertBereitsException Artikel existiert bereits
+     */
     public void massengutartikelHinzufuegen(Massengutartikel massengutartikel) throws ArtikelExistiertBereitsException {
         if(artikelBestand.contains(massengutartikel)){
             throw new ArtikelExistiertBereitsException(massengutartikel.getArtikelnummer(), massengutartikel.getBezeichnung());
@@ -68,10 +83,10 @@ public class ArtikelVerwaltung {
 
     /**
      * Methode zum Aendern des Bestands eines Artikels
-     * @param artikel_nummer
-     * @param neuer_bestand
+     * @param artikel_nummer Artikelnummer
+     * @param neuer_bestand Neuer Bestand
      * @return neuer_bestand
-     * @throws ArtikelExistiertNichtException
+     * @throws ArtikelExistiertNichtException Artikel wurde nicht gefunden
      */
     public int bestandAendern(int artikel_nummer, int neuer_bestand) throws ArtikelExistiertNichtException, MassengutException {
         Artikel bestanditem = getArtikelMitNummer(artikel_nummer);
@@ -81,8 +96,8 @@ public class ArtikelVerwaltung {
 
     /**
      * Methode zum Entfernen eines Artikels
-     * @param nummer
-     * @param bezeichnung
+     * @param nummer Artikelnummer
+     * @param bezeichnung Bezeichnung
      */
     public void artikelEntfernen(int nummer, String bezeichnung) {
         artikelBestand.removeIf(a -> a.getArtikelnummer() == nummer && a.getBezeichnung().equals(bezeichnung));
@@ -91,8 +106,8 @@ public class ArtikelVerwaltung {
     /**
      * Methode zum Suchen von Artikeln mit gleicher Bezeichnung
      * Gibt eine Arrayliste von Artikel zurück, dessen Beschreibung zutrifft.
-     * @param bezeichnung
-     * @return ArrayList<Artikel> suchergebnisse
+     * @param bezeichnung Bezeichnung
+     * @return ArrayList suchergebnisse
      */
     public ArrayList<Artikel> artikelSuchen(String bezeichnung){
         ArrayList<Artikel> suchergebnisse = new ArrayList<Artikel>();
@@ -107,9 +122,9 @@ public class ArtikelVerwaltung {
 
     /**
      * Sucht im Bestand nach dem ersten Objekt mit der Artikelnummer und gibt ein Artikelobjekt zurück
-     * @param artikelNummer
+     * @param artikelNummer Artikelnummer
      * @return Artikelobjekt
-     * @throws ArtikelExistiertNichtException
+     * @throws ArtikelExistiertNichtException Artikel konnte nicht gefunden werden
      */
     public Artikel getArtikelMitNummer(int artikelNummer) throws ArtikelExistiertNichtException {
         for(Artikel bestand_item : artikelBestand){
@@ -120,6 +135,12 @@ public class ArtikelVerwaltung {
         throw new ArtikelExistiertNichtException(Integer.toString(artikelNummer));
     }
 
+    /**
+     * Findet ein Artikel anhand der Bezeichnung
+     * @param bezeichnung Bezeichnung
+     * @return Artikel
+     * @throws ArtikelExistiertNichtException Artikel konnte nicht gefunden werden
+     */
     public Artikel getArtikelMitBezeichnung(String bezeichnung) throws ArtikelExistiertNichtException{
         for(Artikel bestand_item : artikelBestand){
             if(bestand_item.getBezeichnung().equals(bezeichnung)){
@@ -130,7 +151,7 @@ public class ArtikelVerwaltung {
     }
 
     /**
-     * Gibt den Bestand der Artikelverwaltung als Arraylist<Artikel> zurück
+     * Gibt den Bestand der Artikelverwaltung als Arraylist zurück
      * @return Artikelbestand
      */
     public ArrayList<Artikel> getArtikelBestand(){

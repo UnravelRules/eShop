@@ -11,6 +11,9 @@ import java.util.Map;
 import java.time.LocalDate;
 
 
+/**
+ * Enthält die Businesslogik des Eshops und delegiert an die entsprechenden Verwaltungen
+ */
 public class eShop implements eShopInterface {
     private String kundenDatei = "";
     private String mitarbeiterDatei = "";
@@ -42,13 +45,14 @@ public class eShop implements eShopInterface {
 
     /**
      * Registriert einen neuen Kunden und gibt ihn als Kundenobjekt zurück
-     * @param name
-     * @param str
-     * @param plz
-     * @param benutzer
-     * @param passwort
+     * @param name Name
+     * @param str Straße
+     * @param plz Postleitzahl
+     * @param benutzer Benutzername
+     * @param passwort Passwort
      * @return Kundenobjekt
-     * @throws KundeExistiertBereitsException
+     * @throws KundeExistiertBereitsException Es existiert bereits ein Kunde mit diesem Benutzernamen
+     * @throws FehlendeEingabenException Mindestens ein Feld ist leer
      */
     @Override
     public Kunde kundeRegistrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException, FehlendeEingabenException {
@@ -64,10 +68,10 @@ public class eShop implements eShopInterface {
 
     /**
      * Loggt einen Kunden ein und gibt ihn als Kundenobjekt zurück
-     * @param benutzername
-     * @param passwort
+     * @param benutzername Benutzername
+     * @param passwort Passwort
      * @return Kundenobjekt
-     * @throws KundeExistiertNichtException
+     * @throws LoginFehlgeschlagenException Login ist fehlgeschlagen
      */
     @Override
     public Kunde kundeEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
@@ -76,10 +80,10 @@ public class eShop implements eShopInterface {
 
     /**
      * Loggt einen Mitarbeiter ein und gibt ihn als Mitarbeiterobjekt zurück
-     * @param benutzername
-     * @param passwort
+     * @param benutzername Benutzername
+     * @param passwort Passwort
      * @return Mitarbeiterobjekt
-     * @throws MitarbeiterExistiertNichtException
+     * @throws LoginFehlgeschlagenException Login ist fehlgeschlagen
      */
     @Override
     public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
@@ -88,12 +92,13 @@ public class eShop implements eShopInterface {
 
     /**
      * Registriert einen Mitarbeiter
-     * @param nummer
-     * @param name
-     * @param benutzer
-     * @param passwort
+     * @param nummer Mitarbeiternummer
+     * @param name Name
+     * @param benutzer Benutzername
+     * @param passwort Passwort
      * @return Mitarbeiterobjekt
-     * @throws MitarbeiterExistiertBereitsException
+     * @throws MitarbeiterExistiertBereitsException Mitarbeiter existiert bereits
+     * @throws FehlendeEingabenException Mindestens ein Feld ist leer
      */
     @Override
     public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException, FehlendeEingabenException {
@@ -109,7 +114,7 @@ public class eShop implements eShopInterface {
 
     /**
      * Entfernt einen Mitarbeiter
-     * @param benutzername
+     * @param benutzername Benutzername des Mitarbeiters
      */
     @Override
     public void mitarbeiterEntfernen(String benutzername){
@@ -119,14 +124,13 @@ public class eShop implements eShopInterface {
     /**
      * Legt einen neuen Artikel im Bestand an und speichert die Aenderung im Eventlog.
      * Gibt den neuen Artikel als Artikelobjekt zurück
-     * @param nummer
-     * @param bezeichnung
-     * @param bestand
-     * @param preis
-     * @param aktuellerMitarbeiter
+     * @param nummer Artikelnummer
+     * @param bezeichnung Bezeichnung
+     * @param bestand Bestand
+     * @param preis Preis
+     * @param aktuellerMitarbeiter Aktueller Mitarbeiter (ist für den Ereignislog wichtig)
      * @return Artikel
-     * @throws ArtikelExistiertBereitsException
-     * @throws UnbekanntesAccountObjektException
+     * @throws RuntimeException Etwas ist beim Anlegen schiefgegangen
      */
     @Override
     public Artikel artikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter) throws RuntimeException {

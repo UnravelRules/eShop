@@ -10,6 +10,9 @@ import eshop.server.persistence.PersistenceManager;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Verwaltet alle Kunden
+ */
 public class KundenVerwaltung {
     private ArrayList<Kunde> kundenliste = new ArrayList<Kunde>();
 
@@ -44,7 +47,7 @@ public class KundenVerwaltung {
     /**
      * Methode zum Registrieren eines neuen Kunden
      * @return Kundenobjekt
-     * @throws KundeExistiertBereitsException
+     * @throws KundeExistiertBereitsException Es existiert bereits ein Kunde mit diesem Benutzernamen oder dieser Nummer
      */
     public Kunde registrieren(Kunde kunde) throws KundeExistiertBereitsException {
         if (kundenliste.contains(kunde)) {
@@ -57,10 +60,10 @@ public class KundenVerwaltung {
 
     /**
      * Methode zum Einloggen als Kunde
-     * @param benutzername
-     * @param passwort
+     * @param benutzername Benutzername
+     * @param passwort Passwort
      * @return Kundenobjekt
-     * @throws KundeExistiertNichtException
+     * @throws LoginFehlgeschlagenException Benutzername oder Passwort sind nicht korrekt
      */
     public Kunde login(String benutzername, String passwort) throws LoginFehlgeschlagenException {
         for (Kunde k : kundenliste){
@@ -72,7 +75,7 @@ public class KundenVerwaltung {
     }
 
     /**
-     * Gibt eine Liste aller Kunden als ArrayList<Kunde> zurück
+     * Gibt eine Liste aller Kunden als ArrayList zurück
      * @return Kundenliste
      */
     public ArrayList<Kunde> getKundenliste(){

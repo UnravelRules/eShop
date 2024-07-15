@@ -6,11 +6,9 @@ import eShop.common.interfaces.eShopInterface;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 public class eShopFassade implements eShopInterface {
 
@@ -46,14 +44,15 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param name
-     * @param str
-     * @param plz
-     * @param benutzer
-     * @param passwort
-     * @return
-     * @throws KundeExistiertBereitsException
-     * @throws FehlendeEingabenException
+     * Funktion, die die Registrierung eines Kunden beim Server aufruft
+     * @param name Name der Kunden
+     * @param str Straße des Kunden
+     * @param plz Postleitzahl des Kunden
+     * @param benutzer Benutzername des Kunden
+     * @param passwort Passwort des Kunden
+     * @return Gibt den erstellten Kunden zurück
+     * @throws KundeExistiertBereitsException Falls bereits ein Kunde mit demselben Benutzernamen existiert
+     * @throws FehlendeEingabenException Falls mindestens ein Feld leer ist
      */
     @Override
     public Kunde kundeRegistrieren(String name, String str, String plz, String benutzer, String passwort) throws KundeExistiertBereitsException, FehlendeEingabenException {
@@ -88,6 +87,11 @@ public class eShopFassade implements eShopInterface {
         }
     }
 
+    /**
+     * Empfängt ein Kundenobjekt vom Server
+     * @return Gibt den Kunden zurück
+     * @throws IOException Falls während der Übertragung etwas fehlschlägt
+     */
     private Kunde liesKundeVonServer() throws IOException {
         String antwort = sin.readLine();
         int nummer = Integer.parseInt(antwort);
@@ -106,10 +110,11 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param benutzername
-     * @param passwort
-     * @return
-     * @throws KundeExistiertNichtException
+     * Ruft die KundenEinloggen Methode auf dem Server auf
+     * @param benutzername Benutzername des Kunden
+     * @param passwort Passwort des Kunden
+     * @return Gibt das Kundenobjekt bei Erfolg zurück
+     * @throws LoginFehlgeschlagenException Falls der Login fehlschlägt
      */
     @Override
     public Kunde kundeEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
@@ -133,10 +138,11 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param benutzername
-     * @param passwort
-     * @return
-     * @throws MitarbeiterExistiertNichtException
+     * Ruft die MitarbeiterEinloggen Methode auf dem Server auf
+     * @param benutzername Benutzername des Mitarbeiters
+     * @param passwort Passwort des Mitarbeiters
+     * @return Gibt das MitarbeiterObjekt bei Erfolg zurück
+     * @throws LoginFehlgeschlagenException Falls der Login fehlschlägt
      */
     @Override
     public Mitarbeiter mitarbeiterEinloggen(String benutzername, String passwort) throws LoginFehlgeschlagenException {
@@ -159,6 +165,11 @@ public class eShopFassade implements eShopInterface {
         }
     }
 
+    /**
+     * Empfängt ein Mitarbeiterobjekt vom Server
+     * @return Gibt das Mitarbeiterobjekt zurück
+     * @throws IOException Falls bei der Übertragung etwas schiefgeht
+     */
     private Mitarbeiter liesMitarbeiterVonServer() throws IOException {
         String antwort;
         antwort = sin.readLine();
@@ -175,12 +186,14 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param nummer
-     * @param name
-     * @param benutzer
-     * @param passwort
-     * @return
-     * @throws MitarbeiterExistiertBereitsException
+     * Ruft die Mitarbeiterregistrieren-Methode auf dem Server auf
+     * @param nummer Mitarbeiternummer
+     * @param name Name des Mitarbeiters
+     * @param benutzer Benutzername des Mitarbeiters
+     * @param passwort Passwort des Mitarbeiters
+     * @return Gibt das Mitarbeiterobjekt zurück
+     * @throws MitarbeiterExistiertBereitsException Falls bereits ein Mitarbeiter mit diesem Benutzernamen existiert
+     * @throws FehlendeEingabenException Falls mindestens eines der Felder leer ist
      */
     @Override
     public Mitarbeiter mitarbeiterRegistrieren(int nummer, String name, String benutzer, String passwort) throws MitarbeiterExistiertBereitsException, FehlendeEingabenException {
@@ -208,7 +221,8 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param benutzername
+     * Ruft die Mitarbeiterentfernen-Methode auf dem Server auf
+     * @param benutzername Benutzername des Mitarbeiters, der entfernt werden soll
      */
     @Override
     public void mitarbeiterEntfernen(String benutzername) {
@@ -227,13 +241,14 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param nummer
-     * @param bezeichnung
-     * @param bestand
-     * @param preis
-     * @param aktuellerMitarbeiter
-     * @return
-     * @throws RuntimeException
+     * Nimmt alle Daten zum Erstellen eines Artikels entgegen und sendet diese an den Server um dort den Artikel anzulegen
+     * @param nummer Artikelnummer
+     * @param bezeichnung Bezeichnung des Artikels
+     * @param bestand Bestand des Artikels
+     * @param preis Preis des Artikels
+     * @param aktuellerMitarbeiter Aktuell eingeloggter Mitarbeiter (Wird vom Server nicht mehr verwendet, da dieser einfach den eingeloggten Mitarbeiter auf Serverseite benutzt)
+     * @return Gibt den Artikel zurück
+     * @throws RuntimeException Falls beim Erstellen etwas schiefgeht
      */
     @Override
     public Artikel artikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter) throws RuntimeException {
@@ -259,14 +274,15 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param nummer
-     * @param bezeichnung
-     * @param bestand
-     * @param preis
-     * @param aktuellerMitarbeiter
-     * @param packungsgroesse
-     * @return
-     * @throws MassengutException
+     * Nimmt alle Eingaben für das Erstellen eies Massengutartikels entgegen und sendet diese an den Server um ihn da zu erstellen
+     * @param nummer Artikelnummer
+     * @param bezeichnung Bezeichnung
+     * @param bestand Bestand des Artikels (sollte ein Vielfaches der Packungsgröße sein)
+     * @param preis Preis
+     * @param aktuellerMitarbeiter Aktuell eingeloggter Mitarbeiter (Wird vom Server nicht mehr verwendet, da dieser einfach den eingeloggten Mitarbeiter auf Serverseite benutzt)
+     * @param packungsgroesse Packungsgröße
+     * @return Gibt den Massengutartikel zurück.
+     * @throws MassengutException Falls der Bestand kein Vielfaches von der Packungsgröße ist
      */
     @Override
     public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws MassengutException {
@@ -299,12 +315,13 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param artikel_nummer
-     * @param neuer_bestand
-     * @param aktuellerMitarbeiter
-     * @throws ArtikelExistiertNichtException
-     * @throws UnbekanntesAccountObjektException
-     * @throws MassengutException
+     * Ruft die Bestandaendern-Methode auf dem Server auf. Diese kann nur vom Mitarbeiter ausgeführt werden.
+     * @param artikel_nummer Artikelnummer
+     * @param neuer_bestand Neuer Bestand des Artikels
+     * @param aktuellerMitarbeiter Aktueller Mitarbeiter (wird nur der, der Serverseite benutzt)
+     * @throws ArtikelExistiertNichtException Es konnte kein Artikel mit der Nummer gefunden werden
+     * @throws UnbekanntesAccountObjektException Fehlerhaftes Account Objekt übergeben
+     * @throws MassengutException Bestand ist kein Vielfaches der Packungsgröße
      */
     @Override
     public void bestandAendern(int artikel_nummer, int neuer_bestand, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException, MassengutException {
@@ -331,7 +348,7 @@ public class eShopFassade implements eShopInterface {
 
     /**
      * Sucht nach der Beschreibung und gibt eine Liste der passenden Artikel zurück
-     * @param bezeichnung
+     * @param bezeichnung Bezeichnung
      * @return Artikelliste mit den Artikeln, die der Beschreibung entsprechen
      */
     @Override
@@ -351,11 +368,12 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param nummer
-     * @param bezeichnung
-     * @param aktuellerMitarbeiter
-     * @throws ArtikelExistiertNichtException
-     * @throws UnbekanntesAccountObjektException
+     * Sendet den zu entfernenden Artikel an den Server
+     * @param nummer Artikelnummer
+     * @param bezeichnung Bezeichnung
+     * @param aktuellerMitarbeiter Aktueller Mitarbeiter (es wird jedoch der eingeloggte auf Serverseite benutzt
+     * @throws ArtikelExistiertNichtException Artikel konnte nicht gefunden werden
+     * @throws UnbekanntesAccountObjektException Accountobjekt ist fehlerhaft
      */
     @Override
     public void artikelEntfernen(int nummer, String bezeichnung, Mitarbeiter aktuellerMitarbeiter) throws ArtikelExistiertNichtException, UnbekanntesAccountObjektException {
@@ -376,7 +394,8 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @return Arraylist<Artikel>
+     * Fragt eine Liste mit allen Artikeln beim Server an
+     * @return Artikelliste
      */
     @Override
     public ArrayList<Artikel> gibAlleArtikel() {
@@ -394,6 +413,11 @@ public class eShopFassade implements eShopInterface {
         return null;
     }
 
+    /**
+     * Empfängt einen Artikel vom Server
+     * @return Gibt den empfangenen Artikel zurück
+     * @throws IOException Fehler bei der Übertragung
+     */
     public Artikel liesArtikelVonServer() throws IOException {
         String antwort = "";
         antwort = sin.readLine();
@@ -418,11 +442,12 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param artikelnummer
-     * @param anzahl
-     * @param aktuellerKunde
-     * @throws ArtikelExistiertNichtException
-     * @throws MassengutException
+     * Legt einen Artikel auf Serverseite in den Warenkorb
+     * @param artikelnummer Artikelnummer
+     * @param anzahl Anzahl
+     * @param aktuellerKunde Aktueller Kunde (es wird der aktuelle Kunde auf Serverseite benutzt)
+     * @throws ArtikelExistiertNichtException Artikel konnte nicht gefunden werden
+     * @throws MassengutException Anzahl ist kein Vielfaches der Packungsgröße
      */
     @Override
     public void artikelInWarenkorb(int artikelnummer, int anzahl, Kunde aktuellerKunde) throws ArtikelExistiertNichtException, MassengutException , BestandUeberschrittenException{
@@ -450,7 +475,8 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param aktuellerKunde
+     * Sendet eine Anfrage zum Leeren des Warenkorbs an den Server
+     * @param aktuellerKunde Aktueller Kunde (es wird der auf Serverseite eingeloggte benutzt)
      */
     @Override
     public void warenkorbLeeren(Kunde aktuellerKunde) {
@@ -468,11 +494,12 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param aktuellerKunde
-     * @return
-     * @throws UnbekanntesAccountObjektException
-     * @throws MassengutException
-     * @throws ArtikelExistiertNichtException
+     * Kauft den Warenkorb auf Serverseite und empfängt die Rechnung
+     * @param aktuellerKunde Aktueller Kunde (es wird der auf Serverseite eingeloggte benutzt)
+     * @return Rechnung
+     * @throws UnbekanntesAccountObjektException Fehlerhaftes Account Objekt
+     * @throws MassengutException Falls eine Anzahl kein Vielfaches der entsprechenden Packungsgröße ist
+     * @throws ArtikelExistiertNichtException Ein Artikel konnte nicht gefunden werden
      */
     @Override
     public Rechnung warenkorbKaufen(Kunde aktuellerKunde) throws UnbekanntesAccountObjektException, MassengutException, ArtikelExistiertNichtException {
@@ -492,6 +519,11 @@ public class eShopFassade implements eShopInterface {
         return null;
     }
 
+    /**
+     * Empfängt eine Rechnung vom Server
+     * @return Rechnung
+     * @throws IOException Fehler bei der Übertragung
+     */
     private Rechnung liesRechnungVonServer() throws IOException {
         Kunde kunde = liesKundeVonServer();
         HashMap<Artikel, Integer> warenkorb = liesWarenkorbVonServer();
@@ -499,6 +531,11 @@ public class eShopFassade implements eShopInterface {
         return new Rechnung(kunde, gesamt, warenkorb);
     }
 
+    /**
+     * Empfängt ein Warenkorbobjekt vom Server
+     * @return Gibt den Warenkorb als reine Hashmap aus, da das entsprechende Kundenobjekt nur auf Serverseite existiert
+     * @throws IOException Fehler bei der Übertragung
+     */
     private HashMap<Artikel, Integer> liesWarenkorbVonServer() throws IOException {
         HashMap<Artikel, Integer> warenkorb = new HashMap<>();
         String input = null;
@@ -514,12 +551,13 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param aktuellerKunde
-     * @param bezeichnung
-     * @param neuerBestand
-     * @throws MassengutException
-     * @throws ArtikelExistiertNichtException
-     * @throws NegativerBestandException
+     * Sendet die neue Anzahl eines Artikels im Warenkorb an den Server
+     * @param aktuellerKunde Aktueller Kunde (es wird der auf Serverseite eingeloggte benutzt)
+     * @param bezeichnung Bezeichnung des Artikels
+     * @param neuerBestand Neue Anzahl
+     * @throws MassengutException Anzahl ist kein Vielfaches der Packungsgröße
+     * @throws ArtikelExistiertNichtException Artikel konnte nicht gefunden werden
+     * @throws BestandUeberschrittenException Neue Anzahl kann nicht größer als der Bestand sein
      */
     @Override
     public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, BestandUeberschrittenException {
@@ -547,9 +585,10 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param aktuellerKunde
-     * @param bezeichnung
-     * @throws ArtikelExistiertNichtException
+     * Sendet eine Anfrage zum Entfernen eines Artikels aus dem Warenkorb zum Server
+     * @param aktuellerKunde Aktueller Kunde (es wird der auf Serverseite eingeloggte benutzt)
+     * @param bezeichnung Bezeichnung des Artikels
+     * @throws ArtikelExistiertNichtException Artikel konnte nicht gefunden werden
      */
     @Override
     public void artikelAusWarenkorbEntfernen(Kunde aktuellerKunde, String bezeichnung) throws ArtikelExistiertNichtException {
@@ -563,8 +602,9 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param aktuellerKunde
-     * @return
+     * Holt sich den Warenkorb vom Server
+     * @param aktuellerKunde Aktueller Kunde (es wird der auf Serverseite eingeloggte verwendet)
+     * @return Gibt eine Hashmap als Warenkorb zurück, da das Kundenobjekt nicht übertragen wird
      */
     @Override
     public HashMap<Artikel, Integer> gibWarenkorb(Kunde aktuellerKunde) {
@@ -580,7 +620,8 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @return
+     * Empfängt den kompletten Eventlog
+     * @return gibt eine Liste von Ereignissen zurück
      */
     @Override
     public ArrayList<Ereignis> eventlogAusgeben() {
@@ -600,6 +641,10 @@ public class eShopFassade implements eShopInterface {
         return eventlog;
     }
 
+    /**
+     * Empfängt ein Ereignisobjekt vom Server
+     * @return Ereignis
+     */
     private Ereignis liesEventVonServer() {
         try {
             String input = sin.readLine();
@@ -618,7 +663,7 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @throws IOException
+     * Tut hier nichts, da es nur auf Serverseite aufgerufen werden kann
      */
     @Override
     public void schreibeKunde() throws IOException {
@@ -626,7 +671,7 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @throws IOException
+     * Tut hier nichts, da es nur auf Serverseite aufgerufen werden kann
      */
     @Override
     public void schreibeMitarbeiter() throws IOException {
@@ -634,7 +679,7 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @throws IOException
+     * Tut hier nichts, da es nur auf Serverseite aufgerufen werden kann
      */
     @Override
     public void schreibeArtikel() throws IOException {
@@ -642,7 +687,7 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @throws IOException
+     * Tut hier nichts, da es nur auf Serverseite aufgerufen werden kann
      */
     @Override
     public void schreibeEreignis() throws IOException {
@@ -650,7 +695,8 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @throws IOException
+     * Sendet eine Anfrage zum Sichern der Daten an den Server
+     * @throws IOException Fehler bei der Übertragung oder Speicherung
      */
     @Override
     public void sichereDaten() throws IOException {
@@ -663,9 +709,10 @@ public class eShopFassade implements eShopInterface {
     }
 
     /**
-     * @param Artikelnummer
-     * @return
-     * @throws ArtikelExistiertNichtException
+     * Holt sich die Bestandshistorie eines Artikels vom Server
+     * @param Artikelnummer Artikelnummer
+     * @return Gibt eine Liste von Integern zurück
+     * @throws ArtikelExistiertNichtException Artikel konnte nicht gefunden werden
      */
     @Override
     public ArrayList<Integer> getBestandhistorie(int Artikelnummer) throws ArtikelExistiertNichtException {
@@ -694,10 +741,17 @@ public class eShopFassade implements eShopInterface {
         return historie;
     }
 
+    /**
+     * Sendet eine Logout-Anfrage an den Server
+     */
     public void logout(){
         sout.println("a");
     }
 
+    /**
+     * Bittet den Server die Verbindung zu trennen
+     * @throws IOException Fehler bei der Übertragung
+     */
     public void disconnect() throws IOException {
         // Kennzeichen für gewählte Aktion senden
         sout.println("q");
