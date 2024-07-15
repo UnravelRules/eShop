@@ -75,7 +75,10 @@ public class ClientRequestProcessor implements Runnable{
                         mitarbeiterMenu();
                     }
                     break;
-                case "q":
+                case "z":
+                    datenSichern();
+                    break;
+                case "a", "q":
                     break;
                 default:
                     System.out.println("Unbekannte Aktion im Hauptmenü: " + input);
@@ -91,6 +94,7 @@ public class ClientRequestProcessor implements Runnable{
 
             System.out.println("Verbindung zu " + clientSocket.getInetAddress()
                     + ":" + clientSocket.getPort() + " durch Client abgebrochen");
+            eshop.sichereDaten();
         } catch (Exception e) {
             System.out.println("--->Fehler beim Beenden der Verbindung: ");
             System.out.println(e.getMessage());
@@ -124,6 +128,11 @@ public class ClientRequestProcessor implements Runnable{
                 case null:
                 case "a":
                     input = "a";
+                    try {
+                        eshop.sichereDaten();
+                    } catch (IOException e) {
+                        System.out.println("Fehler beim Speichern der Daten");
+                    }
                     break;
                 case "s":
                     sucheArtikel();
@@ -146,6 +155,8 @@ public class ClientRequestProcessor implements Runnable{
                 case "l":
                     warenkorbLeeren();
                     break;
+                case "z":
+                    datenSichern();
                 default:
                     System.out.println("Unbekannte Aktion im Kundenmenü: " + input);
             }
@@ -178,6 +189,11 @@ public class ClientRequestProcessor implements Runnable{
                 case null:
                 case "a":
                     input = "a";
+                    try {
+                        eshop.sichereDaten();
+                    } catch (IOException e) {
+                        System.out.println("Fehler beim Speichern der Daten");
+                    }
                     break;
                 case "s":
                     sucheArtikel();
