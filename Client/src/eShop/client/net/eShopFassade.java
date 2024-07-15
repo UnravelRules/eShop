@@ -622,7 +622,7 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void schreibeKunde() throws IOException {
-
+        // Leer weil diese Funktion nur auf Serverseite aufgerufen werden kann
     }
 
     /**
@@ -630,7 +630,7 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void schreibeMitarbeiter() throws IOException {
-
+        // Leer weil diese Funktion nur auf Serverseite aufgerufen werden kann
     }
 
     /**
@@ -638,7 +638,7 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void schreibeArtikel() throws IOException {
-
+        // Leer weil diese Funktion nur auf Serverseite aufgerufen werden kann
     }
 
     /**
@@ -646,7 +646,7 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void schreibeEreignis() throws IOException {
-
+        // Leer weil diese Funktion nur auf Serverseite aufgerufen werden kann
     }
 
     /**
@@ -654,7 +654,12 @@ public class eShopFassade implements eShopInterface {
      */
     @Override
     public void sichereDaten() throws IOException {
-
+        sout.println("z");
+        String antwort = sin.readLine();
+        if (antwort.equals("Fehler")){
+            String ex_message = sin.readLine();
+            throw new IOException(ex_message);
+        }
     }
 
     /**

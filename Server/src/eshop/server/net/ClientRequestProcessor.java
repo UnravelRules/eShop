@@ -209,12 +209,25 @@ public class ClientRequestProcessor implements Runnable{
                 case "d":
                     mitarbeiterLoeschen();
                     break;
+                case "z":
+                    datenSichern();
+                    break;
                 default:
                     System.out.println("Unbekannte Aktion: " + input);
             }
 
         } while (!(input.equals("a")));
         this.aktuellerMitarbeiter = null;
+    }
+
+    private void datenSichern() {
+        try {
+            eshop.sichereDaten();
+            out.println("Erfolg");
+        } catch (IOException e) {
+            out.println("Fehler");
+            out.println(e.getMessage());
+        }
     }
 
     private void mitarbeiterLoeschen() {
