@@ -2,26 +2,6 @@
 
 Willkommen zum eShop Projekt! Dieses Projekt besteht aus einem Server und einem Client, die zusammenarbeiten, um eine einfache Einkaufsplattform zu bieten.
 
-## Verzeichnisstruktur
-
-Die Projektstruktur ist wie folgt organisiert:
-
-eShop/
-├── Server/
-│ └── src/
-│ └── eshop/
-│ └── server/
-│ └── net/
-│ └── MiniShopServer.java
-└── Client/
-└── src/
-└── eShop/
-└── client/
-└── ui/
-└── gui/
-└── ShopClientGUI.java
-
-
 ## Voraussetzungen
 
 - Java Development Kit (JDK) 12 oder höher
