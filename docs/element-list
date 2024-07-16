@@ -1,5 +1,10 @@
-eShop.local.domain
-eShop.local.domain.exceptions
-eShop.local.entities
-eShop.local.persistence
+eShop.client.net
 eShop.client.ui.cui
+eShop.client.ui.gui
+eShop.client.ui.gui.models
+eShop.common.entities
+eShop.common.exceptions
+eShop.common.interfaces
+eshop.server.domain
+eshop.server.net
+eshop.server.persistence
