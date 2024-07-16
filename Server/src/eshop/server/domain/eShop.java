@@ -25,7 +25,16 @@ public class eShop implements eShopInterface {
     private EreignisVerwaltung ereignisVW;
     private ShoppingService shoppingService;
 
-
+    /**
+     * Initialisiert einen eShop mit den angegebenen Dateipfaden für Kunden, Mitarbeiter, Artikel und Ereignisse.
+     * Liest die Daten aus den entsprechenden Dateien und initialisiert die zugehörigen Verwaltungen.
+     *
+     * @param kundenDatei    Der Dateipfad zur Kundendaten-Datei.
+     * @param mitarbeiterDatei Der Dateipfad zur Mitarbeiterdaten-Datei.
+     * @param artikelDatei   Der Dateipfad zur Artikeldaten-Datei.
+     * @param ereignisDatei  Der Dateipfad zur Ereignisdaten-Datei.
+     * @throws IOException Wenn ein Fehler beim Lesen der Dateien auftritt.
+     */
     public eShop(String kundenDatei, String mitarbeiterDatei, String artikelDatei, String ereignisDatei) throws IOException {
         this.kundenDatei = kundenDatei;
         this.mitarbeiterDatei = mitarbeiterDatei;
@@ -145,6 +154,19 @@ public class eShop implements eShopInterface {
         return a;
     }
 
+    /**
+     * Legt einen neuen Massengutartikel mit den angegebenen Eigenschaften an.
+     *
+     * @param nummer                Die Artikelnummer des neuen Massengutartikels.
+     * @param bezeichnung           Die Bezeichnung des neuen Massengutartikels.
+     * @param bestand               Der Anfangsbestand des neuen Massengutartikels.
+     * @param preis                 Der Preis pro Einheit des neuen Massengutartikels.
+     * @param aktuellerMitarbeiter  Der Mitarbeiter, der den Massengutartikel anlegt.
+     * @param packungsgroesse       Die Packungsgröße des neuen Massengutartikels.
+     * @return Der erstellte Massengutartikel, falls erfolgreich angelegt.
+     * @throws MassengutException               Wenn der Anfangsbestand nicht durch die Packungsgröße teilbar ist.
+     * @throws RuntimeException                Wenn ein Fehler beim Hinzufügen des Artikels oder beim Aktualisieren des Ereignislogs auftritt.
+     */
     @Override
     public Massengutartikel massengutartikelAnlegen(int nummer, String bezeichnung, int bestand, float preis, Mitarbeiter aktuellerMitarbeiter, int packungsgroesse) throws MassengutException {
         Massengutartikel massengutartikel = new Massengutartikel(nummer, bezeichnung, bestand, preis, packungsgroesse);
@@ -185,6 +207,13 @@ public class eShop implements eShopInterface {
         artikelVW.bestandAendern(artikel_nummer, neuer_bestand);
         ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikel, delta);
     }
+
+    /**
+     * Sucht nach Artikeln anhand ihrer Bezeichnung.
+     *
+     * @param bezeichnung Die Bezeichnung nach der gesucht wird.
+     * @return Eine Liste von Artikeln, die die angegebene Bezeichnung enthalten.
+     */
     @Override
     public ArrayList<Artikel> artikelSuchen(String bezeichnung) {
         return artikelVW.artikelSuchen(bezeichnung);
@@ -208,6 +237,11 @@ public class eShop implements eShopInterface {
         ereignisVW.updateEventlog(ereignisTyp, aktuellerMitarbeiter, artikelKopie, delta);
     }
 
+    /**
+     * Gibt alle Artikel im Bestand zurück.
+     *
+     * @return Eine Liste aller Artikel im Bestand.
+     */
     @Override
     public ArrayList<Artikel> gibAlleArtikel(){
         return artikelVW.getArtikelBestand();
@@ -260,6 +294,16 @@ public class eShop implements eShopInterface {
         return rechnung;
     }
 
+    /**
+     * Ändert den Bestand eines Artikels im Warenkorb eines Kunden.
+     *
+     * @param aktuellerKunde Der Kunde, dessen Warenkorb geändert wird.
+     * @param bezeichnung    Die Bezeichnung des Artikels, dessen Bestand geändert wird.
+     * @param neuerBestand   Der neue Bestand des Artikels im Warenkorb.
+     * @throws MassengutException        Wenn der Artikel ein Massengutartikel ist und der neue Bestand nicht durch die Packungsgröße teilbar ist.
+     * @throws ArtikelExistiertNichtException Wenn kein Artikel mit der angegebenen Bezeichnung gefunden wurde.
+     * @throws BestandUeberschrittenException Wenn der neue Bestand den vorhandenen Bestand überschreitet.
+     */
     @Override
     public void warenkorbVeraendern(Kunde aktuellerKunde, String bezeichnung, int neuerBestand) throws MassengutException, ArtikelExistiertNichtException, BestandUeberschrittenException {
         Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
@@ -269,41 +313,85 @@ public class eShop implements eShopInterface {
         shoppingService.warenkorbVeraendern(aktuellerKunde, artikel, neuerBestand);
     }
 
+    /**
+     * Entfernt einen Artikel aus dem Warenkorb eines Kunden.
+     *
+     * @param aktuellerKunde Der Kunde, dessen Warenkorb geändert wird.
+     * @param bezeichnung    Die Bezeichnung des Artikels, der aus dem Warenkorb entfernt wird.
+     * @throws ArtikelExistiertNichtException Wenn kein Artikel mit der angegebenen Bezeichnung gefunden wurde.
+     */
     @Override
     public void artikelAusWarenkorbEntfernen(Kunde aktuellerKunde, String bezeichnung) throws ArtikelExistiertNichtException {
         Artikel artikel = artikelVW.getArtikelMitBezeichnung(bezeichnung);
         shoppingService.artikelAusWarenkorbEntfernen(aktuellerKunde, artikel);
     }
 
+    /**
+     * Gibt den Warenkorb eines Kunden zurück.
+     *
+     * @param aktuellerKunde Der Kunde, dessen Warenkorb abgerufen wird.
+     * @return Eine HashMap, die die gekauften Artikel und deren Anzahl im Warenkorb enthält.
+     */
     @Override
     public HashMap<Artikel, Integer> gibWarenkorb(Kunde aktuellerKunde){
         return aktuellerKunde.getWarenkorb().getInhalt();
     }
 
+    /**
+     * Gibt das Eventlog zurück, das alle Ereignisse im System enthält.
+     *
+     * @return Eine ArrayList von Ereignis-Objekten, die alle Ereignisse im System repräsentieren.
+     */
     @Override
     public ArrayList<Ereignis> eventlogAusgeben(){
         return ereignisVW.getEventlog();
     }
 
+    /**
+     * Schreibt die Kundendaten in eine Datei.
+     *
+     * @throws IOException Wenn ein Fehler beim Schreiben der Daten auftritt.
+     */
     @Override
     public void schreibeKunde() throws IOException {
         kundenVW.schreibeDaten(kundenDatei+"_K.txt");
     }
+
+    /**
+     * Schreibt die Mitarbeiterdaten in eine Datei.
+     *
+     * @throws IOException Wenn ein Fehler beim Schreiben der Daten auftritt.
+     */
     @Override
     public void schreibeMitarbeiter() throws IOException {
         mitarbeiterVW.schreibeDaten(mitarbeiterDatei+"_M.txt");
     }
 
+    /**
+     * Schreibt die Artikeldaten in eine Datei.
+     *
+     * @throws IOException Wenn ein Fehler beim Schreiben der Daten auftritt.
+     */
     @Override
     public void schreibeArtikel() throws IOException {
         artikelVW.schreibeDaten(artikelDatei+"_A.txt");
     }
 
+    /**
+     * Schreibt die Ereignisdaten in eine Datei.
+     *
+     * @throws IOException Wenn ein Fehler beim Schreiben der Daten auftritt.
+     */
     @Override
     public void schreibeEreignis() throws IOException {
         ereignisVW.schreibeDaten(ereignisDatei+"_E.txt");
     }
 
+    /**
+     * Sichert alle Daten (Kunden, Mitarbeiter, Artikel, Ereignisse) durch das Schreiben in entsprechende Dateien.
+     *
+     * @throws IOException Wenn ein Fehler beim Schreiben der Daten auftritt.
+     */
     @Override
     public void sichereDaten() throws IOException{
         schreibeKunde();
@@ -312,6 +400,14 @@ public class eShop implements eShopInterface {
         schreibeEreignis();
     }
 
+    /**
+     * Gibt die Bestandshistorie eines Artikels für die letzten 30 Tage zurück.
+     * Die Bestandshistorie wird aus Ereignissen im Eventlog des Systems abgeleitet.
+     *
+     * @param Artikelnummer Die Nummer des Artikels, dessen Bestandshistorie abgerufen werden soll.
+     * @return Eine ArrayList von Integer-Werten, die den täglichen Bestand des Artikels für die letzten 30 Tage darstellen.
+     * @throws ArtikelExistiertNichtException Wenn kein Artikel mit der angegebenen Nummer gefunden wurde.
+     */
     @Override
     public ArrayList<Integer> getBestandhistorie(int Artikelnummer) throws ArtikelExistiertNichtException {
         Artikel artikel = artikelVW.getArtikelMitNummer(Artikelnummer);
