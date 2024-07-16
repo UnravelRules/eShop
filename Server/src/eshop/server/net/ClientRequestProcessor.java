@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Nimmt Anfragen von Clients entgegen, verarbeitet diese und delegiert an den Eshop
+ */
 public class ClientRequestProcessor implements Runnable{
 
     // Eshop Objekt, das die eigentliche Arbeit macht
@@ -42,7 +45,7 @@ public class ClientRequestProcessor implements Runnable{
      }
 
     /**
-     *
+     * Der Server akzeptiert Anfragen zu Menüs auf dem aktuellen Socket
      */
     public void run() {
         String input = "";
@@ -87,6 +90,9 @@ public class ClientRequestProcessor implements Runnable{
         disconnect();
     }
 
+    /**
+     * Schließt den Socket und speichert die Daten
+     */
     private void disconnect() {
         try {
             out.println("Tschuess!");
@@ -102,6 +108,11 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Hilfsfunktion, die einen String vom Client einließt und bei einer IOException den Context ausgibt
+     * @param context Der Context, indem die Funktion aufgerufen wurde. Ist sehr hilfreich fürs debuggen.
+     * @return Gibt den gelesenen String zurück
+     */
     public String liesEingabeVonClient(String context){
         String input = null;
         try{
@@ -113,7 +124,9 @@ public class ClientRequestProcessor implements Runnable{
         return input;
     }
 
-    // Kunden Menü
+    /**
+     * Das Kundenmenü mit allen möglichen Anfrageoptionen
+     */
     private void kundenMenu(){
         String input = "";
         do {
@@ -165,6 +178,9 @@ public class ClientRequestProcessor implements Runnable{
         this.aktuellerKunde = null;
     }
 
+    /**
+     * Leert den Warenkorb des eingeloggten Kunden
+     */
     private void warenkorbLeeren() {
         try{
             eshop.warenkorbLeeren(this.aktuellerKunde);
@@ -175,6 +191,9 @@ public class ClientRequestProcessor implements Runnable{
 
     }
 
+    /**
+     * Das Mitarbeitermenü mit allen möglichen Anfrageoptionen
+     */
     private void mitarbeiterMenu(){
         String input = "";
         do {
@@ -202,9 +221,11 @@ public class ClientRequestProcessor implements Runnable{
                     gibAlleArtikel();
                     break;
                 case "na":
+                    // Anlegen eines normalen Artikels
                     artikelAnlegen();
                     break;
                 case "nm":
+                    // Anlegen eines Massengutartikels
                     massengutArtikelAnlegen();
                     break;
                 case "b":
@@ -236,6 +257,10 @@ public class ClientRequestProcessor implements Runnable{
         this.aktuellerMitarbeiter = null;
     }
 
+    /**
+     * Methode, die vom Client aufgerufen werden, kann zum Sichern der Daten.
+     * Diese gibt noch zurück, ob es erfolgreich war.
+     */
     private void datenSichern() {
         try {
             eshop.sichereDaten();
@@ -246,6 +271,9 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Löscht einen Mitarbeiter
+     */
     private void mitarbeiterLoeschen() {
         String benutzername = liesEingabeVonClient("Benutzername");
         try {
@@ -257,6 +285,9 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Registriert einen neuen Mitarbeiter
+     */
     private void mitarbeiterRegistrieren() {
         int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
         String name = liesEingabeVonClient("Name");
@@ -275,6 +306,9 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Entfernt einen Artikel aus der Artikelverwaltung
+     */
     private void artikelEntfernen() {
         int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
         String bezeichnung = liesEingabeVonClient("Bezeichnung");
@@ -289,6 +323,9 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Sendet die Bestandshistorie an den Client
+     */
     private void bestandHistorieAusgeben() {
         int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
         try {
@@ -305,6 +342,9 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Sendet den Ereignislog an den Client
+     */
     private void eventlogAusgeben() {
         ArrayList<Ereignis> eventlog = eshop.eventlogAusgeben();
         int anzahl = eventlog.size();
@@ -314,6 +354,10 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Sendet ein einzelnes Ereignis an den Client
+     * @param ereignis Ereignis
+     */
     private void sendeEventAnClient(Ereignis ereignis) {
         out.println(ereignis.getEreignisTyp().name());
         out.println(ereignis.getAccountTyp().name());
@@ -325,6 +369,9 @@ public class ClientRequestProcessor implements Runnable{
 
     }
 
+    /**
+     * Ändert den Bestand eines Artikels in der Artikelverwaltung
+     */
     private void bestandaendern() {
         int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
         int neuerBestand = Integer.parseInt(liesEingabeVonClient("Neuer Bestand"));
@@ -343,6 +390,9 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Legt einen neuen Massengutartikel in der Artikelverwaltung an
+     */
     private void massengutArtikelAnlegen() {
         int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
         String bezeichnung = liesEingabeVonClient("Bezeichnung");
@@ -360,6 +410,9 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Legt einen normalen Artikel in der Artikelverwaltung an
+     */
     private void artikelAnlegen() {
         int nummer = Integer.parseInt(liesEingabeVonClient("Nummer"));
         String bezeichnung = liesEingabeVonClient("Bezeichnung");
@@ -376,6 +429,9 @@ public class ClientRequestProcessor implements Runnable{
 
     }
 
+    /**
+     * Registriert einen neuen Kunden in der Kundenverwaltung
+     */
     private void kundeRegistrieren() {
         String name = liesEingabeVonClient("Name");
         String strasse = liesEingabeVonClient("Strasse");
@@ -396,6 +452,10 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Loggt einen Kunden ein
+     * @return Statuscode 0 = Erfolg, 1 = Fehler
+     */
     private int kundeEinloggen(){
         String benutzername = liesEingabeVonClient("Benutzername");
         String passwort = liesEingabeVonClient("Passwort");
@@ -414,6 +474,10 @@ public class ClientRequestProcessor implements Runnable{
 
     }
 
+    /**
+     * Sendet ein Kundenobjekt and den Client
+     * @param kunde Kunde
+     */
     private void sendeKundeAnClient(Kunde kunde){
         out.println(kunde.getNummer());
         out.println(kunde.getName());
@@ -423,6 +487,10 @@ public class ClientRequestProcessor implements Runnable{
         out.println(kunde.getPasswort());
     }
 
+    /**
+     * Loggt einen Mitarbeiter ein und sendet das Mitarbeiterobjekt an den Client
+     * @return Statuscode 0 = Erfolg, 1 = Fehler
+     */
     private int mitarbeiterEinloggen(){
         String benutzername = liesEingabeVonClient("Benutzername");
         String passwort = liesEingabeVonClient("Passwort");
@@ -440,6 +508,10 @@ public class ClientRequestProcessor implements Runnable{
 
     }
 
+    /**
+     * Sendet ein Mitarbeiterobjekt an den Client
+     * @param mitarbeiter Mitarbeiter
+     */
     private void sendeMitarbeiterAnClient(Mitarbeiter mitarbeiter) {
         out.println(mitarbeiter.getNummer());
         out.println(mitarbeiter.getName());
@@ -447,6 +519,9 @@ public class ClientRequestProcessor implements Runnable{
         out.println(mitarbeiter.getPasswort());
     }
 
+    /**
+     * Sendet alle Artikel in der Artikelverwaltung an den Client
+     */
     private void gibAlleArtikel() {
         List<Artikel> artikelList = eshop.gibAlleArtikel();
         // sende alle Artikel zum Client
@@ -454,6 +529,10 @@ public class ClientRequestProcessor implements Runnable{
 
     }
 
+    /**
+     * Sendet einen Artikel an den Client
+     * @param artikel Artikel
+     */
     private void sendeArtikelAnClient(Artikel artikel) {
         // Wir senden zuerst ein Typ (A für Artikel, M für Massengutartikel)
         if (artikel instanceof Massengutartikel){
@@ -472,6 +551,11 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Sendet eine Liste von Artikeln an den Client.
+     * Das wird z.B. von der Suche benutzt
+     * @param artikelList Artikelliste
+     */
     private void sendeArtikelListeAnClient(List<Artikel> artikelList) {
         // Anzahl von Artikeln übertragen
         out.println(artikelList.size());
@@ -480,12 +564,18 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Sucht nach einem Artikel in der Artikelverwaltung und gibt dann die Liste an den Client zurück
+     */
     private void sucheArtikel(){
         String bezeichnung = liesEingabeVonClient("Bezeichnung");
         ArrayList<Artikel> artikelListe = eshop.artikelSuchen(bezeichnung);
         sendeArtikelListeAnClient(artikelListe);
     }
 
+    /**
+     * Fügt einen Artikel zum Warenkorb des eingeloggten Kunden hinzu
+     */
     private void artikelInWarenkorb(){
         int artikelNummer = Integer.parseInt(liesEingabeVonClient("ArtikelNummer"));
         int anzahl = Integer.parseInt(liesEingabeVonClient("Anzahl"));
@@ -507,11 +597,18 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Sendet den Warenkorb des eingeloggten Kunden als Hashmap an den Client.
+     */
     private void gibWarenkorb(){
         HashMap<Artikel, Integer> warenkorb = eshop.gibWarenkorb(this.aktuellerKunde);
         sendeWarenkorbAnClient(warenkorb);
     }
 
+    /**
+     * Sendet den Warenkorb als einzelne Artikel und Integer an den Client
+     * @param warenkorb Hashmap des Warenkorbs
+     */
     private void sendeWarenkorbAnClient(HashMap<Artikel, Integer> warenkorb) {
         int size = warenkorb.size();
         out.println(size);
@@ -521,6 +618,9 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Führt den Kauf durch und sendet die Rechnung and den Client
+     */
     private void warenkorbKaufen(){
         try {
             Rechnung rechnung = eshop.warenkorbKaufen(this.aktuellerKunde);
@@ -532,12 +632,19 @@ public class ClientRequestProcessor implements Runnable{
         }
     }
 
+    /**
+     * Sendet die Rechnung an den Client
+     * @param rechnung Rechnung
+     */
     private void sendeRechnungAnClient(Rechnung rechnung){
         sendeKundeAnClient(rechnung.getKunde());
         sendeWarenkorbAnClient(rechnung.getGekaufteArtikel());
         out.println(rechnung.getGesamtpreis());
     }
 
+    /**
+     * Verändert den Bestand eines Artikels im Warenkorb des eingeloggten Kunden
+     */
     private void warenkorbVeraendern(){
         Kunde kunde = this.aktuellerKunde;
         String bezeichnung = liesEingabeVonClient("Bezeichnung");
